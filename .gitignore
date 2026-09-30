@@ -12,7 +12,7 @@ next-env.d.ts
 !.env.example
 
 # local data
-storage/
+/storage/
 test-results/
 playwright-report/
 *.log
