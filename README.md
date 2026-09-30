@@ -6,6 +6,14 @@ Study OS turns a syllabus into a working study system: subjects, chapters and to
 
 It is built for university students and for professional and competitive exams (CA, ACCA, CFA, MDCAT, ECAT, CSS, A/O levels). The demo workspace is CA Pakistan → CAF → Financial Accounting & Reporting.
 
+| Dashboard | Past-paper mapping |
+| --- | --- |
+| ![Dashboard](docs/screenshots/03-dashboard.png) | ![Past-paper mapping](docs/screenshots/08-past-paper-mapping.png) |
+| **Past-paper analytics** | **AI tutor** |
+| ![Past-paper analytics](docs/screenshots/07-past-paper-analytics.png) | ![AI tutor](docs/screenshots/10-ai-tutor.png) |
+
+More screenshots are in [`docs/screenshots`](docs/screenshots).
+
 ---
 
 ## Contents
