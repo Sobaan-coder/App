@@ -15,7 +15,8 @@ create or replace function public.match_resource_chunks(
   query_embedding vector(1536) default null,
   match_count integer default 8,
   filter_subject_id uuid default null,
-  filter_topic_id uuid default null
+  filter_topic_id uuid default null,
+  filter_resource_id uuid default null
 )
 returns table (
   chunk_id uuid,
@@ -36,8 +37,17 @@ language sql stable security invoker set search_path = public, extensions as $$
     where c.user_id = auth.uid()
       and r.processing_status = 'ready'
       and (filter_subject_id is null or r.subject_id = filter_subject_id)
+      and (filter_resource_id is null or r.id = filter_resource_id)
       and (filter_topic_id is null or c.topic_id = filter_topic_id
            or exists (select 1 from topic_resource_links l where l.resource_id = r.id and l.topic_id = filter_topic_id))
+  ),
+  -- Questions are natural language: OR the meaningful words and let ranking
+  -- reward chunks that match more of them (AND would miss most answers).
+  q as (
+    select case when tsvector_to_array(to_tsvector('english', coalesce(query_text, ''))) = '{}' then null
+                else to_tsquery('english', array_to_string(
+                       array(select quote_literal(x) from unnest(tsvector_to_array(to_tsvector('english', query_text))) x), ' | '))
+           end as tsq
   ),
   vec as (
     select id, 1 - (embedding <=> query_embedding) as sim,
@@ -48,10 +58,10 @@ language sql stable security invoker set search_path = public, extensions as $$
     limit greatest(match_count * 4, 20)
   ),
   txt as (
-    select id, row_number() over (order by ts_rank_cd(fts, q) desc) as rnk
-    from candidates, websearch_to_tsquery('english', coalesce(query_text, '')) q
-    where fts @@ q
-    order by ts_rank_cd(fts, q) desc
+    select id, row_number() over (order by ts_rank(fts, q.tsq) desc) as rnk
+    from candidates, q
+    where q.tsq is not null and fts @@ q.tsq
+    order by ts_rank(fts, q.tsq) desc
     limit greatest(match_count * 4, 20)
   ),
   fused as (
@@ -89,6 +99,29 @@ language sql stable security invoker set search_path = public, extensions as $$
   order by t.embedding <=> query_embedding
   limit match_count;
 $$;
+
+-- Service-role variant for background jobs (no auth.uid() there). The job has
+-- already verified ownership; this is NOT executable by students.
+create or replace function public.match_topics_for_user(
+  p_user_id uuid,
+  query_embedding vector(1536),
+  filter_subject_id uuid default null,
+  match_count integer default 1,
+  min_similarity double precision default 0.45
+)
+returns table (topic_id uuid, similarity double precision)
+language sql stable security invoker set search_path = public, extensions as $$
+  select t.id, 1 - (t.embedding <=> query_embedding)
+  from topics t
+  where t.owner_id = p_user_id
+    and t.embedding is not null
+    and (filter_subject_id is null or t.subject_id = filter_subject_id)
+    and 1 - (t.embedding <=> query_embedding) >= min_similarity
+  order by t.embedding <=> query_embedding
+  limit match_count;
+$$;
+revoke execute on function public.match_topics_for_user from public, anon, authenticated;
+grant execute on function public.match_topics_for_user to service_role;
 
 -- ---------------------------------------------------------------------------
 -- Past-paper statistics per topic for one subject (frequency, marks, years).

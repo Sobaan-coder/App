@@ -675,13 +675,18 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: string
                            },
 "match_resource_chunks":
-{ Args: { "filter_subject_id"?: string,"filter_topic_id"?: string,"match_count"?: number,"query_embedding"?: string,"query_text": string }; Returns: {
+{ Args: { "filter_resource_id"?: string,"filter_subject_id"?: string,"filter_topic_id"?: string,"match_count"?: number,"query_embedding"?: string,"query_text": string }; Returns: {
               "chunk_id": string,"content": string,"page_number": number,"resource_id": string,"resource_title": string,"resource_type": Database["public"]['Enums']["resource_type"],"score": number,"similarity": number,"topic_id": string
             }[]
                            },
 "match_topics":
 { Args: { "filter_subject_id"?: string,"match_count"?: number,"min_similarity"?: number,"query_embedding": string }; Returns: {
               "name": string,"similarity": number,"subject_id": string,"topic_id": string
+            }[]
+                           },
+"match_topics_for_user":
+{ Args: { "filter_subject_id"?: string,"match_count"?: number,"min_similarity"?: number,"p_user_id": string,"query_embedding": string }; Returns: {
+              "similarity": number,"topic_id": string
             }[]
                            },
 "save_syllabus":
