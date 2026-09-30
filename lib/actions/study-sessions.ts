@@ -9,7 +9,7 @@ import type { Json } from "@/types/database";
 const Goal = z.object({ text: z.string().trim().min(1).max(300), done: z.boolean() });
 
 export async function startStudySession(input: { topic_id?: string | null; plan_session_id?: string | null; goals: { text: string; done: boolean }[] }) {
-  const parsed = z.object({ topic_id: z.uuid().nullable().optional(), plan_session_id: z.uuid().nullable().optional(), goals: z.array(Goal).max(12) }).safeParse(input);
+  const parsed = z.object({ topic_id: z.guid().nullable().optional(), plan_session_id: z.guid().nullable().optional(), goals: z.array(Goal).max(12) }).safeParse(input);
   if (!parsed.success) return { ok: false as const, error: "Add at least a goal or pick a topic." };
   const { supabase, user } = await requireUser();
   let topicId = parsed.data.topic_id ?? null;
@@ -35,7 +35,7 @@ export async function startStudySession(input: { topic_id?: string | null; plan_
 
 export async function saveSessionGoals(id: string, goals: { text: string; done: boolean }[]) {
   const parsed = z.array(Goal).max(12).safeParse(goals);
-  if (!z.uuid().safeParse(id).success || !parsed.success) return { ok: false as const, error: "Invalid goals" };
+  if (!z.guid().safeParse(id).success || !parsed.success) return { ok: false as const, error: "Invalid goals" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("study_sessions").update({ goals: parsed.data as unknown as NonNullable<Json> }).eq("id", id).eq("user_id", user.id);
   return error ? { ok: false as const, error: "Couldn't save goals." } : { ok: true as const };
@@ -44,7 +44,7 @@ export async function saveSessionGoals(id: string, goals: { text: string; done: 
 /** End a session: record duration + confidence, update topic mastery, spaced repetition and the plan. */
 export async function finishStudySession(id: string, input: { confidence: number; notes?: string | null; goals: { text: string; done: boolean }[] }) {
   const parsed = z.object({ confidence: z.number().int().min(1).max(5), notes: z.string().max(4000).nullable().optional(), goals: z.array(Goal).max(12) }).safeParse(input);
-  if (!z.uuid().safeParse(id).success || !parsed.success) return { ok: false as const, error: "Pick how confident you feel (1–5)." };
+  if (!z.guid().safeParse(id).success || !parsed.success) return { ok: false as const, error: "Pick how confident you feel (1–5)." };
   const { supabase, user } = await requireUser();
   const { data: s } = await supabase.from("study_sessions").select("*").eq("id", id).eq("user_id", user.id).maybeSingle();
   if (!s) return { ok: false as const, error: "Session not found." };

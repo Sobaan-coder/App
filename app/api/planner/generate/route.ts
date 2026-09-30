@@ -12,11 +12,11 @@ export const maxDuration = 300;
 
 const Body = z.object({
   request: z.string().trim().min(3).max(2000),
-  subject_ids: z.array(z.uuid()).min(1, "Choose at least one subject").max(10),
+  subject_ids: z.array(z.guid()).min(1, "Choose at least one subject").max(10),
   days: z.number().int().min(1).max(120).nullable().optional(),
   minutes: z.number().int().min(15).max(960).nullable().optional(), // single-session plan, e.g. "2-hour plan"
   daily_minutes: z.number().int().min(15).max(960).nullable().optional(),
-  replace_plan_id: z.uuid().nullable().optional(),
+  replace_plan_id: z.guid().nullable().optional(),
 });
 
 function addDays(date: string, n: number) {

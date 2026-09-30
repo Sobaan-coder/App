@@ -15,7 +15,7 @@ const Patch = z.object({
 
 export async function updateQuestion(id: string, patch: z.input<typeof Patch>): Promise<Result> {
   const parsed = Patch.safeParse(patch);
-  if (!z.uuid().safeParse(id).success || !parsed.success) return { ok: false, error: "Invalid update" };
+  if (!z.guid().safeParse(id).success || !parsed.success) return { ok: false, error: "Invalid update" };
   const { supabase, user } = await requireUser();
   const fields: TablesUpdate<"questions"> = { ...parsed.data };
   if (parsed.data.solved_status && parsed.data.solved_status !== "unsolved") fields.last_attempted_at = new Date().toISOString();
@@ -34,8 +34,8 @@ export async function solveAgain(id: string): Promise<Result> {
 }
 
 const NewQuestion = z.object({
-  subject_id: z.uuid(),
-  topic_id: z.uuid().nullable().optional(),
+  subject_id: z.guid(),
+  topic_id: z.guid().nullable().optional(),
   question_text: z.string().trim().min(5, "Write the question").max(6000),
   answer: z.string().trim().max(8000).nullable().optional(),
   question_type: z.enum(["mcq", "short", "long", "numerical", "theory", "case_study"]),
@@ -55,7 +55,7 @@ export async function addQuestion(input: z.input<typeof NewQuestion>): Promise<R
 }
 
 export async function deleteQuestion(id: string): Promise<Result> {
-  if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invalid question" };
+  if (!z.guid().safeParse(id).success) return { ok: false, error: "Invalid question" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("questions").delete().eq("id", id).eq("user_id", user.id).neq("source_type", "past_paper");
   if (error) return { ok: false, error: "Couldn't delete the question." };

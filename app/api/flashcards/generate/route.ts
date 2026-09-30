@@ -9,7 +9,7 @@ export const maxDuration = 120;
 
 const Body = z.object({
   source_type: z.enum(["topic", "resource", "past_paper", "conversation"]),
-  source_id: z.uuid(),
+  source_id: z.guid(),
   count: z.number().int().min(3).max(30).default(10),
 });
 

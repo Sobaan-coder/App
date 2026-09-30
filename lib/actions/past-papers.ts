@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { BUCKETS } from "@/lib/storage";
 
 type Result = { ok: true } | { ok: false; error: string };
-const uuid = z.uuid();
+const uuid = z.guid();
 
 function refresh(paperId?: string) {
   revalidatePath("/past-papers");
@@ -16,7 +16,7 @@ function refresh(paperId?: string) {
 
 /** Student corrects a question's topic mapping. Chosen topics become confirmed (confidence 1 for new ones). */
 export async function setQuestionTopics(questionId: string, topicIds: string[]): Promise<Result> {
-  const parsed = z.array(z.uuid()).max(10).safeParse(topicIds);
+  const parsed = z.array(z.guid()).max(10).safeParse(topicIds);
   if (!uuid.safeParse(questionId).success || !parsed.success) return { ok: false, error: "Invalid mapping" };
   const { supabase, user } = await requireUser();
   const { data: q } = await supabase.from("past_paper_questions").select("id, past_paper_id").eq("id", questionId).eq("user_id", user.id).maybeSingle();

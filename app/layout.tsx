@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Upload your syllabus, organize your materials, analyze past papers and let AI build your study plan.",
   applicationName: "Study OS",
   appleWebApp: { capable: true, title: "Study OS", statusBarStyle: "default" },
-  icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
+  icons: { icon: "/favicon.png", apple: "/icons/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {

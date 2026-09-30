@@ -26,7 +26,7 @@ export function BarChart({
   const format = (v: number) => formatValue(v, valueFormat);
   const h = horizontal ? Math.max(height, data.length * 34 + 40) : height;
   return (
-    <figure>
+    <figure className="relative">
       <div style={{ height: h }} aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
           <RBarChart data={data} layout={horizontal ? "vertical" : "horizontal"} margin={{ top: 8, right: 16, bottom: 4, left: horizontal ? 8 : -12 }} barCategoryGap={horizontal ? 8 : "25%"}>
@@ -63,7 +63,8 @@ export function BarChart({
         </ResponsiveContainer>
       </div>
       <figcaption className="sr-only">{caption}</figcaption>
-      <table className="sr-only">
+      <div className="sr-only">
+        <table>
         <caption>{caption}</caption>
         <thead>
           <tr>
@@ -80,6 +81,7 @@ export function BarChart({
           ))}
         </tbody>
       </table>
+      </div>
     </figure>
   );
 }

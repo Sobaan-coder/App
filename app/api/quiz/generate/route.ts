@@ -10,8 +10,8 @@ import type { Json } from "@/types/database";
 export const maxDuration = 300;
 
 const Body = z.object({
-  subject_id: z.uuid().nullable().optional(),
-  topic_id: z.uuid().nullable().optional(),
+  subject_id: z.guid().nullable().optional(),
+  topic_id: z.guid().nullable().optional(),
   difficulty: z.enum(["easy", "medium", "hard", "exam"]),
   count: z.number().int().min(3).max(20),
 });

@@ -10,7 +10,7 @@ export const maxDuration = 300;
 /** Step 3 of an upload (after the browser uploaded the file): verify it and start processing. Also used for "Retry". */
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!z.uuid().safeParse(id).success) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!z.guid().safeParse(id).success) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const auth = await requireUserForApi();
   if ("error" in auth) return auth.error;
   const { supabase, user } = auth;

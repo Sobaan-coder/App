@@ -6,11 +6,11 @@ import { requireUser } from "@/lib/auth";
 type Result = { ok: true } | { ok: false; error: string };
 
 const Event = z.object({
-  id: z.uuid().optional(),
+  id: z.guid().optional(),
   title: z.string().trim().min(1, "Give the event a title").max(300),
   description: z.string().trim().max(4000).nullable().optional(),
   type: z.enum(["exam", "assignment", "quiz", "class", "study_session", "deadline", "revision"]),
-  subject_id: z.uuid().nullable().optional(),
+  subject_id: z.guid().nullable().optional(),
   start_at: z.iso.datetime({ offset: true }),
   end_at: z.iso.datetime({ offset: true }).nullable().optional(),
   all_day: z.boolean().optional(),
@@ -38,7 +38,7 @@ export async function saveEvent(input: z.input<typeof Event>): Promise<Result> {
 }
 
 export async function deleteEvent(id: string): Promise<Result> {
-  if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invalid event" };
+  if (!z.guid().safeParse(id).success) return { ok: false, error: "Invalid event" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("calendar_events").delete().eq("id", id).eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't delete the event." };
@@ -47,7 +47,7 @@ export async function deleteEvent(id: string): Promise<Result> {
 }
 
 export async function setEventCompleted(id: string, completed: boolean): Promise<Result> {
-  if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invalid event" };
+  if (!z.guid().safeParse(id).success) return { ok: false, error: "Invalid event" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("calendar_events").update({ completed }).eq("id", id).eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't update the event." };
@@ -57,7 +57,7 @@ export async function setEventCompleted(id: string, completed: boolean): Promise
 
 /** Drag-and-drop: move any calendar item to another day, keeping its time of day. */
 export async function moveCalendarItem(kind: "event" | "task" | "session", id: string, date: string): Promise<Result> {
-  if (!z.uuid().safeParse(id).success || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: "Invalid move" };
+  if (!z.guid().safeParse(id).success || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: "Invalid move" };
   const { supabase, user } = await requireUser();
   if (kind === "session") {
     const { error } = await supabase.from("study_plan_sessions").update({ scheduled_date: date, status: "planned" }).eq("id", id).eq("user_id", user.id);

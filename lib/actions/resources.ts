@@ -6,7 +6,7 @@ import { enqueueJob } from "@/lib/jobs/queue";
 import { BUCKETS } from "@/lib/storage";
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
-const uuid = z.uuid();
+const uuid = z.guid();
 
 function refresh(id?: string) {
   revalidatePath("/resources");
@@ -17,11 +17,11 @@ function refresh(id?: string) {
 export async function saveNote(input: { id?: string; title: string; content: string; subject_id?: string | null; topic_ids?: string[] }): Promise<Result> {
   const parsed = z
     .object({
-      id: z.uuid().optional(),
+      id: z.guid().optional(),
       title: z.string().trim().min(1, "Give your note a title").max(300),
       content: z.string().max(200_000),
-      subject_id: z.uuid().nullable().optional(),
-      topic_ids: z.array(z.uuid()).max(20).optional(),
+      subject_id: z.guid().nullable().optional(),
+      topic_ids: z.array(z.guid()).max(20).optional(),
     })
     .safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid note" };
@@ -50,7 +50,7 @@ export async function saveNote(input: { id?: string; title: string; content: str
 
 const Patch = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  subject_id: z.uuid().nullable().optional(),
+  subject_id: z.guid().nullable().optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
 });
 
@@ -80,7 +80,7 @@ export async function deleteResource(id: string): Promise<Result> {
 
 /** Student confirms/edits the AI's suggested subject + topics for a resource. */
 export async function confirmResourceLinks(id: string, input: { subject_id: string | null; topic_ids: string[] }): Promise<Result> {
-  const parsed = z.object({ subject_id: z.uuid().nullable(), topic_ids: z.array(z.uuid()).max(30) }).safeParse(input);
+  const parsed = z.object({ subject_id: z.guid().nullable(), topic_ids: z.array(z.guid()).max(30) }).safeParse(input);
   if (!uuid.safeParse(id).success || !parsed.success) return { ok: false, error: "Invalid selection" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("resources").update({ subject_id: parsed.data.subject_id, suggested_subject_id: null }).eq("id", id).eq("user_id", user.id);

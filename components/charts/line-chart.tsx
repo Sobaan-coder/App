@@ -8,7 +8,7 @@ type Datum = { label: string; value: number | null };
 export function LineChart({ data, valueLabel, height = 240, domain, valueFormat = "number", caption }: { data: Datum[]; valueLabel: string; height?: number; domain?: [number, number]; valueFormat?: ValueFormat; caption: string }) {
   const format = (v: number) => formatValue(v, valueFormat);
   return (
-    <figure>
+    <figure className="relative">
       <div style={{ height }} aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
           <RLineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: -12 }}>
@@ -34,7 +34,8 @@ export function LineChart({ data, valueLabel, height = 240, domain, valueFormat 
           </RLineChart>
         </ResponsiveContainer>
       </div>
-      <table className="sr-only">
+      <div className="sr-only">
+        <table>
         <caption>{caption}</caption>
         <tbody>
           {data.map((d, i) => (
@@ -45,6 +46,7 @@ export function LineChart({ data, valueLabel, height = 240, domain, valueFormat 
           ))}
         </tbody>
       </table>
+      </div>
     </figure>
   );
 }

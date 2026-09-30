@@ -8,7 +8,7 @@ const Body = z.object({
   url: z.string().trim().max(2000),
   title: z.string().trim().max(300).optional(),
   description: z.string().trim().max(4000).optional(),
-  subject_id: z.uuid().nullable().optional(),
+  subject_id: z.guid().nullable().optional(),
 });
 
 /** Add a YouTube lecture, web page or Google Drive link as a resource. */

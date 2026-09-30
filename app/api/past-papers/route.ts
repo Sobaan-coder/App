@@ -8,7 +8,7 @@ const Body = z.object({
   file_name: z.string().min(1).max(255),
   mime_type: z.string().max(120),
   size: z.number().int().positive(),
-  subject_id: z.uuid(),
+  subject_id: z.guid(),
   title: z.string().trim().max(300).optional(),
   year: z.number().int().min(1950).max(2100).nullable().optional(),
   session: z.string().trim().max(60).nullable().optional(),

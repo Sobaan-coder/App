@@ -4,7 +4,7 @@ import { z } from "zod/v4";
 import { requireUser } from "@/lib/auth";
 
 export async function setPlanSessionStatus(id: string, status: "planned" | "done" | "skipped") {
-  if (!z.uuid().safeParse(id).success) return { ok: false as const, error: "Invalid session" };
+  if (!z.guid().safeParse(id).success) return { ok: false as const, error: "Invalid session" };
   const { supabase, user } = await requireUser();
   const { data, error } = await supabase
     .from("study_plan_sessions")

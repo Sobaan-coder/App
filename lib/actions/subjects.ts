@@ -7,7 +7,7 @@ import { embedTopicsForSubjects } from "@/lib/embeddings/topics";
 import { masteryScore, nextStatus, ratingFromConfidence, schedule, type TopicStatus } from "@/lib/revision/srs";
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
-const id = z.uuid();
+const id = z.guid();
 const fail = (error: string): Result => ({ ok: false, error });
 
 function refresh(subjectId?: string, topicId?: string) {
@@ -47,7 +47,7 @@ export async function updateSubject(subjectId: string, patch: z.input<typeof Sub
 
 export async function createSubject(input: { name: string; code?: string | null; exam_date?: string | null; program_id?: string | null }): Promise<Result> {
   const parsed = z
-    .object({ name: z.string().trim().min(1, "Name your subject").max(160), code: z.string().trim().max(30).nullable().optional(), exam_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(), program_id: z.uuid().nullable().optional() })
+    .object({ name: z.string().trim().min(1, "Name your subject").max(160), code: z.string().trim().max(30).nullable().optional(), exam_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(), program_id: z.guid().nullable().optional() })
     .safeParse(input);
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Invalid subject");
   const { supabase } = await requireUser();
@@ -71,7 +71,7 @@ export async function deleteSubject(subjectId: string): Promise<Result> {
 
 // ---------------- Chapters ----------------
 export async function saveChapter(input: { id?: string; subject_id: string; name: string; weightage?: number | null }): Promise<Result> {
-  const parsed = z.object({ id: z.uuid().optional(), subject_id: z.uuid(), name: z.string().trim().min(1).max(200), weightage: z.number().min(0).max(100).nullable().optional() }).safeParse(input);
+  const parsed = z.object({ id: z.guid().optional(), subject_id: z.guid(), name: z.string().trim().min(1).max(200), weightage: z.number().min(0).max(100).nullable().optional() }).safeParse(input);
   if (!parsed.success) return fail("Give the chapter a name.");
   const { supabase } = await requireUser();
   const { id: chapterId, subject_id, ...fields } = parsed.data;
@@ -112,14 +112,14 @@ export async function moveChapter(chapterId: string, subjectId: string, dir: -1 
 
 // ---------------- Topics ----------------
 const TopicInput = z.object({
-  id: z.uuid().optional(),
-  chapter_id: z.uuid(),
+  id: z.guid().optional(),
+  chapter_id: z.guid(),
   name: z.string().trim().min(1, "Give the topic a name").max(200),
   description: z.string().trim().max(4000).nullable().optional(),
   difficulty: z.number().int().min(1).max(5).optional(),
   estimated_minutes: z.number().int().min(5).max(1200).optional(),
   weightage: z.number().min(0).max(100).nullable().optional(),
-  parent_topic_id: z.uuid().nullable().optional(),
+  parent_topic_id: z.guid().nullable().optional(),
 });
 
 export async function saveTopic(input: z.input<typeof TopicInput>): Promise<Result> {

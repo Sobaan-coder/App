@@ -12,12 +12,12 @@ import type { Json } from "@/types/database";
 export const maxDuration = 300;
 
 const Body = z.object({
-  conversation_id: z.uuid().nullable().optional(),
+  conversation_id: z.guid().nullable().optional(),
   message: z.string().trim().min(1, "Type a question").max(8000),
   mode: z.enum(Object.keys(TUTOR_MODES) as [TutorMode, ...TutorMode[]]).default("explain_simply"),
-  subject_id: z.uuid().nullable().optional(),
-  topic_id: z.uuid().nullable().optional(),
-  resource_id: z.uuid().nullable().optional(),
+  subject_id: z.guid().nullable().optional(),
+  topic_id: z.guid().nullable().optional(),
+  resource_id: z.guid().nullable().optional(),
 });
 
 const HISTORY_TURNS = 12;

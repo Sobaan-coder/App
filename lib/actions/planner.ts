@@ -13,7 +13,7 @@ function refresh(planId: string) {
 
 /** Adapt a plan to what actually happened: missed/skipped work, early finishes, confidence changes. */
 export async function adaptPlan(planId: string, opts: { pullForward?: boolean } = {}): Promise<Result> {
-  if (!z.uuid().safeParse(planId).success) return { ok: false, error: "Invalid plan" };
+  if (!z.guid().safeParse(planId).success) return { ok: false, error: "Invalid plan" };
   const { supabase, user } = await requireUser();
   const [{ data: plan }, { data: sessions }, { data: profile }] = await Promise.all([
     supabase.from("study_plans").select("id, end_date, daily_minutes, status").eq("id", planId).eq("user_id", user.id).maybeSingle(),
@@ -73,7 +73,7 @@ export async function adaptPlan(planId: string, opts: { pullForward?: boolean } 
 }
 
 export async function moveSession(sessionId: string, date: string, startTime: string | null): Promise<Result> {
-  if (!z.uuid().safeParse(sessionId).success || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (startTime && !/^\d{2}:\d{2}$/.test(startTime))) return { ok: false, error: "Invalid date" };
+  if (!z.guid().safeParse(sessionId).success || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (startTime && !/^\d{2}:\d{2}$/.test(startTime))) return { ok: false, error: "Invalid date" };
   const { supabase, user } = await requireUser();
   const { data, error } = await supabase.from("study_plan_sessions").update({ scheduled_date: date, start_time: startTime, status: "planned" }).eq("id", sessionId).eq("user_id", user.id).select("study_plan_id").single();
   if (error) return { ok: false, error: "Couldn't move the session." };
@@ -82,7 +82,7 @@ export async function moveSession(sessionId: string, date: string, startTime: st
 }
 
 export async function archivePlan(planId: string): Promise<Result> {
-  if (!z.uuid().safeParse(planId).success) return { ok: false, error: "Invalid plan" };
+  if (!z.guid().safeParse(planId).success) return { ok: false, error: "Invalid plan" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("study_plans").update({ status: "archived" }).eq("id", planId).eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't archive the plan." };
@@ -91,7 +91,7 @@ export async function archivePlan(planId: string): Promise<Result> {
 }
 
 export async function deletePlan(planId: string): Promise<Result> {
-  if (!z.uuid().safeParse(planId).success) return { ok: false, error: "Invalid plan" };
+  if (!z.guid().safeParse(planId).success) return { ok: false, error: "Invalid plan" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("study_plans").delete().eq("id", planId).eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't delete the plan." };

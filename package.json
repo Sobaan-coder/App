@@ -14,7 +14,7 @@
     "db:start": "supabase start",
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > types/database.ts",
-    "icons": "tsx scripts/generate-icons.ts"
+    "icons": "tsx scripts/generate-icons.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.129.0",

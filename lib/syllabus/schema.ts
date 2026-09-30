@@ -41,7 +41,7 @@ export const SyllabusDraft = z.object({
         name: z.string().trim().min(1, "Every subject needs a name").max(160),
         code: z.string().trim().max(30).nullable().optional(),
         exam_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
-        existing_subject_id: z.uuid().nullable().optional(),
+        existing_subject_id: z.guid().nullable().optional(),
         chapters: z
           .array(
             z.object({

@@ -14,7 +14,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if ("error" in auth) return auth.error;
   const { supabase, user } = auth;
   const parsed = Body.safeParse(await request.json().catch(() => null));
-  if (!parsed.success || !z.uuid().safeParse(id).success) return NextResponse.json({ error: "Invalid submission." }, { status: 400 });
+  if (!parsed.success || !z.guid().safeParse(id).success) return NextResponse.json({ error: "Invalid submission." }, { status: 400 });
 
   try {
     const { data: attempt } = await supabase.from("quiz_attempts").select("*").eq("id", id).eq("user_id", user.id).maybeSingle();

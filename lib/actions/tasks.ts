@@ -4,11 +4,11 @@ import { z } from "zod/v4";
 import { requireUser } from "@/lib/auth";
 
 const TaskInput = z.object({
-  id: z.uuid().optional(),
+  id: z.guid().optional(),
   title: z.string().trim().min(1, "Give the task a title").max(300),
   description: z.string().trim().max(4000).optional().nullable(),
   type: z.enum(["assignment", "project", "quiz", "exam", "application", "registration", "study", "other"]),
-  subject_id: z.uuid().nullable().optional(),
+  subject_id: z.guid().nullable().optional(),
   due_at: z.string().nullable().optional(), // ISO datetime
   priority: z.enum(["low", "medium", "high"]),
   status: z.enum(["todo", "in_progress", "done"]).optional(),
@@ -41,7 +41,7 @@ export async function saveTask(raw: z.input<typeof TaskInput>): Promise<ActionRe
 }
 
 export async function setTaskStatus(id: string, status: "todo" | "in_progress" | "done"): Promise<ActionResult> {
-  if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invalid task" };
+  if (!z.guid().safeParse(id).success) return { ok: false, error: "Invalid task" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase
     .from("tasks")
@@ -54,7 +54,7 @@ export async function setTaskStatus(id: string, status: "todo" | "in_progress" |
 }
 
 export async function deleteTask(id: string): Promise<ActionResult> {
-  if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invalid task" };
+  if (!z.guid().safeParse(id).success) return { ok: false, error: "Invalid task" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("tasks").delete().eq("id", id).eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't delete the task." };

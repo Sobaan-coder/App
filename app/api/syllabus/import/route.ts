@@ -8,8 +8,8 @@ import { contentMatchesKind, kindFromName, SYLLABUS_KINDS } from "@/lib/security
 import { BUCKETS, download, isOwnPath } from "@/lib/storage";
 
 const Body = z.union([
-  z.object({ storage_path: z.string().min(3).max(500), program_id: z.uuid().nullable().optional() }),
-  z.object({ text: z.string().trim().min(40, "Paste a bit more of the syllabus").max(150_000), program_id: z.uuid().nullable().optional() }),
+  z.object({ storage_path: z.string().min(3).max(500), program_id: z.guid().nullable().optional() }),
+  z.object({ text: z.string().trim().min(40, "Paste a bit more of the syllabus").max(150_000), program_id: z.guid().nullable().optional() }),
 ]);
 
 export const maxDuration = 300;

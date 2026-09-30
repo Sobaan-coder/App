@@ -14,13 +14,13 @@ function refresh() {
 const Card = z.object({
   front: z.string().trim().min(1).max(2000),
   back: z.string().trim().min(1).max(4000),
-  topic_id: z.uuid().nullable().optional(),
+  topic_id: z.guid().nullable().optional(),
   difficulty: z.number().int().min(1).max(5).optional(),
 });
 
 export async function saveFlashcards(input: { cards: z.input<typeof Card>[]; subject_id: string | null; source_type: "manual" | "topic" | "resource" | "past_paper" | "conversation"; source_id?: string | null }): Promise<Result> {
   const parsed = z
-    .object({ cards: z.array(Card).min(1, "Add at least one card").max(50), subject_id: z.uuid().nullable(), source_type: z.enum(["manual", "topic", "resource", "past_paper", "conversation"]), source_id: z.uuid().nullable().optional() })
+    .object({ cards: z.array(Card).min(1, "Add at least one card").max(50), subject_id: z.guid().nullable(), source_type: z.enum(["manual", "topic", "resource", "past_paper", "conversation"]), source_id: z.guid().nullable().optional() })
     .safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid cards" };
   const { supabase, user } = await requireUser();
@@ -34,7 +34,7 @@ export async function saveFlashcards(input: { cards: z.input<typeof Card>[]; sub
 
 export async function updateFlashcard(id: string, patch: { front?: string; back?: string; difficulty?: number }): Promise<Result> {
   const parsed = Card.partial().safeParse(patch);
-  if (!z.uuid().safeParse(id).success || !parsed.success) return { ok: false, error: "Invalid card" };
+  if (!z.guid().safeParse(id).success || !parsed.success) return { ok: false, error: "Invalid card" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("flashcards").update(parsed.data).eq("id", id).eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't update the card." };
@@ -43,7 +43,7 @@ export async function updateFlashcard(id: string, patch: { front?: string; back?
 }
 
 export async function deleteFlashcard(id: string): Promise<Result> {
-  if (!z.uuid().safeParse(id).success) return { ok: false, error: "Invalid card" };
+  if (!z.guid().safeParse(id).success) return { ok: false, error: "Invalid card" };
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("flashcards").delete().eq("id", id).eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't delete the card." };
@@ -52,7 +52,7 @@ export async function deleteFlashcard(id: string): Promise<Result> {
 }
 
 export async function reviewFlashcard(id: string, rating: Rating): Promise<Result> {
-  if (!z.uuid().safeParse(id).success || !Rating.safeParse(rating).success) return { ok: false, error: "Invalid review" };
+  if (!z.guid().safeParse(id).success || !Rating.safeParse(rating).success) return { ok: false, error: "Invalid review" };
   const { supabase, user } = await requireUser();
   const { data: card } = await supabase.from("flashcards").select("*").eq("id", id).eq("user_id", user.id).maybeSingle();
   if (!card) return { ok: false, error: "Card not found" };
@@ -64,7 +64,7 @@ export async function reviewFlashcard(id: string, rating: Rating): Promise<Resul
 
 /** Topic-level revision ("Today's Revision"): Easy/Good/Hard/Again reschedules the topic. */
 export async function reviewTopic(topicId: string, rating: Rating): Promise<Result> {
-  if (!z.uuid().safeParse(topicId).success || !Rating.safeParse(rating).success) return { ok: false, error: "Invalid review" };
+  if (!z.guid().safeParse(topicId).success || !Rating.safeParse(rating).success) return { ok: false, error: "Invalid review" };
   const { supabase, user } = await requireUser();
   const { data: p } = await supabase.from("student_topic_progress").select("*").eq("user_id", user.id).eq("topic_id", topicId).maybeSingle();
   const next = schedule({ easeFactor: Number(p?.ease_factor ?? 2.5), intervalDays: Number(p?.interval_days ?? 0), repetitions: p?.review_count ?? 0 }, rating);
