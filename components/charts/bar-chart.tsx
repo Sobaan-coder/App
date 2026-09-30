@@ -1,4 +1,5 @@
 "use client";
+import { formatTick, formatValue, type ValueFormat } from "./format";
 import { Bar, BarChart as RBarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type Datum = { label: string; value: number; hint?: string };
@@ -12,16 +13,17 @@ export function BarChart({
   valueLabel,
   horizontal = false,
   height = 260,
-  format = (v: number) => String(Math.round(v * 10) / 10),
+  valueFormat = "number",
   caption,
 }: {
   data: Datum[];
   valueLabel: string;
   horizontal?: boolean;
   height?: number;
-  format?: (v: number) => string;
+  valueFormat?: ValueFormat;
   caption: string;
 }) {
+  const format = (v: number) => formatValue(v, valueFormat);
   const h = horizontal ? Math.max(height, data.length * 34 + 40) : height;
   return (
     <figure>
@@ -31,13 +33,13 @@ export function BarChart({
             <CartesianGrid stroke="var(--border)" strokeDasharray="0" vertical={horizontal} horizontal={!horizontal} />
             {horizontal ? (
               <>
-                <XAxis type="number" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickFormatter={format} />
+                <XAxis type="number" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickFormatter={(v: number) => formatTick(v, valueFormat)} allowDecimals={false} />
                 <YAxis type="category" dataKey="label" width={130} tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "var(--foreground)" }} interval={0} />
               </>
             ) : (
               <>
                 <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} interval="preserveStartEnd" minTickGap={8} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickFormatter={format} width={44} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickFormatter={(v: number) => formatTick(v, valueFormat)} width={52} />
               </>
             )}
             <Tooltip
@@ -70,8 +72,8 @@ export function BarChart({
           </tr>
         </thead>
         <tbody>
-          {data.map((d) => (
-            <tr key={d.label}>
+          {data.map((d, i) => (
+            <tr key={`${d.label}-${i}`}>
               <td>{d.label}</td>
               <td>{format(d.value)}</td>
             </tr>

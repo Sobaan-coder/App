@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { History } from "lucide-react";
-import { TutorChat, type Mode, MODES } from "@/components/ai/tutor-chat";
+import { TutorChat } from "@/components/ai/tutor-chat";
+import { MODES, type Mode } from "@/lib/ai/tutor-modes";
 import { TutorLayout } from "@/components/ai/tutor-layout";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";

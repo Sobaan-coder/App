@@ -8,18 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Markdown } from "./markdown";
 import { cn } from "@/lib/utils";
 
-export const MODES = [
-  ["explain_simply", "Explain simply"],
-  ["detailed", "Detailed"],
-  ["exam_mode", "Exam mode"],
-  ["quiz_me", "Quiz me"],
-  ["example", "Give example"],
-  ["step_by_step", "Step-by-step"],
-  ["flashcards", "Flashcards"],
-  ["summarize", "Summarize"],
-  ["find_mistake", "Find my mistake"],
-] as const;
-export type Mode = (typeof MODES)[number][0];
+import { MODES, type Mode } from "@/lib/ai/tutor-modes";
+export type { Mode };
 
 export type Citation = { n: number; kind: "chunk" | "past_paper_question"; title: string; page: number | null; resourceId: string | null; paperId: string | null; id: string };
 export type Msg = { id?: string; role: "user" | "assistant"; content: string; citations?: Citation[]; grounded?: boolean | null; pending?: boolean; error?: string };

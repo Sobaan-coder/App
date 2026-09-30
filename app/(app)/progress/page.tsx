@@ -93,7 +93,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
             <CardDescription>Minutes of completed study sessions, last 14 days.</CardDescription>
           </CardHeader>
           <CardContent>
-            <BarChart caption="Study minutes per day for the last 14 days" valueLabel="Minutes" data={days14.map((d) => ({ label: fmt(d), value: minutesByDay.get(d) ?? 0 }))} />
+            <BarChart caption="Study minutes per day for the last 14 days" valueLabel="Study time" valueFormat="minutes" data={days14.map((d) => ({ label: fmt(d), value: minutesByDay.get(d) ?? 0 }))} />
           </CardContent>
         </Card>
         <Card className="min-w-0">
@@ -103,7 +103,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
           </CardHeader>
           <CardContent>
             {quizList.length ? (
-              <LineChart caption="Quiz accuracy over time" valueLabel="Accuracy" domain={[0, 100]} format={(v) => `${Math.round(v)}%`} data={quizList.map((q) => ({ label: fmt(localDay(q.completed_at!)), value: Math.round((q.score / q.total) * 100) }))} />
+              <LineChart caption="Quiz accuracy over time" valueLabel="Accuracy" domain={[0, 100]} valueFormat="percent" data={quizList.map((q) => ({ label: fmt(localDay(q.completed_at!)), value: Math.round((q.score / q.total) * 100) }))} />
             ) : (
               <p className="py-10 text-center text-sm text-muted-foreground">
                 No quizzes yet. <Link href="/quiz" className="font-medium text-primary hover:underline">Take one</Link>
