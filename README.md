@@ -190,6 +190,10 @@ Background jobs work the same on either host. Document processing and past-paper
 3. **Jobs:** `vercel.json` schedules the cron route once a day, which is the Hobby plan limit. On Pro, you can tighten it, e.g. `*/5 * * * *`.
 4. **Timeouts:** long AI routes set `maxDuration = 300`, which Vercel honours up to your plan's limit.
 
+### Android app
+
+`android/` contains a Trusted Web Activity that opens the deployed site full-screen, built by the **Android app** GitHub workflow into an installable APK and a Play Store AAB. The website serves `/.well-known/assetlinks.json` from `ANDROID_PACKAGE_NAME` and `ANDROID_CERT_SHA256`, and the privacy policy Play requires is at `/privacy`. Step-by-step guide: [android/README.md](android/README.md).
+
 ---
 
 ## Testing
@@ -379,6 +383,7 @@ supabase/
   seed/             local-only demo and admin users
 tests/              unit/ and integration/ (RLS)
 public/             sw.js, icons
+android/            Android app (Trusted Web Activity); built by .github/workflows/android.yml
 ```
 
 ---

@@ -4,8 +4,8 @@ import type { Database } from "@/types/database";
 import { publicEnv } from "@/lib/env";
 
 // Paths reachable without signing in.
-const PUBLIC_PREFIXES = ["/login", "/signup", "/forgot-password", "/verify-email", "/auth", "/offline", "/api/cron"];
-const PUBLIC_EXACT = new Set(["/", "/manifest.webmanifest", "/sw.js", "/robots.txt"]);
+const PUBLIC_PREFIXES = ["/login", "/signup", "/forgot-password", "/verify-email", "/auth", "/offline", "/api/cron", "/.well-known"];
+const PUBLIC_EXACT = new Set(["/", "/privacy", "/manifest.webmanifest", "/sw.js", "/robots.txt"]);
 // Signed-in users visiting these are sent to the app.
 const AUTH_PAGES = ["/login", "/signup", "/forgot-password"];
 

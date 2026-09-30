@@ -4,6 +4,7 @@ export const publicEnv = {
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   googleAuthEnabled: process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true",
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "",
 };
 
 export function isSupabaseConfigured() {

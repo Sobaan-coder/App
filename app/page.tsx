@@ -408,6 +408,7 @@ export default async function LandingPage() {
             <a href="#how" className="hover:text-foreground">How it works</a>
             <a href="#features" className="hover:text-foreground">Features</a>
             <a href="#faq" className="hover:text-foreground">FAQ</a>
+            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link href="/login" className="hover:text-foreground">Sign in</Link>
             <span className="inline-flex items-center gap-1">
               <ShieldCheck className="size-4" /> Private by design
