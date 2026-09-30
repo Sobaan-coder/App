@@ -112,6 +112,20 @@ jobs:
             echo "(for Play Store installs, also add the *App signing key* SHA-256 from Play Console, comma-separated)."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Verify the app
+        run: |
+          APK="$RUNNER_TEMP/out/StudyOS-$VERSION_NAME.apk"
+          AAPT2="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/aapt2"
+          BADGING=$("$AAPT2" dump badging "$APK")
+          RESOURCES=$("$AAPT2" dump resources "$APK")
+          echo "$BADGING" | grep -E "^(package|targetSdkVersion|sdkVersion|application-label|launchable-activity)"
+          echo "$BADGING" | grep -q "package: name='$APP_ID'" || { echo "::error::package name is not $APP_ID"; exit 1; }
+          echo "$BADGING" | grep -q "targetSdkVersion:'36'" || { echo "::error::targetSdkVersion is not 36"; exit 1; }
+          echo "$BADGING" | grep -q "launchable-activity: name='com.google.androidbrowserhelper.trusted.LauncherActivity'" || { echo "::error::launcher activity missing"; exit 1; }
+          echo "$RESOURCES" | grep -F -q "\"$SITE_URL/dashboard\"" || { echo "::error::launch URL is not $SITE_URL/dashboard"; echo "$RESOURCES" | grep -A1 launchUrl; exit 1; }
+          echo "$RESOURCES" | grep -A1 -E "string/(launchUrl|assetStatements)"
+          echo "Verified: $APP_ID opens $SITE_URL/dashboard, targets API 36."
+
       - uses: actions/upload-artifact@v4
         with:
           name: StudyOS-android
