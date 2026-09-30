@@ -6,6 +6,10 @@ const nextConfig = {
   },
   // Server-only packages that should not be bundled.
   serverExternalPackages: ["unpdf", "mammoth", "jszip"],
+  async rewrites() {
+    // Browsers request /favicon.ico by default; serve the PNG favicon.
+    return [{ source: "/favicon.ico", destination: "/favicon.png" }];
+  },
   async headers() {
     return [
       {

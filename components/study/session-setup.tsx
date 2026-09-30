@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Loader2, Play, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export function SessionSetup({
   defaultGoals: string[];
   duration: number | null;
 }) {
+  const router = useRouter();
   const [topicId, setTopicId] = useState(defaultTopicId ?? "");
   const [goals, setGoals] = useState<string[]>(defaultGoals.length ? defaultGoals : ["Understand the key rules", "Study one worked example", "Solve 5 questions"]);
   const [draft, setDraft] = useState("");
@@ -32,7 +34,8 @@ export function SessionSetup({
         e.preventDefault();
         start(async () => {
           const res = await startStudySession({ topic_id: topicId || null, plan_session_id: planSessionId, goals: goals.filter(Boolean).map((text) => ({ text, done: false })) });
-          if (res && !res.ok) toast.error(res.error);
+          if (!res.ok) return void toast.error(res.error);
+          router.push(`/study/session/${res.id}`);
         });
       }}
     >

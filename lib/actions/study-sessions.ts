@@ -1,5 +1,4 @@
 "use server";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
 import { requireUser } from "@/lib/auth";
@@ -30,7 +29,8 @@ export async function startStudySession(input: { topic_id?: string | null; plan_
     .select("id")
     .single();
   if (error) return { ok: false as const, error: "Couldn't start the session." };
-  redirect(`/study/session/${data.id}`);
+  revalidatePath("/study");
+  return { ok: true as const, id: data.id };
 }
 
 export async function saveSessionGoals(id: string, goals: { text: string; done: boolean }[]) {

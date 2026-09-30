@@ -23,6 +23,7 @@ function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed?: b
   const link = (
     <Link
       href={item.href}
+      prefetch={false}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
@@ -161,7 +162,7 @@ export function AppShell({ children, user }: Props) {
           {MOBILE_NAV.map((item) => {
             const active = isActive(pathname, item.href);
             return (
-              <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={cn("flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}>
+              <Link key={item.href} href={item.href} prefetch={false} aria-current={active ? "page" : undefined} className={cn("flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}>
                 <item.icon className="size-5" aria-hidden="true" />
                 {item.label}
               </Link>

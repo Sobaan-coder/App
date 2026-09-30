@@ -1,20 +1,17 @@
 // Study OS service worker — an offline-friendly app shell.
 // Caches static assets and the offline page only. Never caches API responses,
 // auth routes, pages (they contain private data) or signed file URLs.
-const VERSION = "study-os-v1";
+const VERSION = "study-os-v2";
 const SHELL = ["/offline", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/favicon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 
+// No clients.claim(): taking control of an open page mid-session can abort its
+// in-flight navigation requests. New page loads pick the worker up.
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim()),
-  );
+  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k)))));
 });
 
 self.addEventListener("fetch", (event) => {
