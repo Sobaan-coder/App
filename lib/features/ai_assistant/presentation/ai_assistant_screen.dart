@@ -94,7 +94,6 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
     final state = ref.watch(aiChatProvider);
     final business = ref.watch(businessProvider);
     final controller = ref.read(aiChatProvider.notifier);
-    final t = Theme.of(context);
     final l = context.l10n;
 
     if (!business.flags.aiEnabled) {
