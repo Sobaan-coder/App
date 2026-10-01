@@ -44,3 +44,13 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 deno.lock
+
+# Secrets — never commit
+android/key.properties
+*.jks
+*.keystore
+env/*.json
+!env/example.json
+.env
+supabase/.env
+supabase/functions/.env

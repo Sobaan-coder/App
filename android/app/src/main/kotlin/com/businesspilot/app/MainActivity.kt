@@ -1,4 +1,4 @@
-package com.businesspilot.businesspilot
+package com.businesspilot.app
 
 import io.flutter.embedding.android.FlutterActivity
 

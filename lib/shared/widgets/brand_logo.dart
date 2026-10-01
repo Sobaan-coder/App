@@ -33,33 +33,25 @@ class _MarkPainter extends CustomPainter {
           colors: [AppColors.brand, AppColors.brandDark],
         ).createShader(Offset.zero & s),
     );
-    final w = s.width;
-    // Speech bubble outline
-    final bubble = Path()
-      ..addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(w * .2, w * .22, w * .6, w * .44), Radius.circular(w * .12)))
-      ..moveTo(w * .32, w * .64)
-      ..lineTo(w * .28, w * .8)
-      ..lineTo(w * .46, w * .66);
-    canvas.drawPath(
-      bubble,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = w * .07
-        ..strokeJoin = StrokeJoin.round,
-    );
-    // Rising path inside
+    final u = s.width / 100;
+    // Speech bubble (same geometry as branding/logo.svg): outline with a solid tail.
+    canvas.drawPath(Path.combine(PathOperation.difference,
+        Path.combine(PathOperation.union,
+            Path()..addRRect(RRect.fromLTRBR(20 * u, 22 * u, 80 * u, 66 * u, Radius.circular(12 * u))),
+            Path()..addPolygon([Offset(30 * u, 62 * u), Offset(27 * u, 82 * u), Offset(50 * u, 62 * u)], true)),
+        Path()..addRRect(RRect.fromLTRBR(27 * u, 29 * u, 73 * u, 59 * u, Radius.circular(6 * u)))), Paint()..color = Colors.white);
+    // Rising path: the business moving forward.
     final path = Path()
-      ..moveTo(w * .32, w * .52)
-      ..lineTo(w * .44, w * .42)
-      ..lineTo(w * .53, w * .48)
-      ..lineTo(w * .68, w * .34);
+      ..moveTo(33 * u, 51 * u)
+      ..lineTo(44 * u, 42 * u)
+      ..lineTo(53 * u, 48 * u)
+      ..lineTo(67 * u, 36 * u);
     canvas.drawPath(
       path,
       Paint()
         ..color = AppColors.accent
         ..style = PaintingStyle.stroke
-        ..strokeWidth = w * .075
+        ..strokeWidth = 7 * u
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
     );
