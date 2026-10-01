@@ -107,8 +107,8 @@ export default function SettingsPage() {
       {tab === "assistant" && (
         <Card>
           <CardHeader title={`Your assistant: ${st.assistant.name}`} subtitle="Give it any name. Say the name (or tap the mic) and speak in English or Urdu — like Siri." />
-          {row("Name", "Wakes the assistant: “Saathi, plan my day”.", <Input className="w-48" defaultValue={st.assistant.name} onBlur={(e) => e.target.value.trim() && e.target.value !== st.assistant.name && save({ assistant: { name: e.target.value.trim() } })} />)}
-          {row("Name in Urdu", "So “ساتھی، میرا دن پلان کرو” also works.", <Input className="urdu w-48 text-right" dir="rtl" defaultValue={st.assistant.urduName} onBlur={(e) => e.target.value !== st.assistant.urduName && save({ assistant: { urduName: e.target.value.trim() } })} />)}
+          {row("Name", "Wakes the assistant: “KHOKHAR, plan my day”.", <Input className="w-48" defaultValue={st.assistant.name} onBlur={(e) => e.target.value.trim() && e.target.value !== st.assistant.name && save({ assistant: { name: e.target.value.trim() } })} />)}
+          {row("Name in Urdu", "So “کھوکھر، میرا دن پلان کرو” also works.", <Input className="urdu w-48 text-right" dir="rtl" defaultValue={st.assistant.urduName} onBlur={(e) => e.target.value !== st.assistant.urduName && save({ assistant: { urduName: e.target.value.trim() } })} />)}
           {row(
             "Other spellings / nicknames",
             "Comma separated. Helps if speech recognition hears the name differently.",

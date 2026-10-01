@@ -60,7 +60,7 @@ test("voice: tap the mic and speak Urdu → understood, answered in Urdu, execut
   await page.getByLabel("Password").fill("Voice-pass-1234");
   await page.getByRole("button", { name: "Create account" }).click();
   await page.getByText("I'll explore myself").click();
-  await expect(page.getByText("Saathi", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("KHOKHAR", { exact: true }).first()).toBeVisible();
 
   await page.getByRole("button", { name: "Speak a command" }).click();
   await say(page, "میرا دن پلان کرو");
@@ -70,15 +70,15 @@ test("voice: tap the mic and speak Urdu → understood, answered in Urdu, execut
   await expect(page.getByText("کام مکمل ہو گیا۔")).toBeVisible({ timeout: 30_000 });
 
   // hands-free: say the name, then the command
-  await page.getByRole("button", { name: /Listen for “Saathi”/ }).click();
-  await expect(page.getByText(/Listening for “Saathi”/).first()).toBeVisible();
-  await say(page, "Saathi what should I work on next");
+  await page.getByRole("button", { name: /Listen for “KHOKHAR”/ }).click();
+  await expect(page.getByText(/Listening for “KHOKHAR”/).first()).toBeVisible();
+  await say(page, "KHOKHAR what should I work on next");
   await expect(page.getByText("“what should I work on next”")).toBeVisible();
   await expect(page.getByText(/Finding the most important next task/)).toBeVisible();
 
   // Roman Urdu name question
-  await say(page, "ساتھی تمہارا نام کیا ہے");
-  await expect(page.getByText(/میرا نام Saathi ہے/)).toBeVisible({ timeout: 30_000 });
+  await say(page, "کھوکھر تمہارا نام کیا ہے");
+  await expect(page.getByText(/میرا نام KHOKHAR ہے/)).toBeVisible({ timeout: 30_000 });
 });
 
 test("typed Urdu command on the home page", async ({ page }) => {

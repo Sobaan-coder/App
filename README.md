@@ -15,7 +15,7 @@ writing templates) and gets smarter when you connect a **free local model (Ollam
 
 | Area | Highlights |
 |---|---|
-| **Saathi (ساتھی)** | Your assistant has a name (rename it). Say **"Saathi, plan my day"** hands-free like Siri, tap the mic, or type — in **English, اردو or Roman Urdu**. Replies are shown and spoken in your language. See [VOICE.md](docs/VOICE.md). |
+| **KHOKHAR (کھوکھر)** | Your assistant has a name (rename it). Say **"KHOKHAR, plan my day"** hands-free like Siri, tap the mic, or type — in **English, اردو or Roman Urdu**. Replies are shown and spoken in your language. See [VOICE.md](docs/VOICE.md). |
 | **Command box** | "Plan my day", "Summarize the documents I added today", "Research X and create a report", "Every Monday at 8am check my unfinished tasks and notify me", "Create today's Merchants post and publish it to Instagram"… |
 | **Agent** | Intent detection → structured plan → tool selection → execution → verification → result → memory. Plans are visible; chain-of-thought is not. |
 | **Safety levels** | LOW = automatic · MEDIUM = approval (send, publish, move many files, webhooks) · HIGH = type **CONFIRM** (shell…). Configurable per tool, never weaker than the floor. |
@@ -26,12 +26,18 @@ writing templates) and gets smarter when you connect a **free local model (Ollam
 | **Content Studio** | Brands & products (single source of truth for prices), image prompt engine, image router (Gemini → local Stable Diffusion → Pollinations → built-in card + manual Gemini workflow), per-platform captions, quality control (price/availability/claims/format/duplicates), calendar with drag & drop, queue, approvals, official-API publishing, ZIP packages for manual posting, analytics that never fabricate. |
 | **Everything else** | Projects, tasks (natural language), work queue, approval center, activity/audit log, AI usage & `COST = $0` monitor, system health, settings, admin, dark/light, mobile bottom nav, installable PWA. |
 
+## Install
+
+- **PC / laptop (Windows, macOS, Linux):** step-by-step in **[docs/INSTALL_PC.md](docs/INSTALL_PC.md)**
+- **iPhone & Android:** install it as an app with voice — **[docs/MOBILE.md](docs/MOBILE.md)**
+
 ## Quick start (local, 5 minutes)
 
 ```bash
 git clone <this repo> && cd App
 npm install
-npm run setup                 # creates .env with fresh secrets (never overwrites)
+npm run setup                 # asks for your database, creates .env with fresh secrets
+npm run doctor                # checks everything and tells you what to fix
 # edit .env → DATABASE_URL (local Postgres or Supabase)
 npm run db:migrate
 npm run build && npm start    # or: npm run dev

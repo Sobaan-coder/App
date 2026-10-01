@@ -1,18 +1,74 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
+import readline from "node:readline/promises";
 
 /**
- * First-time helper: creates .env from .env.example with fresh random secrets.
- * Never overwrites an existing .env.
+ * First-time setup: creates .env from .env.example with fresh random secrets.
+ * Interactive when run in a terminal (asks for the database URL). Never overwrites an existing .env
+ * unless you confirm.
+ *
+ *   npm run setup                 interactive
+ *   npm run setup -- --yes        non-interactive (local Postgres defaults)
  */
-if (fs.existsSync(".env")) {
-  console.log(".env already exists — leaving it untouched.");
-} else {
+const LOCAL_DB = "postgres://postgres:postgres@localhost:5432/command_center";
+
+async function main() {
+  const interactive = process.stdin.isTTY && !process.argv.includes("--yes");
+  const rl = interactive ? readline.createInterface({ input: process.stdin, output: process.stdout }) : null;
+  const ask = async (q: string, def = "") => (rl ? ((await rl.question(`${q}${def ? ` [${def}]` : ""}: `)).trim() || def) : def);
+
+  console.log("\n  MY AI COMMAND CENTER — setup (your assistant: KHOKHAR)\n");
+  if (fs.existsSync(".env")) {
+    const again = await ask(".env already exists. Overwrite it? (y/N)", "N");
+    if (!/^y/i.test(again)) {
+      console.log("  Keeping your existing .env. Next: npm run doctor");
+      rl?.close();
+      return;
+    }
+    fs.copyFileSync(".env", `.env.backup-${Date.now()}`);
+    console.log("  (old .env backed up)");
+  }
+
+  console.log("  Database — choose one:");
+  console.log("    1) Local PostgreSQL on this computer (default password 'postgres')");
+  console.log("    2) Supabase (free cloud) — paste the 'Session pooler' connection string");
+  const choice = await ask("  1 or 2", "1");
+  let dbUrl = LOCAL_DB;
+  let ssl = "";
+  if (choice === "2") {
+    dbUrl = await ask("  Paste your Supabase connection string");
+    ssl = "require";
+  } else {
+    const isMac = process.platform === "darwin";
+    const user = await ask("  PostgreSQL username (Postgres.app on Mac: your Mac username)", isMac ? process.env.USER || "postgres" : "postgres");
+    const pw = await ask("  PostgreSQL password (leave empty if none)", isMac ? "" : "postgres");
+    dbUrl = `postgres://${encodeURIComponent(user)}${pw ? `:${encodeURIComponent(pw)}` : ""}@localhost:5432/command_center`;
+  }
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const timezone = await ask("  Your timezone", tz);
+
   const rnd = () => crypto.randomBytes(32).toString("hex");
-  const text = fs
-    .readFileSync(".env.example", "utf8")
-    .replace(/^AUTH_SECRET=.*$/m, `AUTH_SECRET=${rnd()}`)
-    .replace(/^ENCRYPTION_KEY=.*$/m, `ENCRYPTION_KEY=${rnd()}`);
-  fs.writeFileSync(".env", text, { mode: 0o600 });
-  console.log("✓ Created .env with fresh AUTH_SECRET and ENCRYPTION_KEY. Now set DATABASE_URL, then run: npm run db:migrate");
+  const set = (text: string, key: string, value: string) => text.replace(new RegExp(`^${key}=.*$`, "m"), `${key}=${value}`);
+  let env = fs.readFileSync(".env.example", "utf8");
+  env = set(env, "AUTH_SECRET", rnd());
+  env = set(env, "ENCRYPTION_KEY", rnd());
+  env = set(env, "DATABASE_URL", dbUrl);
+  env = set(env, "DATABASE_SSL", ssl);
+  env = set(env, "DEFAULT_TIMEZONE", timezone);
+  fs.writeFileSync(".env", env, { mode: 0o600 });
+  rl?.close();
+  console.log(`
+  ✓ Created .env (fresh secrets — never share or commit this file)
+
+  Next steps:
+    npm run doctor        check everything
+    npm run db:migrate    create the database tables
+    npm run build
+    npm start             then open http://localhost:3000
+`);
 }
+
+main().catch((e) => {
+  console.error("Setup failed:", e.message);
+  process.exitCode = 1;
+});

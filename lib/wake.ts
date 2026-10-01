@@ -1,5 +1,5 @@
 /**
- * Wake-word matching ("Saathi, plan my day" / "ساتھی میرا دن پلان کرو").
+ * Wake-word matching ("KHOKHAR, plan my day" / "کھوکھر میرا دن پلان کرو").
  * Pure and dependency-free so it runs in the browser (live microphone) and on the server
  * (typed commands that start with the assistant's name).
  */
@@ -46,6 +46,8 @@ export function nameVariants(name: string, extra: string[] = []): string[] {
     v.add(base.replace(/aa/g, "a").replace(/th/g, "t"));
     v.add(base.replace(/ee/g, "i"));
     v.add(base.replace(/i$/, "ee"));
+    v.add(base.replace(/kh/g, "k"));
+    v.add(base.replace(/([kgtdbpc])h/g, "$1"));
   }
   return [...v].filter((x) => x.length >= 2);
 }
@@ -83,7 +85,7 @@ export function matchWakeWord(transcript: string, variants: string[]): WakeMatch
   return { matched: false, command: "" };
 }
 
-/** Remove a leading "Saathi," from a typed command. */
+/** Remove a leading "KHOKHAR," from a typed command. */
 export function stripWakeWord(text: string, variants: string[]): string {
   const m = matchWakeWord(text, variants);
   return m.matched && m.command ? m.command : text;

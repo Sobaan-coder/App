@@ -1,10 +1,26 @@
 {
-  "name": "My AI Command Center",
-  "short_name": "Command Center",
-  "description": "Tell it what you need, and it handles the work.",
+  "name": "My AI Command Center — KHOKHAR",
+  "short_name": "KHOKHAR",
+  "description": "Your personal AI assistant. Tell KHOKHAR what you need — in English or Urdu — and it handles the work.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0c0b10",
   "theme_color": "#6d4aff",
-  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+  "lang": "en",
+  "dir": "auto",
+  "categories": ["productivity", "business"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Talk to KHOKHAR", "url": "/?voice=1", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Approvals", "url": "/approvals" },
+    { "name": "Tasks", "url": "/tasks" }
+  ]
 }

@@ -22,7 +22,9 @@ export default defineConfig({
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] }, testIgnore: /mobile\.spec\.ts/ },
-    { name: "mobile", use: { ...devices["Pixel 7"] }, testMatch: /mobile\.spec\.ts/ },
+    { name: "android", use: { ...devices["Pixel 7"] }, testMatch: /mobile\.spec\.ts/ },
+    // iPhone screen size & touch (rendered with Chromium; Safari itself isn't available in CI)
+    { name: "iphone", use: { ...devices["iPhone 14"], browserName: "chromium" }, testMatch: /mobile\.spec\.ts/ },
   ],
   webServer: {
     command: `npx tsx scripts/migrate.ts --reset && npx next start -p ${PORT}`,

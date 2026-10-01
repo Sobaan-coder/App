@@ -17,7 +17,6 @@ export async function proxy(req: NextRequest) {
 
   if (isApi && MUTATING.has(req.method) && !pathname.startsWith("/api/hooks/")) {
     const origin = req.headers.get("origin");
-    const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
     if (origin) {
       let originHost = "";
       try {
@@ -25,7 +24,7 @@ export async function proxy(req: NextRequest) {
       } catch {
         /* invalid origin */
       }
-      if (originHost !== host) {
+      if (!allowedHosts(req).has(originHost)) {
         return NextResponse.json({ error: "Cross-site request blocked", code: "csrf" }, { status: 403 });
       }
     } else if (req.headers.get("sec-fetch-site") === "cross-site") {
@@ -46,8 +45,27 @@ export async function proxy(req: NextRequest) {
   return NextResponse.next();
 }
 
+/**
+ * Hosts this app is legitimately served from: the request's own host (also as forwarded by a
+ * tunnel/proxy such as Tailscale Serve or Cloudflare Tunnel), APP_URL, PUBLIC_BASE_URL and any
+ * extra ALLOWED_ORIGINS (comma separated). Anything else is a cross-site request.
+ */
+function allowedHosts(req: NextRequest): Set<string> {
+  const hosts = new Set<string>();
+  for (const h of [req.headers.get("host"), req.headers.get("x-forwarded-host")]) if (h) hosts.add(h.split(",")[0].trim());
+  for (const u of [process.env.APP_URL, process.env.PUBLIC_BASE_URL, ...(process.env.ALLOWED_ORIGINS ?? "").split(",")]) {
+    if (!u?.trim()) continue;
+    try {
+      hosts.add(new URL(u.trim()).host);
+    } catch {
+      /* ignore malformed */
+    }
+  }
+  return hosts;
+}
+
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|manifest.webmanifest|sw.js|robots.txt).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|icon-192.png|icon-512.png|icon-maskable-512.png|apple-touch-icon.png|manifest.webmanifest|sw.js|robots.txt).*)"],
 };
 
 // referenced for documentation/tests

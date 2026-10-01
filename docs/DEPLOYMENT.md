@@ -1,5 +1,7 @@
 # Deployment
 
+> Beginner, step-by-step: **[INSTALL_PC.md](INSTALL_PC.md)** (Windows/macOS/Linux) and **[MOBILE.md](MOBILE.md)** (iPhone/Android).
+
 ## Which setup should I use?
 
 The app has three parts: the **web app** (Next.js), the **automation worker** (job queue + scheduler)

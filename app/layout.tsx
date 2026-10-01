@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: { default: "My AI Command Center", template: "%s · AI Command Center" },
   description: "Your personal $0-first AI automation OS — tell it what you need, and it handles the work.",
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
-  appleWebApp: { capable: true, title: "Command Center", statusBarStyle: "black-translucent" },
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icon-192.png", sizes: "192x192" }], apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "KHOKHAR", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

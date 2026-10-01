@@ -68,7 +68,7 @@ test("create automation from natural language, pause and resume it, run it", asy
   await expect(page.getByText("Active").first()).toBeVisible();
   await page.getByRole("button", { name: "Run now" }).click();
   await expect(page).toHaveURL(/\/runs\//);
-  await expect(page.getByText("COMPLETED")).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByText("completed", { exact: true }).first()).toBeVisible({ timeout: 45_000 });
 });
 
 test("content: generate post, quality checks, approval required, approve & publish → manual packages", async ({ page }) => {

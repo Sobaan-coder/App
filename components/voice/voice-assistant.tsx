@@ -380,6 +380,18 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
     [startWakeLoop],
   );
 
+  // "Talk to KHOKHAR" home-screen shortcut (/?voice=1) opens straight into listening
+  useEffect(() => {
+    if (!settings || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("voice") === "1") {
+      url.searchParams.delete("voice");
+      window.history.replaceState(null, "", url.pathname + url.search);
+      listenNow();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings?.name]);
+
   // restore wake mode per device (mic permission is per device/browser)
   useEffect(() => {
     if (!settings) return;
@@ -471,7 +483,7 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
     [supported, settings, phase, wakeEnabled, setWakeEnabled, listenNow, submitText, speak, loadSettings],
   );
 
-  const name = settings?.name ?? "Saathi";
+  const name = settings?.name ?? "KHOKHAR";
   const l = uiLang(reply?.lang);
   const status =
     phase === "listening" ? t("listening") : phase === "thinking" ? t("thinking") : phase === "speaking" ? "…" : wakeEnabled ? `Say “${name}”${settings?.urduName ? ` · “${settings.urduName}”` : ""}` : "";
@@ -502,7 +514,7 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
           <div className="overflow-hidden rounded-3xl border border-line bg-panel/95 shadow-2xl backdrop-blur-xl">
             <div className="flex items-center justify-between px-4 pt-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                {name}
+                <span>{name}</span>
                 {settings?.urduName && <span className="urdu text-base font-normal text-muted">{settings.urduName}</span>}
               </div>
               <div className="flex items-center gap-1">

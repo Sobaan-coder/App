@@ -5,24 +5,25 @@ import { ackFor, identityReply } from "@/services/language/replies";
 import { detectIntent } from "@/agents/intent";
 import { parseAutomationText } from "@/workflows/nl-automation";
 
-const names = nameVariants("Saathi", ["ساتھی"]);
+const names = nameVariants("KHOKHAR", ["کھوکھر", "Kokar"]);
 
 describe("wake word", () => {
   it.each([
-    ["Saathi plan my day", "plan my day"],
-    ["hey Saathi, what should I work on next", "what should I work on next"],
-    ["Sathi research electric bikes", "research electric bikes"],
-    ["saati open my tasks", "open my tasks"],
-    ["ساتھی میرا دن پلان کرو", "میرا دن پلان کرو"],
-    ["سنو ساتھی، کل کا شیڈول بناؤ", "کل کا شیڈول بناؤ"],
-    ["Saathi", ""],
+    ["KHOKHAR plan my day", "plan my day"],
+    ["hey KHOKHAR, what should I work on next", "what should I work on next"],
+    ["Khokar research electric bikes", "research electric bikes"],
+    ["kokhar open my tasks", "open my tasks"],
+    ["Khokhar, kal ka schedule banao", "kal ka schedule banao"],
+    ["کھوکھر میرا دن پلان کرو", "میرا دن پلان کرو"],
+    ["سنو کھوکھر، کل کا شیڈول بناؤ", "کل کا شیڈول بناؤ"],
+    ["KHOKHAR", ""],
   ])("%s", (t, cmd) => {
     const m = matchWakeWord(t, names);
     expect(m.matched).toBe(true);
     expect(m.command).toBe(cmd);
   });
   it("ignores the name mid-sentence and unrelated speech", () => {
-    expect(matchWakeWord("I told my friend that saathi is a nice word", names).matched).toBe(false);
+    expect(matchWakeWord("I met mr khokhar at the market yesterday", names).matched).toBe(false);
     expect(matchWakeWord("what's the weather", names).matched).toBe(false);
   });
   it("works with any custom name", () => {
@@ -30,7 +31,7 @@ describe("wake word", () => {
     expect(matchWakeWord("Noor plan my day", v).command).toBe("plan my day");
     expect(matchWakeWord("نور کام دکھاؤ", v).command).toBe("کام دکھاؤ");
   });
-  it("strips a typed name prefix", () => expect(stripWakeWord("Saathi, plan my day", names)).toBe("plan my day"));
+  it("strips a typed name prefix", () => expect(stripWakeWord("KHOKHAR, plan my day", names)).toBe("plan my day"));
 });
 
 describe("language detection", () => {
@@ -94,6 +95,6 @@ describe("replies", () => {
     expect(ackFor("plan_day", "ur")).toMatch(/[؀-ۿ]/);
     expect(ackFor("plan_day", "roman")).toMatch(/^Ji,/);
     expect(ackFor("plan_day", "en")).toMatch(/plan/);
-    expect(identityReply("Saathi", "ur")).toContain("Saathi");
+    expect(identityReply("KHOKHAR", "ur")).toContain("KHOKHAR");
   });
 });

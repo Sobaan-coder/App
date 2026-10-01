@@ -1,6 +1,6 @@
 # Voice, wake word & Urdu
 
-Your assistant has a name — **Saathi (ساتھی, "companion")** by default — and you can talk to it like Siri,
+Your assistant has a name — **KHOKHAR (کھوکھر)** by default — and you can talk to it like Siri,
 in **English, Urdu (اردو) or Roman Urdu**. Rename it any time in **Settings → Assistant & Voice**.
 
 ## Talking to it
@@ -8,10 +8,10 @@ in **English, Urdu (اردو) or Roman Urdu**. Rename it any time in **Settings 
 | How | What happens |
 |---|---|
 | **Tap the mic** (floating orb, or the mic in the command box) | Speak one command. |
-| **Hands-free wake word** (ear icon in the voice panel, or Settings) | The app keeps listening for the name. Say **"Saathi, plan my day"** in one breath, or say **"Saathi"**, hear a chime + "Yes? / جی؟", then say the command. |
-| **Type** | Typed commands can start with the name too: "Saathi, kal ka schedule banao". |
+| **Hands-free wake word** (ear icon in the voice panel, or Settings) | The app keeps listening for the name. Say **"KHOKHAR, plan my day"** in one breath, or say **"KHOKHAR"**, hear a chime + "Yes? / جی؟", then say the command. |
+| **Type** | Typed commands can start with the name too: "KHOKHAR, kal ka schedule banao". |
 
-The name is matched in English and Urdu script ("Saathi", "Sathi", "ساتھی"…) with one-letter tolerance, and
+The name is matched in English and Urdu script ("KHOKHAR", "Khokar", "Kokhar", "کھوکھر"…) with one-letter tolerance, and
 only near the **start** of what you say — so mentioning the word in conversation doesn't trigger it. Add extra
 spellings or nicknames under *Other spellings*.
 

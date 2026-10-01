@@ -48,7 +48,7 @@ export interface CommandResult {
 
 /** USER → INTENT → PLAN → (queued) EXECUTION. Returns immediately; the worker runs the plan. */
 export async function handleCommand(userId: string, text: string, opts: { projectId?: string | null } = {}): Promise<CommandResult> {
-  // "Saathi, plan my day" → "plan my day"; Urdu / Roman Urdu → English command for the planner.
+  // "KHOKHAR, plan my day" → "plan my day"; Urdu / Roman Urdu → English command for the planner.
   const prep = await withUser(userId, async (db) => {
     const s = await getSettings(db);
     const stripped = stripWakeWord(text, nameVariants(s.assistant.name, [s.assistant.urduName, ...s.assistant.aliases]));

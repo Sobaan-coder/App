@@ -14,7 +14,7 @@ afterAll(async () => {
 describe("Urdu / Roman Urdu / name-addressed commands end to end", () => {
   it("creates a task from an Urdu reminder, keeping the Urdu title and replying in Urdu", async () => {
     const u = await newUser();
-    const r = await handleCommand(u.id, "ساتھی، مجھے کل شام 5 بجے رپورٹ مکمل کرنے کی یاد دلانا");
+    const r = await handleCommand(u.id, "کھوکھر، مجھے کل شام 5 بجے رپورٹ مکمل کرنے کی یاد دلانا");
     expect(r.lang).toBe("ur");
     expect(r.intent).toBe("task_create");
     expect(r.reply).toMatch(/[؀-ۿ]/);

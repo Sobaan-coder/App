@@ -19,7 +19,10 @@
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm test && npm run build",
-    "worker:once": "tsx workers/once.ts"
+    "worker:once": "tsx workers/once.ts",
+    "doctor": "tsx scripts/doctor.ts",
+    "icons": "tsx scripts/make-icons.ts",
+    "start:lan": "next start -H 0.0.0.0"
   },
   "engines": {
     "node": ">=20"

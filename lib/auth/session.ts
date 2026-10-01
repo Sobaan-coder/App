@@ -27,11 +27,16 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   return userFromToken(jar.get(SESSION_COOKIE)?.value);
 }
 
-export function sessionCookieOptions() {
+/**
+ * Cookie flags. `Secure` is decided per request: on whenever the browser reached us over HTTPS
+ * (directly or through a tunnel / reverse proxy), off for plain-HTTP access on your home network.
+ */
+export function sessionCookieOptions(req?: { headers: Headers; nextUrl?: URL }) {
+  const proto = req?.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? req?.nextUrl?.protocol.replace(":", "");
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production" && !process.env.APP_URL?.startsWith("http://"),
+    secure: proto ? proto === "https" : process.env.NODE_ENV === "production" && Boolean(process.env.APP_URL?.startsWith("https://")),
     path: "/",
     maxAge: SESSION_TTL_SECONDS,
   };
