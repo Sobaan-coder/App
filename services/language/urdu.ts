@@ -13,10 +13,12 @@ const URDU_CHARS = /[؀-ۿ]/g;
 const LATIN_CHARS = /[a-z]/gi;
 
 const ROMAN_MARKERS = new Set(
-  "mujhe mujhy mera meri mere hamara karo kardo kar krna karna karen karein kariye banao bana bnao do dena dijiye kal aaj parson hai hain tha ka ki ke ko se aur ya yaad batao bata kya kyun kyon kab kahan har bhi nahi nahin tum tumhara tumhe ap aap apna wala wali din kaam kam sab saare saray chahiye zara jaldi abhi phir dobara mein main par pe baje subah shaam sham raat roz rozana hafta hafte mahine jumma peer mangal budh jumeraat itwar khulasa tarteeb dikhao dekho sunao likho bhejo laga lagao shuru band rok ruko".split(
+  "mujhe mujhy mera meri mere hamara karo kardo kar krna karna karen karein kariye banao bana bnao do dena dijiye kal aaj parson hai hain tha ka ki ke ko se aur ya yaad batao bata kya kyun kyon kab kahan har bhi nahi nahin tum tumhara tumhe ap aap apna wala wali din kaam kam sab saare saray chahiye zara jaldi abhi phir dobara mein main par pe baje subah shaam sham raat roz rozana hafta hafte mahine jumma peer mangal budh jumeraat itwar khulasa tarteeb dikhao dekho sunao likho bhejo laga lagao shuru band rok ruko kholo khol kholen chalao chala".split(
     " ",
   ),
 );
+
+const ROMAN_VERBS = new Set("kholo kholen chalao karo kardo karein kariye banao dikhao batao sunao bhejo lagao".split(" "));
 
 export function detectLanguage(text: string): Lang {
   const ur = (text.match(URDU_CHARS) ?? []).length;
@@ -25,6 +27,8 @@ export function detectLanguage(text: string): Lang {
   const words = text.toLowerCase().match(/[a-z]+/g) ?? [];
   if (!words.length) return "en";
   const hits = words.filter((w) => ROMAN_MARKERS.has(w)).length;
+  // Short commands like "youtube kholo" / "pc lock karo": one unmistakable Urdu verb is enough.
+  if (words.length <= 4 && words.some((w) => ROMAN_VERBS.has(w))) return "roman";
   return hits >= 2 && hits / words.length >= 0.25 ? "roman" : "en";
 }
 
@@ -151,6 +155,13 @@ type Rule = { re: RegExp; to: (m: RegExpExecArray, text: string) => string };
 
 /** Whole-command patterns (Urdu script + Roman Urdu). Order matters: specific before general. */
 const RULES: Rule[] = [
+  // control this PC
+  { re: /(شٹ ?ڈاؤن|shut ?down).*(منسوخ|روک|cancel|rok)|(منسوخ|cancel).*(شٹ ?ڈاؤن|shutdown)/iu, to: () => "Cancel the shutdown" },
+  { re: /(کمپیوٹر|پی ?سی|لیپ ?ٹاپ|سسٹم|computer|pc|laptop|system).*(لاک|lock)/iu, to: () => "Lock my PC" },
+  { re: /(کمپیوٹر|پی ?سی|لیپ ?ٹاپ|سسٹم|computer|pc|laptop|system).*(ری ?سٹارٹ|ری ?اسٹارٹ|restart)/iu, to: () => "Restart my PC" },
+  { re: /(کمپیوٹر|پی ?سی|لیپ ?ٹاپ|سسٹم|computer|pc|laptop|system).*(بند|شٹ ?ڈاؤن|band|shut ?down|off)/iu, to: () => "Shut down my PC" },
+  { re: /(کمپیوٹر|پی ?سی|لیپ ?ٹاپ|computer|pc|laptop).*(سلا|سو جا|sleep|sula)/iu, to: () => "Put my PC to sleep" },
+  { re: /^(.+?)\s*(?:کو\s*)?(کھولو|کھول دو|کھولیں|اوپن کرو|اوپن کریں|چلاؤ|چلا دو|kholo|khol do|kholen|open karo|open kar do|chalao|chala do|lagao|laga do)\s*$/iu, to: (m) => `Open ${cleanTitle(m[1]).replace(/\s+(ko|کو)$/i, "")}` },
   // identity & greetings
   { re: /(تمہارا|آپ کا|تیرا|tumhara|aap ka|apka|tera) (نام|naam) (کیا|kya)|(تم|آپ) کون ہو|(tum|aap|ap) (kon|kaun) (ho|hain)/iu, to: () => "What is your name?" },
   { re: /^(السلام علیکم|اسلام علیکم|سلام|assalam ?o? ?alaikum|aoa|salam)\b/iu, to: () => "Hello" },

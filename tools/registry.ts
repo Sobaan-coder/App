@@ -6,9 +6,10 @@ import { researchTools } from "./impl/research";
 import { systemTools } from "./impl/system";
 import { contentTools } from "./impl/content";
 import { automationTools } from "./impl/automation";
+import { pcTools } from "./impl/pc";
 
 /** Every tool the agent can use. Add a tool by exporting it from tools/impl and listing it here. */
-export const TOOLS: ToolDefinition[] = [...taskTools, ...fileTools, ...documentTools, ...researchTools, ...systemTools, ...contentTools, ...automationTools];
+export const TOOLS: ToolDefinition[] = [...taskTools, ...fileTools, ...documentTools, ...researchTools, ...systemTools, ...contentTools, ...automationTools, ...pcTools];
 
 const byName = new Map(TOOLS.map((t) => [t.name, t]));
 if (byName.size !== TOOLS.length) throw new Error("Duplicate tool names in registry");

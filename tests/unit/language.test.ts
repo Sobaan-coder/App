@@ -4,6 +4,7 @@ import { detectLanguage, normalizeOffline, extractTimes } from "@/services/langu
 import { ackFor, identityReply } from "@/services/language/replies";
 import { detectIntent } from "@/agents/intent";
 import { parseAutomationText } from "@/workflows/nl-automation";
+import { resolveTarget } from "@/tools/impl/pc";
 
 const names = nameVariants("KHOKHAR", ["کھوکھر", "Kokar"]);
 
@@ -96,5 +97,38 @@ describe("replies", () => {
     expect(ackFor("plan_day", "roman")).toMatch(/^Ji,/);
     expect(ackFor("plan_day", "en")).toMatch(/plan/);
     expect(identityReply("KHOKHAR", "ur")).toContain("KHOKHAR");
+  });
+});
+
+describe("PC control (Windows)", () => {
+  it.each([
+    ["Open YouTube", "pc_open"],
+    ["launch excel", "pc_open"],
+    ["open my downloads folder", "pc_open"],
+    ["lock my pc", "pc_power"],
+    ["restart my laptop", "pc_power"],
+    ["cancel the shutdown", "pc_power"],
+    ["یوٹیوب کھولو", "pc_open"],
+    ["کمپیوٹر لاک کرو", "pc_power"],
+    ["youtube kholo", "pc_open"],
+    ["notepad khol do", "pc_open"],
+    ["pc lock karo", "pc_power"],
+    ["laptop restart karo", "pc_power"],
+    ["open my tasks", "unfinished_tasks"],
+  ])("%s → %s", (text, intent) => expect(detectIntent(normalizeOffline(text).english).intent).toBe(intent));
+
+  it("power actions are extracted", () => {
+    expect(detectIntent("shut down the computer").entities.action).toBe("shutdown");
+    expect(detectIntent(normalizeOffline("computer band karo").english).entities.action).toBe("shutdown");
+  });
+
+  it("resolves only whitelisted targets", () => {
+    expect(resolveTarget("YouTube")).toMatchObject({ kind: "url", value: "https://www.youtube.com" });
+    expect(resolveTarget("نوٹ پیڈ")).toMatchObject({ kind: "start", value: "notepad" });
+    expect(resolveTarget("the downloads folder")).toMatchObject({ kind: "uri", value: "shell:Downloads" });
+    expect(resolveTarget("daraz.pk")).toMatchObject({ kind: "url", value: "https://daraz.pk" });
+    expect(resolveTarget("calc & del C:\\")).toBeNull();
+    expect(resolveTarget("javascript:alert(1)")).toBeNull();
+    expect(resolveTarget("the pod bay doors")).toBeNull();
   });
 });

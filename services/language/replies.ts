@@ -35,6 +35,11 @@ const ACK: Record<string, Phrase> = {
   end_of_day_review: { en: "Preparing your end-of-day review.", ur: "جی، دن کا جائزہ تیار ہو رہا ہے۔", roman: "Ji, din ka jaiza tayyar ho raha hai." },
 };
 
+Object.assign(ACK, {
+  pc_open: { en: "Opening it on your PC.", ur: "جی، آپ کے کمپیوٹر پر کھولا جا رہا ہے۔", roman: "Ji, aap ke computer par khola ja raha hai." },
+  pc_power: { en: "Okay — power actions like restart or shutdown need your confirmation first.", ur: "جی، ری اسٹارٹ یا بند کرنے سے پہلے آپ کی تصدیق لی جائے گی۔", roman: "Ji, restart ya band karne se pehle aap ki tasdeeq li jayegi." },
+});
+
 const DEFAULT_ACK: Phrase = { en: "On it.", ur: "جی، کام شروع ہو گیا ہے۔", roman: "Ji, kaam shuru ho gaya hai." };
 
 export function ackFor(intent: string, lang: Lang): string {

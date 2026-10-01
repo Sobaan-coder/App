@@ -103,6 +103,12 @@ export async function planCommand(
   let steps: WorkflowStepInput[] = [];
 
   switch (intent) {
+    case "pc_open":
+      steps = [S("open", `Open ${e.target} on your PC`, "pc_open", { target: e.target })];
+      break;
+    case "pc_power":
+      steps = [S("power", { lock: "Lock the PC", sleep: "Put the PC to sleep", restart: "Restart the PC", shutdown: "Shut down the PC", cancel_shutdown: "Cancel the shutdown" }[e.action as string] ?? "PC power", "pc_power", { action: e.action })];
+      break;
     case "identity":
     case "greeting": {
       const name = (await getSettings(db)).assistant.name;

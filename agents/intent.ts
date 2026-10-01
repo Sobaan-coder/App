@@ -1,4 +1,5 @@
 import { looksLikeAutomation } from "@/workflows/nl-automation";
+import { resolveTarget } from "@/tools/impl/pc";
 
 /**
  * INTENT DETECTION — deterministic rules first (fast, free, predictable).
@@ -42,6 +43,8 @@ export type Intent =
   | "email"
   | "project_create"
   | "calendar_event"
+  | "pc_open"
+  | "pc_power"
   | "identity"
   | "greeting"
   | "general";
@@ -64,6 +67,19 @@ export function detectIntent(raw: string): DetectedIntent {
   const t = text.toLowerCase();
   const url = URL_RE.exec(text)?.[0]?.replace(/[.,]+$/, "");
   const hit = (intent: Intent, entities: Record<string, string | undefined> = {}, confidence = 0.9): DetectedIntent => ({ intent, confidence, entities: { url, ...entities } });
+
+  // ── control this PC ──
+  if (/\b(cancel|stop|abort)\b.*\b(shut ?down|restart)\b/.test(t)) return hit("pc_power", { action: "cancel_shutdown" });
+  if (/\b(lock)\b.*\b(pc|computer|laptop|screen|system)\b|^lock( it)?$/.test(t)) return hit("pc_power", { action: "lock" });
+  if (/\b(shut ?down|turn off|power off|switch off)\b.*\b(pc|computer|laptop|system)\b/.test(t)) return hit("pc_power", { action: "shutdown" });
+  if (/\b(restart|reboot)\b.*\b(pc|computer|laptop|system)\b/.test(t)) return hit("pc_power", { action: "restart" });
+  if (/\b(sleep)\b.*\b(pc|computer|laptop|system)\b|\b(pc|computer|laptop)\b.*\bto sleep\b/.test(t)) return hit("pc_power", { action: "sleep" });
+  {
+    const open = /^(?:please\s+)?(open|launch|start|run|show me|go to)\s+(?:the\s+|my\s+)?(.+?)(?:\s+(?:app|website|on my (?:pc|computer|laptop)|for me))?[.!]?$/i.exec(text.trim());
+    // "open/launch X" always goes to the PC tool (it explains unknown targets); softer verbs only for known apps/sites.
+    if (open && !/\b(task|tasks|project|automation|approvals?|report|file named|document called|activity|history|log)\b/i.test(open[2]) && (/^(open|launch)$/i.test(open[1]) || resolveTarget(open[2])))
+      return hit("pc_open", { target: open[2] });
+  }
 
   // ── about the assistant ──
   if (/\b(what('?s| is) your name|who are you|what are you called|introduce yourself)\b/.test(t)) return hit("identity");
