@@ -9,11 +9,17 @@ import readline from "node:readline/promises";
  *
  *   npm run setup                 interactive
  *   npm run setup -- --yes        non-interactive (local Postgres defaults)
+ *   npm run setup -- --yes --db-password=secret      local Postgres with your password
+ *   npm run setup -- --yes --db-url=postgres://…     any database (e.g. Supabase; SSL turned on for non-local hosts)
  */
 const LOCAL_DB = "postgres://postgres:postgres@localhost:5432/command_center";
 
+const flag = (name: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
+
 async function main() {
   const interactive = process.stdin.isTTY && !process.argv.includes("--yes");
+  const flagUrl = flag("db-url");
+  const flagPw = flag("db-password");
   const rl = interactive ? readline.createInterface({ input: process.stdin, output: process.stdout }) : null;
   const ask = async (q: string, def = "") => (rl ? ((await rl.question(`${q}${def ? ` [${def}]` : ""}: `)).trim() || def) : def);
 
@@ -32,10 +38,15 @@ async function main() {
   console.log("  Database — choose one:");
   console.log("    1) Local PostgreSQL on this computer (default password 'postgres')");
   console.log("    2) Supabase (free cloud) — paste the 'Session pooler' connection string");
-  const choice = await ask("  1 or 2", "1");
+  const choice = flagUrl || flagPw !== undefined ? "flag" : await ask("  1 or 2", "1");
   let dbUrl = LOCAL_DB;
   let ssl = "";
-  if (choice === "2") {
+  if (flagUrl) {
+    dbUrl = flagUrl;
+    ssl = /@(localhost|127\.0\.0\.1)[:/]/.test(flagUrl) ? "" : "require";
+  } else if (flagPw !== undefined) {
+    dbUrl = `postgres://postgres${flagPw ? `:${encodeURIComponent(flagPw)}` : ""}@localhost:5432/command_center`;
+  } else if (choice === "2") {
     dbUrl = await ask("  Paste your Supabase connection string");
     ssl = "require";
   } else {

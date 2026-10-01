@@ -94,3 +94,29 @@ test("typed Urdu command on the home page", async ({ page }) => {
   await expect(page.getByText("Task created:")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText("رپورٹ مکمل کرنا").first()).toBeVisible();
 });
+
+test("Windows autostart URL: login keeps ?wake=1, hands-free is on, PC commands are understood", async ({ page, browser }) => {
+  const email = `wake${Date.now()}@test.local`;
+  await page.goto("/signup");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("Wake-pass-1234");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByText("I'll explore myself").click();
+
+  // what the KHOKHAR window opens at sign-in, in a fresh (logged-out) browser profile
+  const ctx = await browser.newContext();
+  const p = await ctx.newPage();
+  await fakeSpeech(p);
+  await p.goto("/?wake=1");
+  await expect(p).toHaveURL(/\/login\?next=%2F%3Fwake%3D1/);
+  await p.getByLabel("Email").fill(email);
+  await p.getByLabel("Password").fill("Wake-pass-1234");
+  await p.getByRole("button", { name: /sign in|log in/i }).click();
+  await expect(p.getByText(/Listening for “KHOKHAR”/).first()).toBeVisible();
+
+  await say(p, "khokhar youtube kholo");
+  await expect(p.getByText("“youtube kholo”")).toBeVisible();
+  // the test server isn't Windows, so the PC tool explains instead of opening YouTube
+  await expect(p.getByText(/runs on your Windows PC/).first()).toBeVisible({ timeout: 30_000 });
+  await ctx.close();
+});

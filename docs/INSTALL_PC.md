@@ -11,6 +11,9 @@ Time: ~20 minutes the first time. You'll install 3 free things: **Git**, **Node.
 
 ## Windows 10 / 11
 
+> **Easiest:** the one-click installer + "starts with Windows, wakes on *KHOKHAR*" setup is in
+> **[WINDOWS.md](WINDOWS.md)**. The manual steps below do the same thing by hand.
+
 ### 1. Install the tools (one time)
 1. **Node.js** → https://nodejs.org → download **LTS** (22.x) → run the installer → keep the defaults
    (tick *"Automatically install the necessary tools"* if it asks).
@@ -47,12 +50,14 @@ npm start
 Open **http://localhost:3000** in Chrome or Edge → **Create an account** (the first account is the admin) →
 say or type *"KHOKHAR, plan my day"* / *"کھوکھر، میرا دن پلان کرو"*.
 
-Next time just **double-click `scripts\windows\start-khokhar.bat`** (keep the window open).
+Next time just **double-click `scripts\windows\start-khokhar.bat`** (server runs in the background, the KHOKHAR window opens).
 
 ### 5. Start automatically when Windows starts (optional)
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\windows\install-autostart.ps1
 ```
+At every sign-in this starts the server in the background and opens the KHOKHAR window with hands-free
+listening on. Remove it with `... install-autostart.ps1 -Uninstall`. Details: [WINDOWS.md](WINDOWS.md).
 Windows may ask to allow Node.js through the firewall — choose **Private networks** only (needed for your phone on home Wi-Fi).
 
 ---

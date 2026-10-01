@@ -132,6 +132,7 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
   const busyRef = useRef(false);
   const speakingRef = useRef(false);
   const mediaRef = useRef<MediaRecorder | null>(null);
+  const failures = useRef(0);
   const settingsRef = useRef<AssistantSettings | null>(null);
   settingsRef.current = settings;
   const supported = typeof window !== "undefined" && (Boolean(recognitionCtor()) || Boolean(navigator.mediaDevices));
@@ -301,6 +302,10 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
       r.interimResults = true;
       r.maxAlternatives = 1;
       r.onresult = (e) => {
+        if (failures.current) {
+          failures.current = 0;
+          setError(null);
+        }
         let interim = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const res = e.results[i];
@@ -320,7 +325,10 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
           }
           setError(t("noMic"));
           setPhase("idle");
-        } else if (e.error === "network") setError("Speech recognition needs an internet connection in this browser.");
+        } else if (e.error === "network" || e.error === "audio-capture") {
+          failures.current = Math.min(failures.current + 1, 8);
+          setError(e.error === "network" ? "Speech recognition needs an internet connection — retrying…" : "No microphone found — retrying…");
+        }
       };
       return r;
     },
@@ -339,7 +347,9 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
     if (!r) return;
     r.onend = () => {
       // Chrome stops continuous recognition periodically — restart while wake mode is on.
-      if (wakeRef.current && !speakingRef.current) setTimeout(() => wakeRef.current && !speakingRef.current && startWakeLoop(), 250);
+      // back off after failures (no internet / mic not ready yet at boot): 0.25s → up to ~60s
+      const delay = failures.current ? Math.min(60_000, 1000 * 2 ** failures.current) : 250;
+      if (wakeRef.current && !speakingRef.current) setTimeout(() => wakeRef.current && !speakingRef.current && startWakeLoop(), delay);
     };
     recRef.current = r;
     try {
@@ -396,7 +406,12 @@ export function VoiceAssistantProvider({ children }: { children: React.ReactNode
   useEffect(() => {
     if (!settings) return;
     try {
-      if (localStorage.getItem(WAKE_KEY) === "1") setWakeEnabled(true);
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("wake") === "1") {
+        url.searchParams.delete("wake");
+        window.history.replaceState(null, "", url.pathname + url.search);
+        setWakeEnabled(true);
+      } else if (localStorage.getItem(WAKE_KEY) === "1") setWakeEnabled(true);
     } catch {
       /* ignore */
     }

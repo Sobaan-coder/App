@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 
 /** Edge-safe session token helpers (used by proxy.ts and the server). */
 export const SESSION_COOKIE = "cc_session";
-export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+export const SESSION_TTL_SECONDS = 60 * 60 * 24 * Math.min(365, Math.max(1, Number(process.env.SESSION_DAYS ?? 30) || 30));
 
 export interface SessionClaims {
   sub: string;

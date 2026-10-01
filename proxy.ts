@@ -39,7 +39,8 @@ export async function proxy(req: NextRequest) {
   if (!claims) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
-    url.search = pathname !== "/" ? `?next=${encodeURIComponent(pathname)}` : "";
+    const target = pathname + req.nextUrl.search;
+    url.search = target !== "/" ? `?next=${encodeURIComponent(target)}` : "";
     return NextResponse.redirect(url);
   }
   return NextResponse.next();

@@ -28,6 +28,7 @@ writing templates) and gets smarter when you connect a **free local model (Ollam
 
 ## Install
 
+- **Windows (one-click install, starts with Windows, say "KHOKHAR"):** **[docs/WINDOWS.md](docs/WINDOWS.md)**
 - **PC / laptop (Windows, macOS, Linux):** step-by-step in **[docs/INSTALL_PC.md](docs/INSTALL_PC.md)**
 - **iPhone & Android:** install it as an app with voice — **[docs/MOBILE.md](docs/MOBILE.md)**
 
@@ -80,4 +81,4 @@ See **[docs/FREE_TOOLS.md](docs/FREE_TOOLS.md)** and **[docs/FREE_ARCHITECTURE.m
 
 ## Docs
 
-[VOICE & URDU](docs/VOICE.md) · [SETUP](docs/SETUP.md) · [DEPLOYMENT](docs/DEPLOYMENT.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [FREE_TOOLS](docs/FREE_TOOLS.md) · [FREE_ARCHITECTURE](docs/FREE_ARCHITECTURE.md) · [SECURITY](docs/SECURITY.md) · [AUTOMATIONS](docs/AUTOMATIONS.md) · [API](docs/API.md) · [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) · [IMPLEMENTATION_PLAN](docs/IMPLEMENTATION_PLAN.md)
+[WINDOWS](docs/WINDOWS.md) · [VOICE & URDU](docs/VOICE.md) · [SETUP](docs/SETUP.md) · [DEPLOYMENT](docs/DEPLOYMENT.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [FREE_TOOLS](docs/FREE_TOOLS.md) · [FREE_ARCHITECTURE](docs/FREE_ARCHITECTURE.md) · [SECURITY](docs/SECURITY.md) · [AUTOMATIONS](docs/AUTOMATIONS.md) · [API](docs/API.md) · [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) · [IMPLEMENTATION_PLAN](docs/IMPLEMENTATION_PLAN.md)
