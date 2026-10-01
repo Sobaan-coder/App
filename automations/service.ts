@@ -189,7 +189,11 @@ export async function runDueSchedules(now = new Date()): Promise<number> {
     const trigger = triggerOf(a);
     const next = nextRunFor(trigger, a.tz ?? "UTC", new Date(Math.max(now.getTime(), Date.now()) + 1000));
     // claim atomically: only the process that moves next_run_at forward starts the run
-    const claimed = await sql.one("update automations set next_run_at = $2 where id = $1 and next_run_at = $3 returning id", [a.id, next?.toISOString() ?? null, a.next_run_at]);
+    // (compare at millisecond precision: JS dates drop Postgres microseconds)
+    const claimed = await sql.one(
+      "update automations set next_run_at = $2 where id = $1 and date_trunc('milliseconds', next_run_at) = date_trunc('milliseconds', $3::timestamptz) returning id",
+      [a.id, next?.toISOString() ?? null, a.next_run_at],
+    );
     if (!claimed || a.paused) continue;
     await triggerAutomation(a.user_id, a.id, { scheduledFor: a.next_run_at });
     started++;

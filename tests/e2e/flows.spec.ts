@@ -34,10 +34,10 @@ test("natural-language command → plan → executed result", async ({ page }) =
   await box.press("Enter");
   await expect(page.getByText(/Got it\. I'll/)).toBeVisible();
   await expect(page.getByText("Task created:")).toBeVisible();
-  await box.fill("Plan my day");
+  await box.fill("Prepare tomorrow's schedule");
   await box.press("Enter");
   await expect(page.getByRole("heading", { name: /Plan for/ })).toBeVisible();
-  await expect(page.getByText("Finish the internship report").first()).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Finish the internship report" })).toBeVisible();
 });
 
 test("create project and task", async ({ page }) => {

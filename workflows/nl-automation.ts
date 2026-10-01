@@ -26,7 +26,8 @@ export function detectTrigger(text: string): Trigger | null {
 }
 
 export function looksLikeAutomation(text: string): boolean {
-  const t = text.toLowerCase();
+  // "weekly report", "daily plan" are nouns, not schedules
+  const t = text.toLowerCase().replace(/\b(daily|weekly|monthly)\s+(report|plan|planner|review|summary|schedule|content)\b/g, "$2");
   if (/^\s*(please\s+)?remind me\b/.test(t)) return false; // recurring reminder → task
   if (/\b(monitor|watch|keep an eye on|track changes)\b[^.]*https?:\/\//.test(t)) return true;
   if (/\bcreate (a|an) (workflow|automation)\b|\bautomate\b/.test(t) && detectTrigger(t)) return true;

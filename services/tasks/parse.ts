@@ -41,7 +41,7 @@ export function parseTaskText(input: string, opts: { now?: Date; timezone?: stri
   // estimated duration "(30 min)", "for 2 hours", "takes 45 minutes"
   let estimatedMinutes: number | null = null;
   const dur = /\b(?:for|takes?|about|~)?\s*\(?(\d+(?:\.\d+)?)\s*(h|hr|hrs|hours?|m|min|mins|minutes?)\)?(?=\s|$|,)/i.exec(text);
-  if (dur && /\b(for|takes?|about|~|\()/i.test(dur[0])) {
+  if (dur && /(\bfor|\btakes?|\babout|~|\()/i.test(dur[0])) {
     const n = Number(dur[1]);
     estimatedMinutes = Math.round(/^h/i.test(dur[2]) ? n * 60 : n);
     text = text.replace(dur[0], " ");
