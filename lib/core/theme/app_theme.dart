@@ -57,17 +57,28 @@ class AppTheme {
         color: scheme.surface,
         surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Gap.radius), side: BorderSide(color: outline)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Gap.radius),
+          side: BorderSide(color: outline),
+        ),
       ),
       dividerTheme: DividerThemeData(color: outline, space: 1),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isDark ? const Color(0xFF16201E) : const Color(0xFFF8FAF9),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(Gap.radiusSm), borderSide: BorderSide(color: outline)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Gap.radiusSm), borderSide: BorderSide(color: outline)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Gap.radiusSm),
+          borderSide: BorderSide(color: outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Gap.radiusSm),
+          borderSide: BorderSide(color: outline),
+        ),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Gap.radiusSm), borderSide: BorderSide(color: scheme.primary, width: 2)),
+          borderRadius: BorderRadius.circular(Gap.radiusSm),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -86,11 +97,12 @@ class AppTheme {
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(minimumSize: const Size(48, Gap.minTouch)),
-      ),
+      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(minimumSize: const Size(48, Gap.minTouch))),
       chipTheme: base.chipTheme.copyWith(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999), side: BorderSide(color: outline)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(999),
+          side: BorderSide(color: outline),
+        ),
         side: BorderSide(color: outline),
         labelStyle: text.labelLarge?.copyWith(fontSize: 14),
       ),

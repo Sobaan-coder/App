@@ -24,7 +24,8 @@ class TransactionCard extends StatelessWidget {
     ].join(' · ');
     return Semantics(
       button: onTap != null,
-      label: '${tx.type.label}, ${tx.title}, ${moneyIn ? 'money in' : 'money out'} ${tx.amount.format()}, $subtitle'
+      label:
+          '${tx.type.label}, ${tx.title}, ${moneyIn ? 'money in' : 'money out'} ${tx.amount.format()}, $subtitle'
           '${tx.pending ? ', waiting to sync' : ''}',
       excludeSemantics: true,
       child: ListTile(
@@ -36,19 +37,28 @@ class TransactionCard extends StatelessWidget {
         ),
         title: Text(tx.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: t.textTheme.titleSmall),
         subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-        trailing: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
-          // Sign + color + icon so meaning never relies on color alone.
-          Text('${moneyIn ? '+' : '−'} ${tx.amount.format()}',
-              style: t.textTheme.titleSmall?.copyWith(color: color, fontWeight: FontWeight.w700)),
-          if (tx.pending)
-            Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.cloud_upload_outlined, size: 14, color: t.colorScheme.onSurfaceVariant),
-              const SizedBox(width: 4),
-              Text('Pending', style: t.textTheme.labelSmall),
-            ])
-          else if (tx.invoiceNumber != null)
-            Text(tx.invoiceNumber!, style: t.textTheme.labelSmall?.copyWith(color: t.colorScheme.onSurfaceVariant)),
-        ]),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // Sign + color + icon so meaning never relies on color alone.
+            Text(
+              '${moneyIn ? '+' : '−'} ${tx.amount.format()}',
+              style: t.textTheme.titleSmall?.copyWith(color: color, fontWeight: FontWeight.w700),
+            ),
+            if (tx.pending)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_upload_outlined, size: 14, color: t.colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 4),
+                  Text('Pending', style: t.textTheme.labelSmall),
+                ],
+              )
+            else if (tx.invoiceNumber != null)
+              Text(tx.invoiceNumber!, style: t.textTheme.labelSmall?.copyWith(color: t.colorScheme.onSurfaceVariant)),
+          ],
+        ),
       ),
     );
   }

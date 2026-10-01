@@ -21,8 +21,13 @@ final searchProvider = FutureProvider.autoDispose.family<List<SearchHit>, String
     final rows = await ref.supabase.rpc('global_search', params: {'p_business_id': b.id, 'p_query': query.trim()}) as List;
     return rows.map((r) {
       final m = Map<String, dynamic>.from(r as Map);
-      return SearchHit(m['kind'] as String, m['id'] as String, m['title'] as String? ?? '', m['subtitle'] as String? ?? '',
-          m['occurred_at'] == null ? null : DateTime.parse(m['occurred_at'] as String));
+      return SearchHit(
+        m['kind'] as String,
+        m['id'] as String,
+        m['title'] as String? ?? '',
+        m['subtitle'] as String? ?? '',
+        m['occurred_at'] == null ? null : DateTime.parse(m['occurred_at'] as String),
+      );
     }).toList();
   } catch (e) {
     throw AppFailure.from(e);

@@ -20,8 +20,8 @@ class OfflineBanner extends ConsumerWidget {
     final text = !online
         ? (waiting > 0 ? '${context.l10n.offlineBanner} ${context.l10n.pendingSync(waiting)}.' : context.l10n.offlineBanner)
         : failed > 0
-            ? '$failed offline ${failed == 1 ? 'entry needs' : 'entries need'} your attention.'
-            : '${context.l10n.pendingSync(waiting)}…';
+        ? '$failed offline ${failed == 1 ? 'entry needs' : 'entries need'} your attention.'
+        : '${context.l10n.pendingSync(waiting)}…';
     return Material(
       color: !online ? t.colorScheme.inverseSurface : t.colorScheme.secondaryContainer,
       child: SafeArea(
@@ -30,21 +30,29 @@ class OfflineBanner extends ConsumerWidget {
           liveRegion: true,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(children: [
-              Icon(online ? Icons.sync_rounded : Icons.cloud_off_rounded, size: 18,
-                  color: !online ? t.colorScheme.onInverseSurface : t.colorScheme.onSecondaryContainer),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(text,
-                    style: t.textTheme.bodySmall?.copyWith(
-                        color: !online ? t.colorScheme.onInverseSurface : t.colorScheme.onSecondaryContainer)),
-              ),
-              if (online && pending.isNotEmpty)
-                TextButton(
-                  onPressed: () => failed > 0 ? _showFailed(context, ref) : ref.read(offlineQueueProvider.notifier).sync(),
-                  child: Text(failed > 0 ? 'Review' : 'Sync now'),
+            child: Row(
+              children: [
+                Icon(
+                  online ? Icons.sync_rounded : Icons.cloud_off_rounded,
+                  size: 18,
+                  color: !online ? t.colorScheme.onInverseSurface : t.colorScheme.onSecondaryContainer,
                 ),
-            ]),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    text,
+                    style: t.textTheme.bodySmall?.copyWith(
+                      color: !online ? t.colorScheme.onInverseSurface : t.colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
+                if (online && pending.isNotEmpty)
+                  TextButton(
+                    onPressed: () => failed > 0 ? _showFailed(context, ref) : ref.read(offlineQueueProvider.notifier).sync(),
+                    child: Text(failed > 0 ? 'Review' : 'Sync now'),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -55,25 +63,39 @@ class OfflineBanner extends ConsumerWidget {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (ctx) => Consumer(builder: (ctx, ref, _) {
-        final ops = ref.watch(offlineQueueProvider).where((o) => o.failed).toList();
-        return ListView(shrinkWrap: true, padding: const EdgeInsets.all(16), children: [
-          Text('Entries that could not be synced', style: Theme.of(ctx).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          for (final op in ops)
-            ListTile(
-              title: Text(op.summary),
-              subtitle: Text(op.error ?? ''),
-              trailing: Wrap(children: [
-                IconButton(tooltip: 'Retry', icon: const Icon(Icons.refresh_rounded),
-                    onPressed: () => ref.read(offlineQueueProvider.notifier).retry(op.id)),
-                IconButton(tooltip: 'Discard', icon: const Icon(Icons.delete_outline_rounded),
-                    onPressed: () => ref.read(offlineQueueProvider.notifier).discard(op.id)),
-              ]),
-            ),
-          if (ops.isEmpty) const Padding(padding: EdgeInsets.all(16), child: Text('All synced.')),
-        ]);
-      }),
+      builder: (ctx) => Consumer(
+        builder: (ctx, ref, _) {
+          final ops = ref.watch(offlineQueueProvider).where((o) => o.failed).toList();
+          return ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text('Entries that could not be synced', style: Theme.of(ctx).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              for (final op in ops)
+                ListTile(
+                  title: Text(op.summary),
+                  subtitle: Text(op.error ?? ''),
+                  trailing: Wrap(
+                    children: [
+                      IconButton(
+                        tooltip: 'Retry',
+                        icon: const Icon(Icons.refresh_rounded),
+                        onPressed: () => ref.read(offlineQueueProvider.notifier).retry(op.id),
+                      ),
+                      IconButton(
+                        tooltip: 'Discard',
+                        icon: const Icon(Icons.delete_outline_rounded),
+                        onPressed: () => ref.read(offlineQueueProvider.notifier).discard(op.id),
+                      ),
+                    ],
+                  ),
+                ),
+              if (ops.isEmpty) const Padding(padding: EdgeInsets.all(16), child: Text('All synced.')),
+            ],
+          );
+        },
+      ),
     );
   }
 }

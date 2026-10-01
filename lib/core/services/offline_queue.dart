@@ -35,25 +35,37 @@ class PendingOperation {
   bool get failed => error != null;
 
   PendingOperation copyWith({int? attempts, String? error, bool clearError = false}) => PendingOperation(
-        id: id, businessId: businessId, kind: kind, payload: payload, createdAt: createdAt, summary: summary,
-        attempts: attempts ?? this.attempts, error: clearError ? null : (error ?? this.error),
-      );
+    id: id,
+    businessId: businessId,
+    kind: kind,
+    payload: payload,
+    createdAt: createdAt,
+    summary: summary,
+    attempts: attempts ?? this.attempts,
+    error: clearError ? null : (error ?? this.error),
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id, 'business_id': businessId, 'kind': kind, 'payload': payload,
-        'created_at': createdAt.toIso8601String(), 'summary': summary, 'attempts': attempts, 'error': error,
-      };
+    'id': id,
+    'business_id': businessId,
+    'kind': kind,
+    'payload': payload,
+    'created_at': createdAt.toIso8601String(),
+    'summary': summary,
+    'attempts': attempts,
+    'error': error,
+  };
 
   factory PendingOperation.fromJson(Map<String, dynamic> j) => PendingOperation(
-        id: j['id'] as String,
-        businessId: j['business_id'] as String,
-        kind: j['kind'] as String,
-        payload: Map<String, dynamic>.from(j['payload'] as Map),
-        createdAt: DateTime.parse(j['created_at'] as String),
-        summary: j['summary'] as String? ?? '',
-        attempts: j['attempts'] as int? ?? 0,
-        error: j['error'] as String?,
-      );
+    id: j['id'] as String,
+    businessId: j['business_id'] as String,
+    kind: j['kind'] as String,
+    payload: Map<String, dynamic>.from(j['payload'] as Map),
+    createdAt: DateTime.parse(j['created_at'] as String),
+    summary: j['summary'] as String? ?? '',
+    attempts: j['attempts'] as int? ?? 0,
+    error: j['error'] as String?,
+  );
 }
 
 /// Persistent FIFO of pending writes.
@@ -118,6 +130,7 @@ class SyncEngine {
           final f = AppFailure.from(e);
           if (f.isNetwork) {
             ops = ops.map((o) => o.id == op.id ? o.copyWith(attempts: o.attempts + 1) : o).toList();
+            await queue.save(ops);
             break;
           }
           failed++;
@@ -153,7 +166,12 @@ class OfflineQueueController extends Notifier<List<PendingOperation>> {
     if (client == null) throw StateError('not configured');
     switch (op.kind) {
       case 'record_transaction':
-        await client.rpc('record_transaction', params: {'p': {...op.payload, 'source': 'offline'}});
+        await client.rpc(
+          'record_transaction',
+          params: {
+            'p': {...op.payload, 'source': 'offline'},
+          },
+        );
       default:
         throw AppFailure('invalid_input:kind', 'Unsupported offline operation');
     }

@@ -10,14 +10,17 @@ class LoadingState extends StatelessWidget {
   final String? message;
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const CircularProgressIndicator(),
-            if (message != null) ...[const SizedBox(height: Gap.lg), Text(message!)],
-          ]),
-        ),
-      );
+    child: Padding(
+      padding: const EdgeInsets.all(Gap.xl),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          if (message != null) ...[const SizedBox(height: Gap.lg), Text(message!)],
+        ],
+      ),
+    ),
+  );
 }
 
 class EmptyState extends StatelessWidget {
@@ -36,23 +39,30 @@ class EmptyState extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.xl),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 380),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(color: t.colorScheme.primary.withValues(alpha: 0.08), shape: BoxShape.circle),
-              child: Icon(icon, size: 36, color: t.colorScheme.primary),
-            ),
-            const SizedBox(height: Gap.lg),
-            Text(title, style: t.textTheme.titleMedium, textAlign: TextAlign.center),
-            if (message != null) ...[
-              const SizedBox(height: Gap.sm),
-              Text(message!, style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
-            ],
-            if (actionLabel != null && onAction != null) ...[
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(color: t.colorScheme.primary.withValues(alpha: 0.08), shape: BoxShape.circle),
+                child: Icon(icon, size: 36, color: t.colorScheme.primary),
+              ),
               const SizedBox(height: Gap.lg),
-              AppButton(label: actionLabel!, onPressed: onAction, icon: Icons.add_rounded),
+              Text(title, style: t.textTheme.titleMedium, textAlign: TextAlign.center),
+              if (message != null) ...[
+                const SizedBox(height: Gap.sm),
+                Text(
+                  message!,
+                  style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              if (actionLabel != null && onAction != null) ...[
+                const SizedBox(height: Gap.lg),
+                AppButton(label: actionLabel!, onPressed: onAction, icon: Icons.add_rounded),
+              ],
             ],
-          ]),
+          ),
         ),
       ),
     );
@@ -69,16 +79,25 @@ class ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     final failure = AppFailure.from(error);
     final t = Theme.of(context);
-    final content = Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(failure.isNetwork ? Icons.wifi_off_rounded : Icons.error_outline_rounded, size: compact ? 28 : 40, color: t.colorScheme.error),
-      const SizedBox(height: Gap.md),
-      Text(failure.message, textAlign: TextAlign.center, style: t.textTheme.bodyMedium),
-      if (onRetry != null) ...[
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          failure.isNetwork ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
+          size: compact ? 28 : 40,
+          color: t.colorScheme.error,
+        ),
         const SizedBox(height: Gap.md),
-        AppButton(label: 'Try again', onPressed: onRetry, variant: AppButtonVariant.secondary, icon: Icons.refresh_rounded),
+        Text(failure.message, textAlign: TextAlign.center, style: t.textTheme.bodyMedium),
+        if (onRetry != null) ...[
+          const SizedBox(height: Gap.md),
+          AppButton(label: 'Try again', onPressed: onRetry, variant: AppButtonVariant.secondary, icon: Icons.refresh_rounded),
+        ],
       ],
-    ]);
-    return Center(child: Padding(padding: EdgeInsets.all(compact ? Gap.lg : Gap.xl), child: content));
+    );
+    return Center(
+      child: Padding(padding: EdgeInsets.all(compact ? Gap.lg : Gap.xl), child: content),
+    );
   }
 }
 
@@ -93,12 +112,19 @@ class AsyncView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => value.when(
-        skipLoadingOnRefresh: true,
-        skipLoadingOnReload: true,
-        data: builder,
-        loading: () => loading ?? (compact ? const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())) : const LoadingState()),
-        error: (e, _) => ErrorState(error: e, onRetry: onRetry, compact: compact),
-      );
+    skipLoadingOnRefresh: true,
+    skipLoadingOnReload: true,
+    data: builder,
+    loading: () =>
+        loading ??
+        (compact
+            ? const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : const LoadingState()),
+    error: (e, _) => ErrorState(error: e, onRetry: onRetry, compact: compact),
+  );
 }
 
 /// Shows a friendly snackbar for any error (never raw exceptions).

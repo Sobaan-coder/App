@@ -16,8 +16,17 @@ class SupabaseAnalytics implements AnalyticsService {
   final SupabaseClient _client;
 
   static const allowedEvents = {
-    'signup', 'business_created', 'product_created', 'transaction_created', 'ai_request', 'report_generated',
-    'invoice_created', 'subscription_started', 'subscription_cancelled', 'onboarding_completed', 'demo_opened',
+    'signup',
+    'business_created',
+    'product_created',
+    'transaction_created',
+    'ai_request',
+    'report_generated',
+    'invoice_created',
+    'subscription_started',
+    'subscription_cancelled',
+    'onboarding_completed',
+    'demo_opened',
   };
 
   @override

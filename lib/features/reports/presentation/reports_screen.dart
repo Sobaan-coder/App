@@ -65,36 +65,68 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     switch (_kind) {
       case ReportKind.products:
         final rows = await ref.read(topProductsProvider(_filter).future);
-        return ReportTable(title: 'Product performance', subtitle: _filter.label,
-            headers: const ['Product', 'Quantity sold', 'Revenue', 'Cost', 'Gross profit'],
-            rows: [
-              for (final r in rows)
-                [r.name, Fmt.qty(r.quantity), r.revenue.toDecimalString(), r.cost?.toDecimalString() ?? 'unknown',
-                  r.cost == null ? 'unknown' : (r.revenue - r.cost!).toDecimalString()],
-            ]);
+        return ReportTable(
+          title: 'Product performance',
+          subtitle: _filter.label,
+          headers: const ['Product', 'Quantity sold', 'Revenue', 'Cost', 'Gross profit'],
+          rows: [
+            for (final r in rows)
+              [
+                r.name,
+                Fmt.qty(r.quantity),
+                r.revenue.toDecimalString(),
+                r.cost?.toDecimalString() ?? 'unknown',
+                r.cost == null ? 'unknown' : (r.revenue - r.cost!).toDecimalString(),
+              ],
+          ],
+        );
       case ReportKind.inventory:
         final products = await ref.read(productsProvider.future);
-        return ReportTable(title: 'Inventory', subtitle: 'Current stock',
-            headers: const ['Product', 'SKU', 'Stock', 'Unit', 'Minimum', 'Cost price', 'Stock value'],
-            rows: [
-              for (final p in products.where((p) => p.trackInventory))
-                [p.name, p.sku ?? '', Fmt.qty(p.stockQuantity), p.unit, Fmt.qty(p.minimumStock), p.costPrice?.toDecimalString() ?? '',
-                  p.costPrice == null ? '' : p.costPrice!.times(p.stockQuantity).toDecimalString()],
-            ]);
+        return ReportTable(
+          title: 'Inventory',
+          subtitle: 'Current stock',
+          headers: const ['Product', 'SKU', 'Stock', 'Unit', 'Minimum', 'Cost price', 'Stock value'],
+          rows: [
+            for (final p in products.where((p) => p.trackInventory))
+              [
+                p.name,
+                p.sku ?? '',
+                Fmt.qty(p.stockQuantity),
+                p.unit,
+                Fmt.qty(p.minimumStock),
+                p.costPrice?.toDecimalString() ?? '',
+                p.costPrice == null ? '' : p.costPrice!.times(p.stockQuantity).toDecimalString(),
+              ],
+          ],
+        );
       case ReportKind.customers:
       case ReportKind.suppliers:
         final kind = _kind == ReportKind.customers ? ContactKind.customer : ContactKind.supplier;
         final list = await ref.read(contactsProvider(kind).future);
-        return ReportTable(title: kind.pluralLabel, subtitle: 'Balances as of today',
-            headers: const ['Name', 'Phone', 'Total purchases', 'Payments', 'Outstanding', 'Last activity'],
-            rows: [
-              for (final c in list)
-                [c.name, c.phone ?? '', c.totalPurchases?.toDecimalString() ?? '', c.totalPayments?.toDecimalString() ?? '',
-                  c.outstanding?.toDecimalString() ?? '', c.lastTransactionAt == null ? '' : Fmt.date(c.lastTransactionAt!)],
-            ]);
+        return ReportTable(
+          title: kind.pluralLabel,
+          subtitle: 'Balances as of today',
+          headers: const ['Name', 'Phone', 'Total purchases', 'Payments', 'Outstanding', 'Last activity'],
+          rows: [
+            for (final c in list)
+              [
+                c.name,
+                c.phone ?? '',
+                c.totalPurchases?.toDecimalString() ?? '',
+                c.totalPayments?.toDecimalString() ?? '',
+                c.outstanding?.toDecimalString() ?? '',
+                c.lastTransactionAt == null ? '' : Fmt.date(c.lastTransactionAt!),
+              ],
+          ],
+        );
       default:
         final t = await ex.ledger(_filter);
-        return ReportTable(title: '${_kind.label} report', subtitle: '${t.subtitle} · ${b.business.name}', headers: t.headers, rows: t.rows);
+        return ReportTable(
+          title: '${_kind.label} report',
+          subtitle: '${t.subtitle} · ${b.business.name}',
+          headers: t.headers,
+          rows: t.rows,
+        );
     }
   }
 
@@ -103,136 +135,222 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final compact = Breakpoints.isCompact(context);
     final usesPeriod = _kind != ReportKind.inventory && _kind != ReportKind.customers && _kind != ReportKind.suppliers;
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.navReports), actions: [
-        PopupMenuButton<bool>(
-          tooltip: 'Export',
-          enabled: !_exporting,
-          icon: _exporting
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.ios_share_rounded),
-          onSelected: _export,
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: false, child: ListTile(leading: Icon(Icons.table_chart_outlined), title: Text('Export CSV'))),
-            PopupMenuItem(value: true, child: ListTile(leading: Icon(Icons.picture_as_pdf_outlined), title: Text('Export PDF'))),
-          ],
-        ),
-        const ShellActions(),
-      ]),
-      body: ListView(padding: EdgeInsets.all(compact ? Gap.lg : Gap.xl), children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(children: [
-            for (final k in ReportKind.values)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 8),
-                child: ChoiceChip(avatar: Icon(k.icon, size: 18), label: Text(k.label), selected: _kind == k,
-                    onSelected: (_) => setState(() => _kind = k)),
+      appBar: AppBar(
+        title: Text(context.l10n.navReports),
+        actions: [
+          PopupMenuButton<bool>(
+            tooltip: 'Export',
+            enabled: !_exporting,
+            icon: _exporting
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.ios_share_rounded),
+            onSelected: _export,
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: false,
+                child: ListTile(leading: Icon(Icons.table_chart_outlined), title: Text('Export CSV')),
               ),
-          ]),
-        ),
-        const SizedBox(height: Gap.md),
-        if (usesPeriod) PeriodSelector(value: _filter, onChanged: (f) => setState(() => _filter = f)),
-        const SizedBox(height: Gap.lg),
-        _body(),
-      ]),
+              PopupMenuItem(
+                value: true,
+                child: ListTile(leading: Icon(Icons.picture_as_pdf_outlined), title: Text('Export PDF')),
+              ),
+            ],
+          ),
+          const ShellActions(),
+        ],
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(compact ? Gap.lg : Gap.xl),
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final k in ReportKind.values)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: ChoiceChip(
+                      avatar: Icon(k.icon, size: 18),
+                      label: Text(k.label),
+                      selected: _kind == k,
+                      onSelected: (_) => setState(() => _kind = k),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+          if (usesPeriod) PeriodSelector(value: _filter, onChanged: (f) => setState(() => _filter = f)),
+          const SizedBox(height: Gap.lg),
+          _body(),
+        ],
+      ),
     );
   }
 
   Widget _body() {
     switch (_kind) {
       case ReportKind.sales:
-        return _SummaryReport(filter: _filter, builder: (s) => [
-              _kv('Sales', s.sales.format()), _kv('Orders', '${s.salesCount}'),
-              _kv('Average order', s.salesCount == 0 ? '—' : Money(s.sales.minor ~/ s.salesCount, s.currency).format()),
-              _kv('Refunds', s.refunds.format()),
-            ], chart: true);
+        return _SummaryReport(
+          filter: _filter,
+          builder: (s) => [
+            _kv('Sales', s.sales.format()),
+            _kv('Orders', '${s.salesCount}'),
+            _kv('Average order', s.salesCount == 0 ? '—' : Money(s.sales.minor ~/ s.salesCount, s.currency).format()),
+            _kv('Refunds', s.refunds.format()),
+          ],
+          chart: true,
+        );
       case ReportKind.expenses:
-        return Column(children: [
-          _SummaryReport(filter: _filter, builder: (s) => [_kv('Operating expenses', s.expenses.format()), _kv('Stock purchases', s.purchases.format())]),
-          const SizedBox(height: Gap.lg),
-          Card(child: Padding(padding: const EdgeInsets.all(Gap.lg), child: AsyncView(
-            value: ref.watch(expenseBreakdownProvider(_filter)), compact: true, builder: (i) => BreakdownBars(items: i, max: 20)))),
-        ]);
+        return Column(
+          children: [
+            _SummaryReport(
+              filter: _filter,
+              builder: (s) => [_kv('Operating expenses', s.expenses.format()), _kv('Stock purchases', s.purchases.format())],
+            ),
+            const SizedBox(height: Gap.lg),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(Gap.lg),
+                child: AsyncView(
+                  value: ref.watch(expenseBreakdownProvider(_filter)),
+                  compact: true,
+                  builder: (i) => BreakdownBars(items: i, max: 20),
+                ),
+              ),
+            ),
+          ],
+        );
       case ReportKind.profit:
-        return _SummaryReport(filter: _filter, builder: (s) => [
-              _kv('Revenue', s.revenue.format()),
-              _kv('Cost of goods sold', s.cogs?.format() ?? 'Unknown'),
-              _kv('Gross profit', s.grossProfit?.format() ?? 'Unavailable'),
-              _kv('Operating expenses', s.expenses.format()),
-              _kv('Other income', s.otherIncome.format()),
-              _kv('Estimated net profit', s.netProfit?.format() ?? 'Unavailable', bold: true),
-              if (s.netProfit == null)
-                Padding(padding: const EdgeInsets.only(top: 8), child: Text(context.l10n.dashProfitUnavailable,
-                    style: TextStyle(color: context.semantic.warning, fontWeight: FontWeight.w600))),
-              Align(alignment: AlignmentDirectional.centerStart,
-                  child: TextButton.icon(onPressed: () => showProfitMethodology(context, s), icon: const Icon(Icons.info_outline_rounded),
-                      label: const Text('How this is calculated'))),
-            ]);
+        return _SummaryReport(
+          filter: _filter,
+          builder: (s) => [
+            _kv('Revenue', s.revenue.format()),
+            _kv('Cost of goods sold', s.cogs?.format() ?? 'Unknown'),
+            _kv('Gross profit', s.grossProfit?.format() ?? 'Unavailable'),
+            _kv('Operating expenses', s.expenses.format()),
+            _kv('Other income', s.otherIncome.format()),
+            _kv('Estimated net profit', s.netProfit?.format() ?? 'Unavailable', bold: true),
+            if (s.netProfit == null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  context.l10n.dashProfitUnavailable,
+                  style: TextStyle(color: context.semantic.warning, fontWeight: FontWeight.w600),
+                ),
+              ),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: () => showProfitMethodology(context, s),
+                icon: const Icon(Icons.info_outline_rounded),
+                label: const Text('How this is calculated'),
+              ),
+            ),
+          ],
+        );
       case ReportKind.cashflow:
-        return _SummaryReport(filter: _filter, builder: (s) => [
-              _kv('Money in (paid sales, income, payments received)', s.cashIn.format()),
-              _kv('Money out (paid purchases, expenses, payments)', s.cashOut.format()),
-              _kv('Net cash flow', s.netCashFlow.format(), bold: true),
-              _kv('Customers owe you', s.receivables.format()),
-              _kv('You owe suppliers', s.payables.format()),
-            ], chart: true);
+        return _SummaryReport(
+          filter: _filter,
+          builder: (s) => [
+            _kv('Money in (paid sales, income, payments received)', s.cashIn.format()),
+            _kv('Money out (paid purchases, expenses, payments)', s.cashOut.format()),
+            _kv('Net cash flow', s.netCashFlow.format(), bold: true),
+            _kv('Customers owe you', s.receivables.format()),
+            _kv('You owe suppliers', s.payables.format()),
+          ],
+          chart: true,
+        );
       case ReportKind.products:
-        return Card(child: AsyncView(
-          value: ref.watch(topProductsProvider(_filter)), compact: true,
-          builder: (rows) => rows.isEmpty ? const Padding(padding: EdgeInsets.all(16), child: Text('No itemised sales in this period.'))
-              : Column(children: [
-                  for (final r in rows)
-                    ListTile(
-                      title: Text(r.name),
-                      subtitle: Text('${Fmt.qty(r.quantity)} sold${r.cost == null ? '' : ' · gross profit ${(r.revenue - r.cost!).format()}'}'),
-                      trailing: Text(r.revenue.format(), style: const TextStyle(fontWeight: FontWeight.w700)),
-                    ),
-                ]),
-        ));
+        return Card(
+          child: AsyncView(
+            value: ref.watch(topProductsProvider(_filter)),
+            compact: true,
+            builder: (rows) => rows.isEmpty
+                ? const Padding(padding: EdgeInsets.all(16), child: Text('No itemised sales in this period.'))
+                : Column(
+                    children: [
+                      for (final r in rows)
+                        ListTile(
+                          title: Text(r.name),
+                          subtitle: Text(
+                            '${Fmt.qty(r.quantity)} sold${r.cost == null ? '' : ' · gross profit ${(r.revenue - r.cost!).format()}'}',
+                          ),
+                          trailing: Text(r.revenue.format(), style: const TextStyle(fontWeight: FontWeight.w700)),
+                        ),
+                    ],
+                  ),
+          ),
+        );
       case ReportKind.inventory:
-        return Card(child: AsyncView(
-          value: ref.watch(productsProvider), compact: true,
-          builder: (products) {
-            final tracked = products.where((p) => p.trackInventory).toList();
-            final valued = tracked.where((p) => p.costPrice != null);
-            final value = valued.fold<int>(0, (s, p) => s + p.costPrice!.times(p.stockQuantity).minor);
-            return Column(children: [
-              ListTile(title: const Text('Stock value (at cost)'),
-                  subtitle: Text('${valued.length} of ${tracked.length} products have a cost price'),
-                  trailing: Text(Money(value, ref.read(businessProvider).currency).format(), style: const TextStyle(fontWeight: FontWeight.w700))),
-              const Divider(),
-              for (final p in tracked)
-                ListTile(dense: true, title: Text(p.name),
-                    leading: p.isLowStock ? Icon(Icons.warning_amber_rounded, color: context.semantic.warning) : const Icon(Icons.check_circle_outline),
-                    trailing: Text('${Fmt.qty(p.stockQuantity)} ${p.unit}')),
-            ]);
-          },
-        ));
+        return Card(
+          child: AsyncView(
+            value: ref.watch(productsProvider),
+            compact: true,
+            builder: (products) {
+              final tracked = products.where((p) => p.trackInventory).toList();
+              final valued = tracked.where((p) => p.costPrice != null);
+              final value = valued.fold<int>(0, (s, p) => s + p.costPrice!.times(p.stockQuantity).minor);
+              return Column(
+                children: [
+                  ListTile(
+                    title: const Text('Stock value (at cost)'),
+                    subtitle: Text('${valued.length} of ${tracked.length} products have a cost price'),
+                    trailing: Text(
+                      Money(value, ref.read(businessProvider).currency).format(),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  const Divider(),
+                  for (final p in tracked)
+                    ListTile(
+                      dense: true,
+                      title: Text(p.name),
+                      leading: p.isLowStock
+                          ? Icon(Icons.warning_amber_rounded, color: context.semantic.warning)
+                          : const Icon(Icons.check_circle_outline),
+                      trailing: Text('${Fmt.qty(p.stockQuantity)} ${p.unit}'),
+                    ),
+                ],
+              );
+            },
+          ),
+        );
       case ReportKind.customers:
       case ReportKind.suppliers:
         final kind = _kind == ReportKind.customers ? ContactKind.customer : ContactKind.supplier;
-        return Card(child: AsyncView(
-          value: ref.watch(contactsProvider(kind)), compact: true,
-          builder: (list) {
-            final sorted = [...list]..sort((a, b) => (b.outstanding?.minor ?? 0).compareTo(a.outstanding?.minor ?? 0));
-            return Column(children: [
-              for (final c in sorted)
-                ListTile(title: Text(c.name), subtitle: Text('Purchases ${c.totalPurchases?.format()} · Payments ${c.totalPayments?.format()}'),
-                    trailing: Text(c.outstanding?.format() ?? '', style: const TextStyle(fontWeight: FontWeight.w700))),
-              if (sorted.isEmpty) const Padding(padding: EdgeInsets.all(16), child: Text('No records yet')),
-            ]);
-          },
-        ));
+        return Card(
+          child: AsyncView(
+            value: ref.watch(contactsProvider(kind)),
+            compact: true,
+            builder: (list) {
+              final sorted = [...list]..sort((a, b) => (b.outstanding?.minor ?? 0).compareTo(a.outstanding?.minor ?? 0));
+              return Column(
+                children: [
+                  for (final c in sorted)
+                    ListTile(
+                      title: Text(c.name),
+                      subtitle: Text('Purchases ${c.totalPurchases?.format()} · Payments ${c.totalPayments?.format()}'),
+                      trailing: Text(c.outstanding?.format() ?? '', style: const TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  if (sorted.isEmpty) const Padding(padding: EdgeInsets.all(16), child: Text('No records yet')),
+                ],
+              );
+            },
+          ),
+        );
     }
   }
 
   Widget _kv(String k, String v, {bool bold = false}) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(children: [
-          Expanded(child: Text(k, style: bold ? Theme.of(context).textTheme.titleMedium : null)),
-          Text(v, style: (bold ? Theme.of(context).textTheme.titleLarge : Theme.of(context).textTheme.titleSmall)),
-        ]),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      children: [
+        Expanded(child: Text(k, style: bold ? Theme.of(context).textTheme.titleMedium : null)),
+        Text(v, style: (bold ? Theme.of(context).textTheme.titleLarge : Theme.of(context).textTheme.titleSmall)),
+      ],
+    ),
+  );
 }
 
 class _SummaryReport extends ConsumerWidget {
@@ -242,22 +360,32 @@ class _SummaryReport extends ConsumerWidget {
   final bool chart;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Column(children: [
+  Widget build(BuildContext context, WidgetRef ref) => Column(
+    children: [
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: AsyncView(
+            value: ref.watch(summaryProvider(filter)),
+            compact: true,
+            onRetry: () => ref.invalidate(summaryProvider(filter)),
+            builder: (s) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: builder(s)),
+          ),
+        ),
+      ),
+      if (chart) ...[
+        const SizedBox(height: Gap.lg),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: AsyncView(
-              value: ref.watch(summaryProvider(filter)),
+              value: ref.watch(seriesProvider(filter)),
               compact: true,
-              onRetry: () => ref.invalidate(summaryProvider(filter)),
-              builder: (s) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: builder(s)),
+              builder: (p) => SalesTrendChart(points: p),
             ),
           ),
         ),
-        if (chart) ...[
-          const SizedBox(height: Gap.lg),
-          Card(child: Padding(padding: const EdgeInsets.all(Gap.lg), child: AsyncView(
-            value: ref.watch(seriesProvider(filter)), compact: true, builder: (p) => SalesTrendChart(points: p)))),
-        ],
-      ]);
+      ],
+    ],
+  );
 }

@@ -144,12 +144,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authContinueGoogle => 'Continue with Google';
 
   @override
-  String get authCheckEmail =>
-      'Check your email to confirm your account, then sign in.';
+  String get authCheckEmail => 'Check your email to confirm your account, then sign in.';
 
   @override
-  String get authResetSent =>
-      'If an account exists for that email, we\'ve sent a reset link.';
+  String get authResetSent => 'If an account exists for that email, we\'ve sent a reset link.';
 
   @override
   String get aiHeader => 'Tell me what happened.';
@@ -201,8 +199,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashExpenseBreakdown => 'Where money went';
 
   @override
-  String get dashProfitUnavailable =>
-      'Profit estimate unavailable because product cost data is incomplete.';
+  String get dashProfitUnavailable => 'Profit estimate unavailable because product cost data is incomplete.';
 
   @override
   String get emptyGeneric => 'Nothing here yet';
@@ -211,8 +208,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorGeneric => 'Something went wrong. Please try again.';
 
   @override
-  String get offlineBanner =>
-      'Offline — showing saved data. New entries will sync automatically.';
+  String get offlineBanner => 'Offline — showing saved data. New entries will sync automatically.';
 
   @override
   String pendingSync(int count) {

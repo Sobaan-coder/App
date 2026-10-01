@@ -12,10 +12,7 @@ Future<void> initSupabase() async {
   await Supabase.initialize(
     url: Env.supabaseUrl,
     publishableKey: Env.supabaseAnonKey, // anon (publishable) key — safe to ship, protected by RLS
-    authOptions: FlutterAuthClientOptions(
-      authFlowType: AuthFlowType.pkce,
-      localStorage: kIsWeb ? null : SecureSessionStorage(),
-    ),
+    authOptions: FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce, localStorage: kIsWeb ? null : SecureSessionStorage()),
   );
 }
 

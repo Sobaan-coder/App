@@ -28,15 +28,31 @@ final teamProvider = FutureProvider.autoDispose<(List<TeamMember>, List<PendingI
   try {
     final members = await client.from('business_members').select('id, user_id, role').eq('business_id', b.id).order('created_at');
     final ids = members.map((m) => m['user_id'] as String).toList();
-    final profiles = ids.isEmpty ? <Map<String, dynamic>>[] : await client.from('profiles').select('id, full_name').inFilter('id', ids);
+    final profiles = ids.isEmpty
+        ? <Map<String, dynamic>>[]
+        : await client.from('profiles').select('id, full_name').inFilter('id', ids);
     final names = {for (final p in profiles) p['id'] as String: (p['full_name'] as String?) ?? 'Team member'};
     final invites = b.role.canManageTeam
-        ? await client.from('business_invitations').select('id, email, role').eq('business_id', b.id).isFilter('accepted_at', null)
+        ? await client
+              .from('business_invitations')
+              .select('id, email, role')
+              .eq('business_id', b.id)
+              .isFilter('accepted_at', null)
         : <Map<String, dynamic>>[];
     return (
-      members.map((m) => TeamMember(m['id'] as String, m['user_id'] as String, names[m['user_id']] ?? 'Team member',
-          MemberRole.fromApi(m['role'] as String?))).toList(),
-      invites.map((i) => PendingInvite(i['id'] as String, i['email'] as String, MemberRole.fromApi(i['role'] as String?))).toList(),
+      members
+          .map(
+            (m) => TeamMember(
+              m['id'] as String,
+              m['user_id'] as String,
+              names[m['user_id']] ?? 'Team member',
+              MemberRole.fromApi(m['role'] as String?),
+            ),
+          )
+          .toList(),
+      invites
+          .map((i) => PendingInvite(i['id'] as String, i['email'] as String, MemberRole.fromApi(i['role'] as String?)))
+          .toList(),
     );
   } catch (e) {
     throw AppFailure.from(e);
@@ -57,19 +73,20 @@ class TeamActions {
   }
 
   Future<void> invite(String email, MemberRole role) => _run(() async {
-        await ref.read(supabaseClientProvider)!.rpc('invite_member',
-            params: {'p_business_id': ref.read(businessProvider).id, 'p_email': email, 'p_role': role.name});
-      });
+    await ref
+        .read(supabaseClientProvider)!
+        .rpc('invite_member', params: {'p_business_id': ref.read(businessProvider).id, 'p_email': email, 'p_role': role.name});
+  });
 
   Future<void> changeRole(String memberId, MemberRole role) => _run(() async {
-        await ref.read(supabaseClientProvider)!.rpc('update_member_role', params: {'p_member_id': memberId, 'p_role': role.name});
-      });
+    await ref.read(supabaseClientProvider)!.rpc('update_member_role', params: {'p_member_id': memberId, 'p_role': role.name});
+  });
 
   Future<void> remove(String memberId) => _run(() async {
-        await ref.read(supabaseClientProvider)!.rpc('remove_member', params: {'p_member_id': memberId});
-      });
+    await ref.read(supabaseClientProvider)!.rpc('remove_member', params: {'p_member_id': memberId});
+  });
 
   Future<void> cancelInvite(String inviteId) => _run(() async {
-        await ref.read(supabaseClientProvider)!.from('business_invitations').delete().eq('id', inviteId);
-      });
+    await ref.read(supabaseClientProvider)!.from('business_invitations').delete().eq('id', inviteId);
+  });
 }

@@ -27,12 +27,12 @@ enum MemberRole {
   bool get canSeeEmployees => atLeast(manager);
 
   String get description => switch (this) {
-        owner => 'Full access, including billing and deleting the business.',
-        admin => 'Manage settings, team members and all records.',
-        manager => 'Manage products, prices and edit or delete records.',
-        employee => 'Record sales, purchases and expenses.',
-        viewer => 'Read-only access to records and reports.',
-      };
+    owner => 'Full access, including billing and deleting the business.',
+    admin => 'Manage settings, team members and all records.',
+    manager => 'Manage products, prices and edit or delete records.',
+    employee => 'Record sales, purchases and expenses.',
+    viewer => 'Read-only access to records and reports.',
+  };
 }
 
 class Business {
@@ -69,21 +69,21 @@ class Business {
   final bool isDemo;
 
   factory Business.fromJson(Map<String, dynamic> j) => Business(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        businessType: j['business_type'] as String? ?? 'other',
-        currency: j['currency'] as String? ?? 'PKR',
-        timezone: j['timezone'] as String? ?? 'UTC',
-        country: j['country'] as String?,
-        address: j['address'] as String?,
-        phone: j['phone'] as String?,
-        email: j['email'] as String?,
-        logoUrl: j['logo_url'] as String?,
-        taxEnabled: j['tax_enabled'] as bool? ?? false,
-        taxRateBp: j['tax_rate_bp'] as int? ?? 0,
-        invoicePrefix: j['invoice_prefix'] as String? ?? 'INV-',
-        isDemo: j['is_demo'] as bool? ?? false,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    businessType: j['business_type'] as String? ?? 'other',
+    currency: j['currency'] as String? ?? 'PKR',
+    timezone: j['timezone'] as String? ?? 'UTC',
+    country: j['country'] as String?,
+    address: j['address'] as String?,
+    phone: j['phone'] as String?,
+    email: j['email'] as String?,
+    logoUrl: j['logo_url'] as String?,
+    taxEnabled: j['tax_enabled'] as bool? ?? false,
+    taxRateBp: j['tax_rate_bp'] as int? ?? 0,
+    invoicePrefix: j['invoice_prefix'] as String? ?? 'INV-',
+    isDemo: j['is_demo'] as bool? ?? false,
+  );
 }
 
 class Membership {
@@ -114,15 +114,15 @@ class BusinessSettings {
   final Map<String, dynamic> featureFlags;
 
   factory BusinessSettings.fromJson(Map<String, dynamic> j) => BusinessSettings(
-        aiAutoRecordLowRisk: j['ai_auto_record_low_risk'] as bool? ?? false,
-        aiConfirmThresholdMinor: (j['ai_confirm_threshold_minor'] as num?)?.toInt() ?? 2000000,
-        lowStockAlerts: j['low_stock_alerts'] as bool? ?? true,
-        dailySummary: j['daily_summary'] as bool? ?? true,
-        monthlyReport: j['monthly_report'] as bool? ?? true,
-        paymentDueReminders: j['payment_due_reminders'] as bool? ?? true,
-        invoiceFooter: j['invoice_footer'] as String? ?? '',
-        featureFlags: Map<String, dynamic>.from(j['feature_flags'] as Map? ?? const {}),
-      );
+    aiAutoRecordLowRisk: j['ai_auto_record_low_risk'] as bool? ?? false,
+    aiConfirmThresholdMinor: (j['ai_confirm_threshold_minor'] as num?)?.toInt() ?? 2000000,
+    lowStockAlerts: j['low_stock_alerts'] as bool? ?? true,
+    dailySummary: j['daily_summary'] as bool? ?? true,
+    monthlyReport: j['monthly_report'] as bool? ?? true,
+    paymentDueReminders: j['payment_due_reminders'] as bool? ?? true,
+    invoiceFooter: j['invoice_footer'] as String? ?? '',
+    featureFlags: Map<String, dynamic>.from(j['feature_flags'] as Map? ?? const {}),
+  );
 }
 
 /// Everything screens need to know about the business currently in use.

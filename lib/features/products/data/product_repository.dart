@@ -34,8 +34,13 @@ class ProductRepository {
   }
 
   Future<Product?> byBarcode(String code) async {
-    final rows = await _client.from('products').select(_columns)
-        .eq('business_id', _businessId).eq('barcode', code.trim()).isFilter('deleted_at', null).limit(1);
+    final rows = await _client
+        .from('products')
+        .select(_columns)
+        .eq('business_id', _businessId)
+        .eq('barcode', code.trim())
+        .isFilter('deleted_at', null)
+        .limit(1);
     return rows.isEmpty ? null : Product.fromJson(rows.first, _currency);
   }
 
@@ -51,12 +56,17 @@ class ProductRepository {
   /// (stock is never set directly).
   Future<String> create(Product p, {double openingStock = 0}) async {
     try {
-      final row = await _client.from('products').insert({...p.toWritableJson(), 'business_id': _businessId}).select('id').single();
+      final row = await _client
+          .from('products')
+          .insert({...p.toWritableJson(), 'business_id': _businessId})
+          .select('id')
+          .single();
       final id = row['id'] as String;
       if (openingStock != 0) {
-        await _client.rpc('adjust_inventory', params: {
-          'p_product_id': id, 'p_type': 'opening', 'p_quantity_change': openingStock, 'p_note': 'Opening stock',
-        });
+        await _client.rpc(
+          'adjust_inventory',
+          params: {'p_product_id': id, 'p_type': 'opening', 'p_quantity_change': openingStock, 'p_note': 'Opening stock'},
+        );
       }
       _ref.read(dataVersionProvider.notifier).bump();
       return id;
@@ -83,8 +93,11 @@ class ProductRepository {
 
   Future<String> addCategory(String name) async {
     try {
-      final row = await _client.from('product_categories')
-          .insert({'business_id': _businessId, 'name': name.trim()}).select('id').single();
+      final row = await _client
+          .from('product_categories')
+          .insert({'business_id': _businessId, 'name': name.trim()})
+          .select('id')
+          .single();
       return row['id'] as String;
     } catch (e) {
       throw AppFailure.from(e);

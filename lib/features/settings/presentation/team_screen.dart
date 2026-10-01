@@ -24,7 +24,11 @@ class TeamScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Team & roles')),
       floatingActionButton: b.role.canManageTeam
           ? FloatingActionButton.extended(
-              onPressed: () => showAppBottomSheet(context, title: 'Invite a team member', child: _InviteForm(actions: actions, myRole: b.role)),
+              onPressed: () => showAppBottomSheet(
+                context,
+                title: 'Invite a team member',
+                child: _InviteForm(actions: actions, myRole: b.role),
+              ),
               icon: const Icon(Icons.person_add_alt_rounded),
               label: const Text('Invite'),
             )
@@ -37,52 +41,63 @@ class TeamScreen extends ConsumerWidget {
           return Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 760),
-              child: ListView(padding: const EdgeInsets.fromLTRB(0, 8, 0, 96), children: [
-                for (final m in members)
-                  ListTile(
-                    leading: CircleAvatar(child: Text(m.name[0].toUpperCase())),
-                    title: Text(m.userId == me ? '${m.name} (you)' : m.name),
-                    subtitle: Text(m.role.description),
-                    trailing: b.role.canManageTeam && m.userId != me
-                        ? PopupMenuButton<String>(
-                            tooltip: 'Change role',
-                            onSelected: (v) async {
-                              try {
-                                if (v == 'remove') {
-                                  if (await showConfirmDialog(context, title: 'Remove ${m.name}?', message: 'They will lose access to this business.',
-                                      confirmLabel: 'Remove', destructive: true)) {
-                                    await actions.remove(m.id);
-                                  }
-                                } else {
-                                  await actions.changeRole(m.id, MemberRole.fromApi(v));
-                                }
-                              } catch (e) {
-                                if (context.mounted) showError(context, e);
-                              }
-                            },
-                            itemBuilder: (_) => [
-                              for (final r in MemberRole.values)
-                                if (b.role == MemberRole.owner || r.rank < MemberRole.admin.rank)
-                                  CheckedPopupMenuItem(value: r.name, checked: r == m.role, child: Text(r.label)),
-                              const PopupMenuDivider(),
-                              const PopupMenuItem(value: 'remove', child: Text('Remove from business')),
-                            ],
-                            child: Chip(label: Text(m.role.label)),
-                          )
-                        : Chip(label: Text(m.role.label)),
-                  ),
-                if (invites.isNotEmpty) ...[
-                  const Padding(padding: EdgeInsets.fromLTRB(16, 24, 16, 8), child: Text('Pending invitations')),
-                  for (final i in invites)
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
+                children: [
+                  for (final m in members)
                     ListTile(
-                      leading: const Icon(Icons.mail_outline_rounded),
-                      title: Text(i.email),
-                      subtitle: Text('${i.role.label} · joins automatically when they sign up with this email'),
-                      trailing: IconButton(tooltip: 'Cancel invitation', icon: const Icon(Icons.close_rounded),
-                          onPressed: () => actions.cancelInvite(i.id)),
+                      leading: CircleAvatar(child: Text(m.name[0].toUpperCase())),
+                      title: Text(m.userId == me ? '${m.name} (you)' : m.name),
+                      subtitle: Text(m.role.description),
+                      trailing: b.role.canManageTeam && m.userId != me
+                          ? PopupMenuButton<String>(
+                              tooltip: 'Change role',
+                              onSelected: (v) async {
+                                try {
+                                  if (v == 'remove') {
+                                    if (await showConfirmDialog(
+                                      context,
+                                      title: 'Remove ${m.name}?',
+                                      message: 'They will lose access to this business.',
+                                      confirmLabel: 'Remove',
+                                      destructive: true,
+                                    )) {
+                                      await actions.remove(m.id);
+                                    }
+                                  } else {
+                                    await actions.changeRole(m.id, MemberRole.fromApi(v));
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) showError(context, e);
+                                }
+                              },
+                              itemBuilder: (_) => [
+                                for (final r in MemberRole.values)
+                                  if (b.role == MemberRole.owner || r.rank < MemberRole.admin.rank)
+                                    CheckedPopupMenuItem(value: r.name, checked: r == m.role, child: Text(r.label)),
+                                const PopupMenuDivider(),
+                                const PopupMenuItem(value: 'remove', child: Text('Remove from business')),
+                              ],
+                              child: Chip(label: Text(m.role.label)),
+                            )
+                          : Chip(label: Text(m.role.label)),
                     ),
+                  if (invites.isNotEmpty) ...[
+                    const Padding(padding: EdgeInsets.fromLTRB(16, 24, 16, 8), child: Text('Pending invitations')),
+                    for (final i in invites)
+                      ListTile(
+                        leading: const Icon(Icons.mail_outline_rounded),
+                        title: Text(i.email),
+                        subtitle: Text('${i.role.label} · joins automatically when they sign up with this email'),
+                        trailing: IconButton(
+                          tooltip: 'Cancel invitation',
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => actions.cancelInvite(i.id),
+                        ),
+                      ),
+                  ],
                 ],
-              ]),
+              ),
             ),
           );
         },
@@ -112,38 +127,48 @@ class _InviteFormState extends State<_InviteForm> {
 
   @override
   Widget build(BuildContext context) {
-    final roles = MemberRole.values.where((r) => r != MemberRole.owner && (widget.myRole == MemberRole.owner || r != MemberRole.admin));
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      AppTextField(label: 'Email', controller: _email, keyboardType: TextInputType.emailAddress, autofocus: true),
-      const SizedBox(height: Gap.lg),
-      RadioGroup<MemberRole>(
-        groupValue: _role,
-        onChanged: (v) => setState(() => _role = v!),
-        child: Column(children: [
-          for (final r in roles) RadioListTile<MemberRole>(value: r, title: Text(r.label), subtitle: Text(r.description)),
-        ]),
-      ),
-      const SizedBox(height: Gap.lg),
-      AppButton(
-        label: 'Send invite',
-        loading: _saving,
-        expand: true,
-        onPressed: () async {
-          if (Validators.email(_email.text) != null) return showMessage(context, 'Enter a valid email');
-          setState(() => _saving = true);
-          try {
-            await widget.actions.invite(_email.text.trim(), _role);
-            if (context.mounted) {
-              Navigator.pop(context);
-              showMessage(context, 'Invitation saved. They’ll join automatically when they sign in with ${_email.text.trim()}.');
+    final roles = MemberRole.values.where(
+      (r) => r != MemberRole.owner && (widget.myRole == MemberRole.owner || r != MemberRole.admin),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppTextField(label: 'Email', controller: _email, keyboardType: TextInputType.emailAddress, autofocus: true),
+        const SizedBox(height: Gap.lg),
+        RadioGroup<MemberRole>(
+          groupValue: _role,
+          onChanged: (v) => setState(() => _role = v!),
+          child: Column(
+            children: [
+              for (final r in roles) RadioListTile<MemberRole>(value: r, title: Text(r.label), subtitle: Text(r.description)),
+            ],
+          ),
+        ),
+        const SizedBox(height: Gap.lg),
+        AppButton(
+          label: 'Send invite',
+          loading: _saving,
+          expand: true,
+          onPressed: () async {
+            if (Validators.email(_email.text) != null) return showMessage(context, 'Enter a valid email');
+            setState(() => _saving = true);
+            try {
+              await widget.actions.invite(_email.text.trim(), _role);
+              if (context.mounted) {
+                Navigator.pop(context);
+                showMessage(
+                  context,
+                  'Invitation saved. They’ll join automatically when they sign in with ${_email.text.trim()}.',
+                );
+              }
+            } catch (e) {
+              if (context.mounted) showError(context, e);
+            } finally {
+              if (mounted) setState(() => _saving = false);
             }
-          } catch (e) {
-            if (context.mounted) showError(context, e);
-          } finally {
-            if (mounted) setState(() => _saving = false);
-          }
-        },
-      ),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 }

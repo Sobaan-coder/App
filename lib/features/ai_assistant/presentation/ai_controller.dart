@@ -66,8 +66,14 @@ class AiChatController extends Notifier<AiChatState> {
     if (input.isEmpty || state.thinking) return;
     _add(ChatEntry(id: _uuid.v4(), fromUser: true, text: input));
     if (!ref.read(isOnlineProvider)) {
-      _add(ChatEntry(id: _uuid.v4(), fromUser: false, isError: true,
-          text: 'You’re offline. The assistant needs internet — use Record to add entries manually and they’ll sync later.'));
+      _add(
+        ChatEntry(
+          id: _uuid.v4(),
+          fromUser: false,
+          isError: true,
+          text: 'You’re offline. The assistant needs internet — use Record to add entries manually and they’ll sync later.',
+        ),
+      );
       return;
     }
     state = state.copy(thinking: true);
@@ -101,8 +107,16 @@ class AiChatController extends Notifier<AiChatState> {
     _add(ChatEntry(id: _uuid.v4(), fromUser: true, text: '📷 Receipt photo'));
     try {
       final p = await upload();
-      _add(ChatEntry(id: _uuid.v4(), fromUser: false, text: p.kind == ProposalKind.action ? '' : (p.question ?? p.message),
-          proposal: p, clientRef: _uuid.v4(), isError: p.kind == ProposalKind.error));
+      _add(
+        ChatEntry(
+          id: _uuid.v4(),
+          fromUser: false,
+          text: p.kind == ProposalKind.action ? '' : (p.question ?? p.message),
+          proposal: p,
+          clientRef: _uuid.v4(),
+          isError: p.kind == ProposalKind.error,
+        ),
+      );
     } catch (e) {
       _add(ChatEntry(id: _uuid.v4(), fromUser: false, isError: true, text: AppFailure.from(e).message));
     } finally {
@@ -117,7 +131,9 @@ class AiChatController extends Notifier<AiChatState> {
   Future<void> confirm(String entryId) async {
     final entry = _find(entryId);
     final action = entry?.proposal?.action;
-    if (entry == null || action == null || entry.status == PreviewStatus.committing || entry.status == PreviewStatus.committed) return;
+    if (entry == null || action == null || entry.status == PreviewStatus.committing || entry.status == PreviewStatus.committed) {
+      return;
+    }
     entry.status = PreviewStatus.committing;
     _touch();
     final business = ref.read(businessProvider);
@@ -126,9 +142,10 @@ class AiChatController extends Notifier<AiChatState> {
       switch (action.kind) {
         case ProposalActionKind.recordTransaction:
           final res = await ref.read(transactionRepositoryProvider).recordPayload(
-                {...payload, 'client_ref': entry.clientRef},
-                summary: '${entry.proposal!.previewTitle ?? 'Entry'} · ${entry.proposal!.lines.where((l) => l.label == 'Amount').firstOrNull?.value ?? ''}',
-              );
+            {...payload, 'client_ref': entry.clientRef},
+            summary:
+                '${entry.proposal!.previewTitle ?? 'Entry'} · ${entry.proposal!.lines.where((l) => l.label == 'Amount').firstOrNull?.value ?? ''}',
+          );
           entry.transactionId = res.id;
           final title = (entry.proposal!.previewTitle ?? 'Entry').replaceAll(' detected', '');
           entry.resultText = res.pending
@@ -137,12 +154,20 @@ class AiChatController extends Notifier<AiChatState> {
         case ProposalActionKind.addProduct:
           final c = business.currency;
           int? minor(String k) => (payload[k] as num?)?.toInt();
-          await ref.read(productRepositoryProvider).create(Product(
-                id: '', businessId: business.id, name: payload['name'] as String, currency: c,
-                sellingPrice: minor('selling_price_minor') == null ? null : Money(minor('selling_price_minor')!, c),
-                costPrice: minor('cost_price_minor') == null ? null : Money(minor('cost_price_minor')!, c),
-                unit: payload['unit'] as String? ?? 'pcs', sku: payload['sku'] as String?,
-              ));
+          await ref
+              .read(productRepositoryProvider)
+              .create(
+                Product(
+                  id: '',
+                  businessId: business.id,
+                  name: payload['name'] as String,
+                  currency: c,
+                  sellingPrice: minor('selling_price_minor') == null ? null : Money(minor('selling_price_minor')!, c),
+                  costPrice: minor('cost_price_minor') == null ? null : Money(minor('cost_price_minor')!, c),
+                  unit: payload['unit'] as String? ?? 'pcs',
+                  sku: payload['sku'] as String?,
+                ),
+              );
           entry.resultText = 'Product added';
         case ProposalActionKind.updateProduct:
           await ref.read(productRepositoryProvider).update(payload['product_id'] as String, {
@@ -151,7 +176,9 @@ class AiChatController extends Notifier<AiChatState> {
           });
           entry.resultText = 'Product updated';
         case ProposalActionKind.adjustInventory:
-          final stock = await ref.read(inventoryRepositoryProvider).adjust(
+          final stock = await ref
+              .read(inventoryRepositoryProvider)
+              .adjust(
                 payload['product_id'] as String,
                 MovementType.fromApi(payload['type'] as String),
                 (payload['quantity_change'] as num).toDouble(),

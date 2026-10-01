@@ -26,8 +26,7 @@ class MoneyField extends StatelessWidget {
   final ValueChanged<Money?>? onChanged;
   final String? helper;
 
-  static Money? read(TextEditingController c, String currency) =>
-      c.text.trim().isEmpty ? null : Money.tryParse(c.text, currency);
+  static Money? read(TextEditingController c, String currency) => c.text.trim().isEmpty ? null : Money.tryParse(c.text, currency);
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +37,7 @@ class MoneyField extends StatelessWidget {
       keyboardType: TextInputType.numberWithOptions(decimal: digits > 0),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(digits > 0 ? r'[0-9.,]' : r'[0-9,]'))],
       style: Theme.of(context).textTheme.titleMedium,
-      decoration: InputDecoration(
-        labelText: label,
-        helperText: helper,
-        prefixText: '${Money.symbolFor(currency)} ',
-      ),
+      decoration: InputDecoration(labelText: label, helperText: helper, prefixText: '${Money.symbolFor(currency)} '),
       onChanged: onChanged == null ? null : (v) => onChanged!(Money.tryParse(v, currency)),
       validator: (v) {
         if (v == null || v.trim().isEmpty) return required ? '$label is required' : null;

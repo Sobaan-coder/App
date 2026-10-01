@@ -27,30 +27,38 @@ class ReportTable {
   Future<Uint8List> toPdf(String businessName) async {
     final doc = pw.Document(title: title, author: businessName);
     final brand = PdfColor.fromHex('#0E7C66');
-    doc.addPage(pw.MultiPage(
-      pageFormat: PdfPageFormat.a4.landscape,
-      margin: const pw.EdgeInsets.all(28),
-      header: (_) => pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-        pw.Text(businessName, style: pw.TextStyle(fontSize: 11, color: PdfColors.grey700)),
-        pw.Text(title, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: brand)),
-        pw.Text(subtitle, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
-        pw.SizedBox(height: 12),
-      ]),
-      footer: (ctx) => pw.Align(
-        alignment: pw.Alignment.centerRight,
-        child: pw.Text('Page ${ctx.pageNumber} of ${ctx.pagesCount} · BusinessPilot', style: const pw.TextStyle(fontSize: 8)),
-      ),
-      build: (_) => [
-        pw.TableHelper.fromTextArray(
-          headers: headers,
-          data: rows,
-          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white, fontSize: 9),
-          headerDecoration: pw.BoxDecoration(color: brand),
-          cellStyle: const pw.TextStyle(fontSize: 8.5),
-          cellPadding: const pw.EdgeInsets.all(4),
+    doc.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: const pw.EdgeInsets.all(28),
+        header: (_) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(businessName, style: pw.TextStyle(fontSize: 11, color: PdfColors.grey700)),
+            pw.Text(
+              title,
+              style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: brand),
+            ),
+            pw.Text(subtitle, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+            pw.SizedBox(height: 12),
+          ],
         ),
-      ],
-    ));
+        footer: (ctx) => pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text('Page ${ctx.pageNumber} of ${ctx.pagesCount} · BusinessPilot', style: const pw.TextStyle(fontSize: 8)),
+        ),
+        build: (_) => [
+          pw.TableHelper.fromTextArray(
+            headers: headers,
+            data: rows,
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white, fontSize: 9),
+            headerDecoration: pw.BoxDecoration(color: brand),
+            cellStyle: const pw.TextStyle(fontSize: 8.5),
+            cellPadding: const pw.EdgeInsets.all(4),
+          ),
+        ],
+      ),
+    );
     return doc.save();
   }
 }
@@ -63,12 +71,25 @@ class ReportExporter {
   Future<ReportTable> ledger(DateFilter f) async {
     final b = ref.read(businessProvider);
     try {
-      final rows = await ref.read(supabaseClientProvider)!.rpc('report_transactions',
-          params: {'p_business_id': b.id, ...f.toRpcArgs()}) as List;
+      final rows =
+          await ref.read(supabaseClientProvider)!.rpc('report_transactions', params: {'p_business_id': b.id, ...f.toRpcArgs()})
+              as List;
       return ReportTable(
         title: 'Transactions',
         subtitle: f.label,
-        headers: const ['Date', 'Type', 'Invoice', 'Description', 'Items', 'Customer', 'Supplier', 'Category', 'Payment', 'Amount', 'Currency'],
+        headers: const [
+          'Date',
+          'Type',
+          'Invoice',
+          'Description',
+          'Items',
+          'Customer',
+          'Supplier',
+          'Category',
+          'Payment',
+          'Amount',
+          'Currency',
+        ],
         rows: [
           for (final r in rows.cast<Map>())
             [
@@ -102,6 +123,7 @@ class ReportExporter {
     _track('pdf');
   }
 
-  void _track(String format) => ref.read(analyticsProvider)
+  void _track(String format) => ref
+      .read(analyticsProvider)
       .track('report_generated', businessId: ref.read(businessProvider).id, properties: {'format': format});
 }

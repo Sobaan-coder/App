@@ -19,13 +19,12 @@ enum TransactionType {
   final bool isMoneyIn;
 
   String get api => switch (this) {
-        paymentReceived => 'payment_received',
-        paymentSent => 'payment_sent',
-        _ => name,
-      };
+    paymentReceived => 'payment_received',
+    paymentSent => 'payment_sent',
+    _ => name,
+  };
 
-  static TransactionType fromApi(String v) =>
-      values.firstWhere((t) => t.api == v, orElse: () => TransactionType.adjustment);
+  static TransactionType fromApi(String v) => values.firstWhere((t) => t.api == v, orElse: () => TransactionType.adjustment);
 }
 
 enum PaymentMethod {
@@ -61,13 +60,13 @@ class TransactionItem {
   final Money total;
 
   factory TransactionItem.fromJson(Map<String, dynamic> j, String currency) => TransactionItem(
-        productId: j['product_id'] as String?,
-        name: j['name'] as String? ?? 'Item',
-        quantity: readQty(j['quantity']),
-        unitPrice: Money(readMinor(j['unit_price_minor']) ?? 0, currency),
-        unitCost: readMinor(j['unit_cost_minor']) == null ? null : Money(readMinor(j['unit_cost_minor'])!, currency),
-        total: Money(readMinor(j['total_minor']) ?? 0, currency),
-      );
+    productId: j['product_id'] as String?,
+    name: j['name'] as String? ?? 'Item',
+    quantity: readQty(j['quantity']),
+    unitPrice: Money(readMinor(j['unit_price_minor']) ?? 0, currency),
+    unitCost: readMinor(j['unit_cost_minor']) == null ? null : Money(readMinor(j['unit_cost_minor'])!, currency),
+    total: Money(readMinor(j['total_minor']) ?? 0, currency),
+  );
 }
 
 class AppTransaction {
@@ -221,27 +220,27 @@ class TransactionDraft {
   final String? aiRequestId;
 
   Map<String, dynamic> toPayload({required String businessId, required String clientRef}) => {
-        'business_id': businessId,
-        'client_ref': clientRef,
-        'type': type.api,
-        'amount_minor': ?amount?.minor,
-        'currency': ?amount?.currency,
-        'payment_method': paymentMethod.name,
-        if (paymentProvider != null && paymentProvider!.isNotEmpty) 'payment_provider': paymentProvider,
-        if (description != null && description!.trim().isNotEmpty) 'description': description!.trim(),
-        'customer_id': ?customerId,
-        if (customerId == null && customerName != null) 'customer_name': customerName,
-        if (createCustomer) 'create_customer': true,
-        'supplier_id': ?supplierId,
-        if (supplierId == null && supplierName != null) 'supplier_name': supplierName,
-        if (createSupplier) 'create_supplier': true,
-        'expense_category_name': ?expenseCategoryName,
-        'transaction_date': ?transactionDate?.toUtc().toIso8601String(),
-        if (discount != null && discount!.minor > 0) 'discount_minor': discount!.minor,
-        if (items.isNotEmpty) 'items': items.map((i) => i.toJson()).toList(),
-        'source': source,
-        'ai_request_id': ?aiRequestId,
-      };
+    'business_id': businessId,
+    'client_ref': clientRef,
+    'type': type.api,
+    'amount_minor': ?amount?.minor,
+    'currency': ?amount?.currency,
+    'payment_method': paymentMethod.name,
+    if (paymentProvider != null && paymentProvider!.isNotEmpty) 'payment_provider': paymentProvider,
+    if (description != null && description!.trim().isNotEmpty) 'description': description!.trim(),
+    'customer_id': ?customerId,
+    if (customerId == null && customerName != null) 'customer_name': customerName,
+    if (createCustomer) 'create_customer': true,
+    'supplier_id': ?supplierId,
+    if (supplierId == null && supplierName != null) 'supplier_name': supplierName,
+    if (createSupplier) 'create_supplier': true,
+    'expense_category_name': ?expenseCategoryName,
+    'transaction_date': ?transactionDate?.toUtc().toIso8601String(),
+    if (discount != null && discount!.minor > 0) 'discount_minor': discount!.minor,
+    if (items.isNotEmpty) 'items': items.map((i) => i.toJson()).toList(),
+    'source': source,
+    'ai_request_id': ?aiRequestId,
+  };
 }
 
 class DraftItem {
@@ -252,9 +251,9 @@ class DraftItem {
   final Money? unitPrice;
 
   Map<String, dynamic> toJson() => {
-        'product_id': ?productId,
-        'name': name,
-        'quantity': quantity,
-        'unit_price_minor': ?unitPrice?.minor,
-      };
+    'product_id': ?productId,
+    'name': name,
+    'quantity': quantity,
+    'unit_price_minor': ?unitPrice?.minor,
+  };
 }

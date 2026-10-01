@@ -20,7 +20,11 @@ class ExpenseCategoryRepository {
   final String _businessId;
 
   Future<List<ExpenseCategory>> list() async {
-    final rows = await _client.from('expense_categories').select('id, name, is_default').eq('business_id', _businessId).order('name');
+    final rows = await _client
+        .from('expense_categories')
+        .select('id, name, is_default')
+        .eq('business_id', _businessId)
+        .order('name');
     return rows.map((r) => ExpenseCategory(r['id'] as String, r['name'] as String, r['is_default'] as bool? ?? false)).toList();
   }
 

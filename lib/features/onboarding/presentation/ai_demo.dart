@@ -71,45 +71,61 @@ class _AiDemoState extends State<AiDemo> {
       ],
       effects: const ['Inventory will decrease: Burger −3'],
     );
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          border: Border.all(color: t.colorScheme.primary, width: 2),
-          borderRadius: BorderRadius.circular(Gap.radius),
-          color: t.colorScheme.surface,
-        ),
-        child: Row(children: [
-          Icon(Icons.auto_awesome_rounded, color: t.colorScheme.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(_typed.isEmpty ? 'What happened?' : _typed,
-                style: t.textTheme.bodyLarge?.copyWith(
-                    color: _typed.isEmpty ? t.colorScheme.onSurfaceVariant : t.colorScheme.onSurface)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            border: Border.all(color: t.colorScheme.primary, width: 2),
+            borderRadius: BorderRadius.circular(Gap.radius),
+            color: t.colorScheme.surface,
           ),
-          if (_phase == 1) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-        ]),
-      ),
-      const SizedBox(height: Gap.lg),
-      AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: _phase >= 2
-            ? AITransactionPreview(
-                key: ValueKey(_phase),
-                proposal: proposal,
-                status: _phase == 3 ? PreviewStatus.committed : PreviewStatus.pending,
-                resultText: 'Sale recorded (demo — nothing was saved)',
-                onConfirm: () => setState(() => _phase = 3),
-                onCancel: _start,
-              )
-            : const SizedBox(height: 180),
-      ),
-      const SizedBox(height: Gap.md),
-      Wrap(alignment: WrapAlignment.center, spacing: 8, children: [
-        TextButton.icon(onPressed: _start, icon: const Icon(Icons.replay_rounded), label: const Text('Replay')),
-        if (widget.onTryForReal != null)
-          TextButton.icon(onPressed: widget.onTryForReal, icon: const Icon(Icons.bolt_rounded), label: const Text('Try it for real')),
-      ]),
-    ]);
+          child: Row(
+            children: [
+              Icon(Icons.auto_awesome_rounded, color: t.colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _typed.isEmpty ? 'What happened?' : _typed,
+                  style: t.textTheme.bodyLarge?.copyWith(
+                    color: _typed.isEmpty ? t.colorScheme.onSurfaceVariant : t.colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              if (_phase == 1) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+            ],
+          ),
+        ),
+        const SizedBox(height: Gap.lg),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _phase >= 2
+              ? AITransactionPreview(
+                  key: ValueKey(_phase),
+                  proposal: proposal,
+                  status: _phase == 3 ? PreviewStatus.committed : PreviewStatus.pending,
+                  resultText: 'Sale recorded (demo — nothing was saved)',
+                  onConfirm: () => setState(() => _phase = 3),
+                  onCancel: _start,
+                )
+              : const SizedBox(height: 180),
+        ),
+        const SizedBox(height: Gap.md),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          children: [
+            TextButton.icon(onPressed: _start, icon: const Icon(Icons.replay_rounded), label: const Text('Replay')),
+            if (widget.onTryForReal != null)
+              TextButton.icon(
+                onPressed: widget.onTryForReal,
+                icon: const Icon(Icons.bolt_rounded),
+                label: const Text('Try it for real'),
+              ),
+          ],
+        ),
+      ],
+    );
   }
 }

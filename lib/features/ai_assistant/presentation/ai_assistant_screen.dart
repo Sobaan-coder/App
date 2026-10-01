@@ -59,11 +59,14 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
   }
 
   void _scrollToEnd() => WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scroll.hasClients) {
-          _scroll.animateTo(_scroll.position.maxScrollExtent + 200,
-              duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-        }
-      });
+    if (_scroll.hasClients) {
+      _scroll.animateTo(
+        _scroll.position.maxScrollExtent + 200,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  });
 
   Future<void> _scanReceipt() async {
     final business = ref.read(businessProvider);
@@ -71,8 +74,9 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
     final file = picked?.files.singleOrNull;
     if (file?.bytes == null) return;
     final ext = (file!.extension ?? 'jpg').toLowerCase();
-    await ref.read(aiChatProvider.notifier).sendReceipt(
-        () => ref.read(aiRepositoryProvider).processReceipt(business.id, file.bytes!, ext == 'png' ? 'png' : 'jpg'));
+    await ref
+        .read(aiChatProvider.notifier)
+        .sendReceipt(() => ref.read(aiRepositoryProvider).processReceipt(business.id, file.bytes!, ext == 'png' ? 'png' : 'jpg'));
     _scrollToEnd();
   }
 
@@ -96,8 +100,11 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
     if (!business.flags.aiEnabled) {
       return Scaffold(
         appBar: AppBar(title: Text(l.navAiAssistant)),
-        body: const EmptyState(icon: Icons.auto_awesome_outlined, title: 'The assistant is turned off',
-            message: 'You can still record everything using the Record button.'),
+        body: const EmptyState(
+          icon: Icons.auto_awesome_outlined,
+          title: 'The assistant is turned off',
+          message: 'You can still record everything using the Record button.',
+        ),
       );
     }
 
@@ -110,51 +117,53 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
           const ShellActions(),
         ],
       ),
-      body: Column(children: [
-        Expanded(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 760),
-              child: state.entries.isEmpty
-                  ? _Welcome(onPick: _send)
-                  : ListView.builder(
-                      controller: _scroll,
-                      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xl),
-                      itemCount: state.entries.length + (state.thinking ? 1 : 0),
-                      itemBuilder: (context, i) {
-                        if (i == state.entries.length) {
-                          return Semantics(
-                            liveRegion: true,
-                            child: AIMessageBubble(
-                              text: l.aiThinking,
-                              fromUser: false,
-                              child: const LinearProgressIndicator(minHeight: 3),
-                            ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: state.entries.isEmpty
+                    ? _Welcome(onPick: _send)
+                    : ListView.builder(
+                        controller: _scroll,
+                        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xl),
+                        itemCount: state.entries.length + (state.thinking ? 1 : 0),
+                        itemBuilder: (context, i) {
+                          if (i == state.entries.length) {
+                            return Semantics(
+                              liveRegion: true,
+                              child: AIMessageBubble(
+                                text: l.aiThinking,
+                                fromUser: false,
+                                child: const LinearProgressIndicator(minHeight: 3),
+                              ),
+                            );
+                          }
+                          final e = state.entries[i];
+                          return _EntryView(
+                            entry: e,
+                            canRecord: business.role.canRecord,
+                            onConfirm: () => controller.confirm(e.id),
+                            onCancel: () => controller.cancel(e.id),
+                            onUndo: () => controller.undo(e.id),
+                            onShare: () => _share(e),
+                            onOption: _send,
                           );
-                        }
-                        final e = state.entries[i];
-                        return _EntryView(
-                          entry: e,
-                          canRecord: business.role.canRecord,
-                          onConfirm: () => controller.confirm(e.id),
-                          onCancel: () => controller.cancel(e.id),
-                          onUndo: () => controller.undo(e.id),
-                          onShare: () => _share(e),
-                          onOption: _send,
-                        );
-                      },
-                    ),
+                        },
+                      ),
+              ),
             ),
           ),
-        ),
-        _InputBar(
-          controller: _input,
-          focusNode: _focus,
-          busy: state.thinking,
-          onSend: () => _send(),
-          onReceipt: business.flags.receiptScanning && business.role.canRecord ? _scanReceipt : null,
-        ),
-      ]),
+          _InputBar(
+            controller: _input,
+            focusNode: _focus,
+            busy: state.thinking,
+            onSend: () => _send(),
+            onReceipt: business.flags.receiptScanning && business.role.canRecord ? _scanReceipt : null,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -168,24 +177,41 @@ class _Welcome extends StatelessWidget {
     final t = Theme.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(Gap.xl),
-      child: Column(children: [
-        const SizedBox(height: Gap.xl),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(color: t.colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-          child: Icon(Icons.auto_awesome_rounded, size: 40, color: t.colorScheme.primary),
-        ),
-        const SizedBox(height: Gap.lg),
-        Semantics(header: true, child: Text(context.l10n.aiHeader, style: t.textTheme.headlineMedium, textAlign: TextAlign.center)),
-        const SizedBox(height: Gap.sm),
-        Text('Sales, purchases, expenses, who owes you — or ask about your numbers.',
-            style: t.textTheme.bodyLarge?.copyWith(color: t.colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
-        const SizedBox(height: Gap.xl),
-        Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
-          for (final e in AppConstants.aiExamples)
-            ActionChip(avatar: const Icon(Icons.chat_bubble_outline_rounded, size: 18), label: Text(e), onPressed: () => onPick(e)),
-        ]),
-      ]),
+      child: Column(
+        children: [
+          const SizedBox(height: Gap.xl),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(color: t.colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(Icons.auto_awesome_rounded, size: 40, color: t.colorScheme.primary),
+          ),
+          const SizedBox(height: Gap.lg),
+          Semantics(
+            header: true,
+            child: Text(context.l10n.aiHeader, style: t.textTheme.headlineMedium, textAlign: TextAlign.center),
+          ),
+          const SizedBox(height: Gap.sm),
+          Text(
+            'Sales, purchases, expenses, who owes you — or ask about your numbers.',
+            style: t.textTheme.bodyLarge?.copyWith(color: t.colorScheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: Gap.xl),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final e in AppConstants.aiExamples)
+                ActionChip(
+                  avatar: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                  label: Text(e),
+                  onPressed: () => onPick(e),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -236,9 +262,11 @@ class _EntryView extends StatelessWidget {
           fromUser: false,
           child: p.options.isEmpty
               ? null
-              : Wrap(spacing: 8, runSpacing: 8, children: [
-                  for (final o in p.options) ActionChip(label: Text(o.label), onPressed: () => onOption(o.value)),
-                ]),
+              : Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [for (final o in p.options) ActionChip(label: Text(o.label), onPressed: () => onOption(o.value))],
+                ),
         );
       case ProposalKind.answer:
         return AIMessageBubble(
@@ -282,46 +310,57 @@ class _InputBar extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 760),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.sm),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                if (onReceipt != null)
-                  IconButton(tooltip: 'Scan a receipt', onPressed: busy ? null : onReceipt, icon: const Icon(Icons.document_scanner_outlined)),
-                Expanded(
-                  child: CallbackShortcuts(
-                    bindings: {const SingleActivator(LogicalKeyboardKey.enter): onSend},
-                    child: TextField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      minLines: 1,
-                      maxLines: 4,
-                      maxLength: 500,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => onSend(),
-                      style: t.textTheme.bodyLarge,
-                      decoration: InputDecoration(
-                        hintText: context.l10n.aiHint,
-                        counterText: '',
-                        prefixIcon: const Icon(Icons.auto_awesome_rounded, color: AppColors.accent),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(28), borderSide: BorderSide(color: t.dividerTheme.color!)),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(28), borderSide: BorderSide(color: t.colorScheme.primary, width: 2)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (onReceipt != null)
+                    IconButton(
+                      tooltip: 'Scan a receipt',
+                      onPressed: busy ? null : onReceipt,
+                      icon: const Icon(Icons.document_scanner_outlined),
+                    ),
+                  Expanded(
+                    child: CallbackShortcuts(
+                      bindings: {const SingleActivator(LogicalKeyboardKey.enter): onSend},
+                      child: TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        minLines: 1,
+                        maxLines: 4,
+                        maxLength: 500,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => onSend(),
+                        style: t.textTheme.bodyLarge,
+                        decoration: InputDecoration(
+                          hintText: context.l10n.aiHint,
+                          counterText: '',
+                          prefixIcon: const Icon(Icons.auto_awesome_rounded, color: AppColors.accent),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(28),
+                            borderSide: BorderSide(color: t.dividerTheme.color!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(28),
+                            borderSide: BorderSide(color: t.colorScheme.primary, width: 2),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: Gap.sm),
-                ListenableBuilder(
-                  listenable: controller,
-                  builder: (_, _) => IconButton.filled(
-                    tooltip: 'Send',
-                    iconSize: 26,
-                    style: IconButton.styleFrom(minimumSize: const Size(52, 52)),
-                    onPressed: busy || controller.text.trim().isEmpty ? null : onSend,
-                    icon: const Icon(Icons.arrow_upward_rounded),
+                  const SizedBox(width: Gap.sm),
+                  ListenableBuilder(
+                    listenable: controller,
+                    builder: (_, _) => IconButton.filled(
+                      tooltip: 'Send',
+                      iconSize: 26,
+                      style: IconButton.styleFrom(minimumSize: const Size(52, 52)),
+                      onPressed: busy || controller.text.trim().isEmpty ? null : onSend,
+                      icon: const Icon(Icons.arrow_upward_rounded),
+                    ),
                   ),
-                ),
-              ]),
+                ],
+              ),
             ),
           ),
         ),

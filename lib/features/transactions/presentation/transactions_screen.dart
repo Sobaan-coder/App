@@ -27,8 +27,13 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   final _scroll = ScrollController();
 
   static const _filters = [
-    TransactionType.sale, TransactionType.expense, TransactionType.purchase,
-    TransactionType.paymentReceived, TransactionType.paymentSent, TransactionType.income, TransactionType.adjustment,
+    TransactionType.sale,
+    TransactionType.expense,
+    TransactionType.purchase,
+    TransactionType.paymentReceived,
+    TransactionType.paymentSent,
+    TransactionType.income,
+    TransactionType.adjustment,
   ];
 
   TransactionQuery get _query => TransactionQuery(types: _types);
@@ -75,62 +80,87 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title ?? context.l10n.navTransactions), actions: const [ShellActions()]),
       floatingActionButton: compact && business.role.canRecord
-          ? FloatingActionButton(tooltip: context.l10n.recordTransaction, onPressed: () => showRecordSheet(context), child: const Icon(Icons.add_rounded))
+          ? FloatingActionButton(
+              tooltip: context.l10n.recordTransaction,
+              onPressed: () => showRecordSheet(context),
+              child: const Icon(Icons.add_rounded),
+            )
           : null,
-      body: Column(children: [
-        SizedBox(
-          height: 56,
-          child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              child: FilterChip(label: const Text('All'), selected: _types.isEmpty, onSelected: (_) => setState(() => _types = {})),
-            ),
-            for (final f in _filters)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 8),
-                child: FilterChip(
-                  label: Text(f.label),
-                  selected: _types.contains(f),
-                  onSelected: (on) => setState(() => _types = on ? {..._types, f} : (_types.toSet()..remove(f))),
+      body: Column(
+        children: [
+          SizedBox(
+            height: 56,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: FilterChip(
+                    label: const Text('All'),
+                    selected: _types.isEmpty,
+                    onSelected: (_) => setState(() => _types = {}),
+                  ),
                 ),
-              ),
-          ]),
-        ),
-        Expanded(
-          child: Builder(builder: (context) {
-            if (state.items.isEmpty && state.loading) return const LoadingState();
-            if (state.items.isEmpty && state.error != null) {
-              return ErrorState(error: state.error!, onRetry: () => ref.read(transactionListProvider(_query).notifier).refresh());
-            }
-            final all = [...pendingTx, ...state.items];
-            if (all.isEmpty) {
-              return EmptyState(
-                icon: Icons.receipt_long_outlined,
-                title: 'No transactions yet',
-                message: 'Tell the assistant what happened, or record one manually.',
-                actionLabel: business.role.canRecord ? context.l10n.recordTransaction : null,
-                onAction: () => showRecordSheet(context),
-              );
-            }
-            return RefreshIndicator(
-              onRefresh: () => ref.read(transactionListProvider(_query).notifier).refresh(),
-              child: ListView.separated(
-                controller: _scroll,
-                padding: const EdgeInsets.only(bottom: 96),
-                itemCount: all.length + (state.hasMore ? 1 : 0),
-                separatorBuilder: (_, _) => const Divider(indent: 72),
-                itemBuilder: (context, i) {
-                  if (i >= all.length) {
-                    return const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator()));
-                  }
-                  final tx = all[i];
-                  return TransactionCard(transaction: tx, onTap: tx.pending ? null : () => context.push('/transactions/${tx.id}'));
-                },
-              ),
-            );
-          }),
-        ),
-      ]),
+                for (final f in _filters)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: FilterChip(
+                      label: Text(f.label),
+                      selected: _types.contains(f),
+                      onSelected: (on) => setState(() => _types = on ? {..._types, f} : (_types.toSet()..remove(f))),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Builder(
+              builder: (context) {
+                if (state.items.isEmpty && state.loading) return const LoadingState();
+                if (state.items.isEmpty && state.error != null) {
+                  return ErrorState(
+                    error: state.error!,
+                    onRetry: () => ref.read(transactionListProvider(_query).notifier).refresh(),
+                  );
+                }
+                final all = [...pendingTx, ...state.items];
+                if (all.isEmpty) {
+                  return EmptyState(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'No transactions yet',
+                    message: 'Tell the assistant what happened, or record one manually.',
+                    actionLabel: business.role.canRecord ? context.l10n.recordTransaction : null,
+                    onAction: () => showRecordSheet(context),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () => ref.read(transactionListProvider(_query).notifier).refresh(),
+                  child: ListView.separated(
+                    controller: _scroll,
+                    padding: const EdgeInsets.only(bottom: 96),
+                    itemCount: all.length + (state.hasMore ? 1 : 0),
+                    separatorBuilder: (_, _) => const Divider(indent: 72),
+                    itemBuilder: (context, i) {
+                      if (i >= all.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      final tx = all[i];
+                      return TransactionCard(
+                        transaction: tx,
+                        onTap: tx.pending ? null : () => context.push('/transactions/${tx.id}'),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

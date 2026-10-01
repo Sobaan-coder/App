@@ -69,19 +69,19 @@ class Product {
   }
 
   Map<String, dynamic> toWritableJson() => {
-        'name': name.trim(),
-        'category_id': categoryId,
-        'sku': (sku?.trim().isEmpty ?? true) ? null : sku!.trim(),
-        'description': description,
-        'selling_price_minor': sellingPrice?.minor,
-        'cost_price_minor': costPrice?.minor,
-        'minimum_stock': minimumStock,
-        'unit': unit,
-        'barcode': (barcode?.trim().isEmpty ?? true) ? null : barcode!.trim(),
-        'image_url': imageUrl,
-        'track_inventory': trackInventory,
-        'is_active': isActive,
-      };
+    'name': name.trim(),
+    'category_id': categoryId,
+    'sku': (sku?.trim().isEmpty ?? true) ? null : sku!.trim(),
+    'description': description,
+    'selling_price_minor': sellingPrice?.minor,
+    'cost_price_minor': costPrice?.minor,
+    'minimum_stock': minimumStock,
+    'unit': unit,
+    'barcode': (barcode?.trim().isEmpty ?? true) ? null : barcode!.trim(),
+    'image_url': imageUrl,
+    'track_inventory': trackInventory,
+    'is_active': isActive,
+  };
 }
 
 class ProductCategory {

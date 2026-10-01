@@ -76,6 +76,5 @@ class Validators {
     return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v.trim()) ? null : 'Enter a valid email';
   }
 
-  static String? password(String? v) =>
-      (v == null || v.length < 8) ? 'Use at least 8 characters' : null;
+  static String? password(String? v) => (v == null || v.length < 8) ? 'Use at least 8 characters' : null;
 }

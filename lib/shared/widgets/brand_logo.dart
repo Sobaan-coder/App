@@ -10,19 +10,29 @@ class BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-        label: 'BusinessPilot',
-        image: true,
-        child: SizedBox(width: size, height: size, child: CustomPaint(painter: _MarkPainter())),
-      );
+    label: 'BusinessPilot',
+    image: true,
+    child: SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _MarkPainter()),
+    ),
+  );
 }
 
 class _MarkPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size s) {
     final r = RRect.fromRectAndRadius(Offset.zero & s, Radius.circular(s.width * 0.28));
-    canvas.drawRRect(r, Paint()..shader = const LinearGradient(
-      begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppColors.brand, AppColors.brandDark],
-    ).createShader(Offset.zero & s));
+    canvas.drawRRect(
+      r,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.brand, AppColors.brandDark],
+        ).createShader(Offset.zero & s),
+    );
     final w = s.width;
     // Speech bubble outline
     final bubble = Path()
@@ -30,23 +40,29 @@ class _MarkPainter extends CustomPainter {
       ..moveTo(w * .32, w * .64)
       ..lineTo(w * .28, w * .8)
       ..lineTo(w * .46, w * .66);
-    canvas.drawPath(bubble, Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = w * .07
-      ..strokeJoin = StrokeJoin.round);
+    canvas.drawPath(
+      bubble,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = w * .07
+        ..strokeJoin = StrokeJoin.round,
+    );
     // Rising path inside
     final path = Path()
       ..moveTo(w * .32, w * .52)
       ..lineTo(w * .44, w * .42)
       ..lineTo(w * .53, w * .48)
       ..lineTo(w * .68, w * .34);
-    canvas.drawPath(path, Paint()
-      ..color = AppColors.accent
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = w * .075
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = AppColors.accent
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = w * .075
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
   }
 
   @override
@@ -59,12 +75,21 @@ class BrandLogo extends StatelessWidget {
   final bool showText;
 
   @override
-  Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: [
-        BrandMark(size: size),
-        if (showText) ...[
-          const SizedBox(width: 10),
-          Text('BusinessPilot',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.4)),
-        ],
-      ]);
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      BrandMark(size: size),
+      if (showText) ...[
+        const SizedBox(width: 10),
+        Flexible(
+          child: Text(
+            'BusinessPilot',
+            overflow: TextOverflow.fade,
+            softWrap: false,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.4),
+          ),
+        ),
+      ],
+    ],
+  );
 }

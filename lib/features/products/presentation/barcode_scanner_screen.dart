@@ -21,34 +21,45 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan barcode'), actions: [
-        IconButton(tooltip: 'Torch', onPressed: () => _controller.toggleTorch(), icon: const Icon(Icons.flashlight_on_rounded)),
-      ]),
-      body: Stack(children: [
-        MobileScanner(
-          controller: _controller,
-          errorBuilder: (context, error) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text('Camera unavailable. Allow camera access in settings, or type the barcode instead.',
-                  textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
+      appBar: AppBar(
+        title: const Text('Scan barcode'),
+        actions: [
+          IconButton(tooltip: 'Torch', onPressed: () => _controller.toggleTorch(), icon: const Icon(Icons.flashlight_on_rounded)),
+        ],
+      ),
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: _controller,
+            errorBuilder: (context, error) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  'Camera unavailable. Allow camera access in settings, or type the barcode instead.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+            ),
+            onDetect: (capture) {
+              final code = capture.barcodes.firstOrNull?.rawValue;
+              if (code == null || _done) return;
+              _done = true;
+              Navigator.of(context).pop(code);
+            },
+          ),
+          Center(
+            child: Container(
+              width: 260,
+              height: 160,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 3),
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
-          onDetect: (capture) {
-            final code = capture.barcodes.firstOrNull?.rawValue;
-            if (code == null || _done) return;
-            _done = true;
-            Navigator.of(context).pop(code);
-          },
-        ),
-        Center(
-          child: Container(
-            width: 260,
-            height: 160,
-            decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 3), borderRadius: BorderRadius.circular(16)),
-          ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

@@ -25,11 +25,8 @@ class Fmt {
     return q.toStringAsFixed(3).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
   }
 
-  static String titleCase(String s) => s
-      .split(RegExp(r'\s+'))
-      .where((w) => w.isNotEmpty)
-      .map((w) => w[0].toUpperCase() + w.substring(1))
-      .join(' ');
+  static String titleCase(String s) =>
+      s.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
 
   static String enumLabel(String s) => titleCase(s.replaceAll('_', ' '));
 }

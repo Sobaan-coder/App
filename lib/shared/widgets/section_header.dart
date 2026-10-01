@@ -9,11 +9,15 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8, top: 4),
-        child: Row(children: [
-          Expanded(child: Semantics(header: true, child: Text(title, style: Theme.of(context).textTheme.titleMedium))),
-          ?trailing,
-          if (actionLabel != null) TextButton(onPressed: onAction, child: Text(actionLabel!)),
-        ]),
-      );
+    padding: const EdgeInsets.only(bottom: 8, top: 4),
+    child: Row(
+      children: [
+        Expanded(
+          child: Semantics(header: true, child: Text(title, style: Theme.of(context).textTheme.titleMedium)),
+        ),
+        ?trailing,
+        if (actionLabel != null) TextButton(onPressed: onAction, child: Text(actionLabel!)),
+      ],
+    ),
+  );
 }

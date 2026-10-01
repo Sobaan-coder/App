@@ -24,19 +24,29 @@ class BusinessRepository {
           .order('created_at');
       return rows
           .where((r) => r['business'] != null)
-          .map((r) => Membership(Business.fromJson(Map<String, dynamic>.from(r['business'] as Map)),
-              MemberRole.fromApi(r['role'] as String?)))
+          .map(
+            (r) => Membership(
+              Business.fromJson(Map<String, dynamic>.from(r['business'] as Map)),
+              MemberRole.fromApi(r['role'] as String?),
+            ),
+          )
           .toList();
     } catch (e) {
       throw AppFailure.from(e);
     }
   }
 
-  Future<String> createBusiness({required String name, required String type, required String currency, required String timezone}) async {
+  Future<String> createBusiness({
+    required String name,
+    required String type,
+    required String currency,
+    required String timezone,
+  }) async {
     try {
-      final id = await _client.rpc('create_business', params: {
-        'p_name': name, 'p_business_type': type, 'p_currency': currency, 'p_timezone': timezone,
-      });
+      final id = await _client.rpc(
+        'create_business',
+        params: {'p_name': name, 'p_business_type': type, 'p_currency': currency, 'p_timezone': timezone},
+      );
       return id as String;
     } catch (e) {
       throw AppFailure.from(e);
@@ -83,8 +93,12 @@ class BusinessRepository {
 
   Future<void> setOpeningCash(String businessId, int minor) async {
     try {
-      await _client.from('accounts').update({'opening_balance_minor': minor})
-          .eq('business_id', businessId).eq('type', 'cash').eq('is_default', true);
+      await _client
+          .from('accounts')
+          .update({'opening_balance_minor': minor})
+          .eq('business_id', businessId)
+          .eq('type', 'cash')
+          .eq('is_default', true);
     } catch (e) {
       throw AppFailure.from(e);
     }
@@ -134,7 +148,8 @@ final activeBusinessProvider = FutureProvider<ActiveBusiness?>((ref) async {
   final memberships = await ref.watch(membershipsProvider.future);
   if (memberships.isEmpty) return null;
   final selected = ref.watch(currentBusinessIdProvider);
-  final m = memberships.where((m) => m.business.id == selected).firstOrNull ??
+  final m =
+      memberships.where((m) => m.business.id == selected).firstOrNull ??
       memberships.where((m) => !m.business.isDemo).firstOrNull ??
       memberships.first;
   final repo = ref.read(businessRepositoryProvider);
@@ -158,9 +173,10 @@ extension OnboardingProduct on BusinessRepository {
     try {
       final row = await _client.from('products').insert({...p.toWritableJson(), 'business_id': businessId}).select('id').single();
       if (openingStock > 0) {
-        await _client.rpc('adjust_inventory', params: {
-          'p_product_id': row['id'], 'p_type': 'opening', 'p_quantity_change': openingStock, 'p_note': 'Opening stock',
-        });
+        await _client.rpc(
+          'adjust_inventory',
+          params: {'p_product_id': row['id'], 'p_type': 'opening', 'p_quantity_change': openingStock, 'p_note': 'Opening stock'},
+        );
       }
     } catch (e) {
       throw AppFailure.from(e);

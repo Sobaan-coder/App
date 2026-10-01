@@ -15,9 +15,10 @@ class InventoryRepository {
   /// Every stock change goes through adjust_inventory(), which records why.
   Future<double> adjust(String productId, MovementType type, double change, {String? note}) async {
     try {
-      final v = await _client.rpc('adjust_inventory', params: {
-        'p_product_id': productId, 'p_type': type.api, 'p_quantity_change': change, 'p_note': note,
-      });
+      final v = await _client.rpc(
+        'adjust_inventory',
+        params: {'p_product_id': productId, 'p_type': type.api, 'p_quantity_change': change, 'p_note': note},
+      );
       _ref.read(dataVersionProvider.notifier).bump();
       return (v as num).toDouble();
     } catch (e) {
@@ -27,8 +28,12 @@ class InventoryRepository {
 
   Future<List<InventoryMovement>> history(String productId) async {
     try {
-      final rows = await _client.from('inventory_transactions').select('id, type, quantity_change, created_at, note')
-          .eq('product_id', productId).order('created_at', ascending: false).limit(100);
+      final rows = await _client
+          .from('inventory_transactions')
+          .select('id, type, quantity_change, created_at, note')
+          .eq('product_id', productId)
+          .order('created_at', ascending: false)
+          .limit(100);
       return rows.map(InventoryMovement.fromJson).toList();
     } catch (e) {
       throw AppFailure.from(e);

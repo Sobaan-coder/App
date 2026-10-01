@@ -26,10 +26,17 @@ class MoreScreen extends ConsumerWidget {
     ];
     return Scaffold(
       appBar: AppBar(title: const BusinessSwitcher()),
-      body: ListView(children: [
-        for (final (icon, label, path) in items)
-          ListTile(leading: Icon(icon), title: Text(label), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => context.push(path)),
-      ]),
+      body: ListView(
+        children: [
+          for (final (icon, label, path) in items)
+            ListTile(
+              leading: Icon(icon),
+              title: Text(label),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push(path),
+            ),
+        ],
+      ),
     );
   }
 }

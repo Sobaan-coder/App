@@ -13,11 +13,15 @@ Future<T?> showAppBottomSheet<T>(BuildContext context, {required String title, r
     builder: (ctx) => Padding(
       padding: EdgeInsets.only(left: Gap.xl, right: Gap.xl, bottom: MediaQuery.viewInsetsOf(ctx).bottom + Gap.xl),
       child: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
-          Text(title, style: Theme.of(ctx).textTheme.titleLarge),
-          const SizedBox(height: Gap.lg),
-          child,
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: Theme.of(ctx).textTheme.titleLarge),
+            const SizedBox(height: Gap.lg),
+            child,
+          ],
+        ),
       ),
     ),
   );

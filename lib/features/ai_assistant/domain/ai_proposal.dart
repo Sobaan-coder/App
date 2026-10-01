@@ -69,13 +69,11 @@ class AiProposal {
     'adjust_inventory': ProposalActionKind.adjustInventory,
   };
 
-  static AiProposal error(String message) =>
-      AiProposal(kind: ProposalKind.error, intent: 'unknown', message: message);
+  static AiProposal error(String message) => AiProposal(kind: ProposalKind.error, intent: 'unknown', message: message);
 
   factory AiProposal.fromJson(Map<String, dynamic> j) {
     try {
-      final kind = ProposalKind.values.firstWhere((k) => k.name == j['kind'],
-          orElse: () => throw const FormatException('kind'));
+      final kind = ProposalKind.values.firstWhere((k) => k.name == j['kind'], orElse: () => throw const FormatException('kind'));
       final rawAction = j['action'];
       ProposalAction? action;
       if (rawAction is Map) {

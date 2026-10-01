@@ -21,13 +21,20 @@ class ContactCard extends StatelessWidget {
       title: Text(contact.name, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(contact.phone ?? 'No phone'),
       trailing: hasBalance
-          ? Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text(label, style: t.textTheme.labelSmall),
-              Text(owed.format(),
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(label, style: t.textTheme.labelSmall),
+                Text(
+                  owed.format(),
                   style: t.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: contact.kind == ContactKind.customer ? context.semantic.warning : context.semantic.expense)),
-            ])
+                    fontWeight: FontWeight.w700,
+                    color: contact.kind == ContactKind.customer ? context.semantic.warning : context.semantic.expense,
+                  ),
+                ),
+              ],
+            )
           : Text('Settled', style: t.textTheme.labelMedium?.copyWith(color: t.colorScheme.onSurfaceVariant)),
     );
   }

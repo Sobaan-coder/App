@@ -49,14 +49,18 @@ class ContactPicker extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 280, maxWidth: 420),
-            child: ListView(shrinkWrap: true, padding: EdgeInsets.zero, children: [
-              for (final o in options)
-                ListTile(
-                  leading: Icon(o.isNew ? Icons.person_add_alt_rounded : Icons.person_outline_rounded),
-                  title: Text(o.isNew ? 'Add new ${kind.label.toLowerCase()} “${o.name}”' : o.name),
-                  onTap: () => onSelected(o),
-                ),
-            ]),
+            child: ListView(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              children: [
+                for (final o in options)
+                  ListTile(
+                    leading: Icon(o.isNew ? Icons.person_add_alt_rounded : Icons.person_outline_rounded),
+                    title: Text(o.isNew ? 'Add new ${kind.label.toLowerCase()} “${o.name}”' : o.name),
+                    onTap: () => onSelected(o),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -68,10 +72,14 @@ class ContactPicker extends ConsumerWidget {
           prefixIcon: const Icon(Icons.person_outline_rounded),
           suffixIcon: value == null
               ? null
-              : IconButton(tooltip: 'Clear', icon: const Icon(Icons.close_rounded), onPressed: () {
-                  controller.clear();
-                  onChanged(null);
-                }),
+              : IconButton(
+                  tooltip: 'Clear',
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () {
+                    controller.clear();
+                    onChanged(null);
+                  },
+                ),
         ),
         validator: (_) => required && value == null ? 'Choose a ${kind.label.toLowerCase()}' : null,
         onChanged: (t) {
@@ -107,36 +115,42 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.75,
-      builder: (context, scroll) => Column(children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: TextField(
-            autofocus: true,
-            decoration: const InputDecoration(hintText: 'Search products', prefixIcon: Icon(Icons.search_rounded)),
-            onChanged: (v) => setState(() => _q = v.toLowerCase()),
+      builder: (context, scroll) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              autofocus: true,
+              decoration: const InputDecoration(hintText: 'Search products', prefixIcon: Icon(Icons.search_rounded)),
+              onChanged: (v) => setState(() => _q = v.toLowerCase()),
+            ),
           ),
-        ),
-        Expanded(
-          child: products.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => const Center(child: Text('Could not load products')),
-            data: (list) {
-              final filtered = list.where((p) => p.isActive && (p.name.toLowerCase().contains(_q) || (p.sku ?? '').toLowerCase().contains(_q))).toList();
-              if (filtered.isEmpty) return const Center(child: Text('No products found'));
-              return ListView.builder(
-                controller: scroll,
-                itemCount: filtered.length,
-                itemBuilder: (_, i) => ListTile(
-                  title: Text(filtered[i].name),
-                  subtitle: Text(filtered[i].trackInventory ? '${Fmt.qty(filtered[i].stockQuantity)} ${filtered[i].unit} in stock' : ''),
-                  trailing: Text(filtered[i].sellingPrice?.format() ?? '—'),
-                  onTap: () => Navigator.pop(context, filtered[i]),
-                ),
-              );
-            },
+          Expanded(
+            child: products.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => const Center(child: Text('Could not load products')),
+              data: (list) {
+                final filtered = list
+                    .where((p) => p.isActive && (p.name.toLowerCase().contains(_q) || (p.sku ?? '').toLowerCase().contains(_q)))
+                    .toList();
+                if (filtered.isEmpty) return const Center(child: Text('No products found'));
+                return ListView.builder(
+                  controller: scroll,
+                  itemCount: filtered.length,
+                  itemBuilder: (_, i) => ListTile(
+                    title: Text(filtered[i].name),
+                    subtitle: Text(
+                      filtered[i].trackInventory ? '${Fmt.qty(filtered[i].stockQuantity)} ${filtered[i].unit} in stock' : '',
+                    ),
+                    trailing: Text(filtered[i].sellingPrice?.format() ?? '—'),
+                    onTap: () => Navigator.pop(context, filtered[i]),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

@@ -13,8 +13,16 @@ class Money extends Equatable implements Comparable<Money> {
   static const _zeroDecimal = {'JPY', 'KRW', 'VND', 'CLP', 'ISK', 'UGX', 'XAF', 'XOF'};
   static const _threeDecimal = {'BHD', 'KWD', 'OMR', 'JOD', 'TND', 'LYD', 'IQD'};
   static const _symbols = {
-    'PKR': 'Rs', 'INR': '₹', 'USD': r'$', 'GBP': '£', 'EUR': '€', 'BDT': '৳', 'NGN': '₦', 'KES': 'KSh',
-    'JPY': '¥', 'TRY': '₺',
+    'PKR': 'Rs',
+    'INR': '₹',
+    'USD': r'$',
+    'GBP': '£',
+    'EUR': '€',
+    'BDT': '৳',
+    'NGN': '₦',
+    'KES': 'KSh',
+    'JPY': '¥',
+    'TRY': '₺',
   };
 
   static int digitsFor(String currency) {

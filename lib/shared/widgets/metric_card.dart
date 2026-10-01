@@ -36,42 +36,52 @@ class MetricCard extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: c.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                  child: Icon(icon, size: 20, color: c),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(color: c.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                      child: Icon(icon, size: 20, color: c),
+                    ),
+                    const Spacer(),
+                    if (onInfo != null)
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'How is this calculated?',
+                        icon: const Icon(Icons.info_outline_rounded, size: 20),
+                        onPressed: onInfo,
+                      ),
+                  ],
                 ),
-                const Spacer(),
-                if (onInfo != null)
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    tooltip: 'How is this calculated?',
-                    icon: const Icon(Icons.info_outline_rounded, size: 20),
-                    onPressed: onInfo,
-                  ),
-              ]),
-              const SizedBox(height: Gap.md),
-              ExcludeSemantics(
-                child: Text(label, style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurfaceVariant)),
-              ),
-              const SizedBox(height: 2),
-              ExcludeSemantics(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(value, style: t.textTheme.headlineSmall),
+                const SizedBox(height: Gap.md),
+                ExcludeSemantics(
+                  child: Text(label, style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurfaceVariant)),
                 ),
-              ),
-              if (caption != null) ...[
                 const SizedBox(height: 2),
                 ExcludeSemantics(
-                  child: Text(caption!, maxLines: 2, overflow: TextOverflow.ellipsis,
-                      style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurfaceVariant)),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(value, style: t.textTheme.headlineSmall),
+                  ),
                 ),
+                if (caption != null) ...[
+                  const SizedBox(height: 2),
+                  ExcludeSemantics(
+                    child: Text(
+                      caption!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
               ],
-            ]),
+            ),
           ),
         ),
       ),

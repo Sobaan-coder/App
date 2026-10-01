@@ -26,19 +26,23 @@ class AppButton extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final child = loading
         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.4))
-        : Row(mainAxisSize: MainAxisSize.min, children: [
-            if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
-            Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
-          ]);
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
+              Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+            ],
+          );
     final action = loading ? null : onPressed;
     final button = switch (variant) {
       AppButtonVariant.primary => FilledButton(onPressed: action, child: child),
       AppButtonVariant.secondary => OutlinedButton(onPressed: action, child: child),
       AppButtonVariant.text => TextButton(onPressed: action, child: child),
       AppButtonVariant.danger => FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: scheme.error, foregroundColor: scheme.onError),
-          onPressed: action,
-          child: child),
+        style: FilledButton.styleFrom(backgroundColor: scheme.error, foregroundColor: scheme.onError),
+        onPressed: action,
+        child: child,
+      ),
     };
     return Semantics(
       button: true,

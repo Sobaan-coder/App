@@ -51,21 +51,29 @@ class Contact {
   }
 
   factory Contact.fromBalanceJson(Map<String, dynamic> j, ContactKind kind, String currency) => Contact(
-        id: j[kind.idColumn] as String,
-        kind: kind,
-        name: j['name'] as String,
-        phone: j['phone'] as String?,
-        currency: currency,
-        totalPurchases: Money(readMinor(j['total_purchases_minor']) ?? 0, currency),
-        totalPayments: Money(readMinor(j['total_payments_minor']) ?? 0, currency),
-        outstanding: Money(readMinor(j['outstanding_minor']) ?? 0, currency),
-        lastTransactionAt: j['last_transaction_at'] == null ? null : DateTime.parse(j['last_transaction_at'] as String),
-      );
+    id: j[kind.idColumn] as String,
+    kind: kind,
+    name: j['name'] as String,
+    phone: j['phone'] as String?,
+    currency: currency,
+    totalPurchases: Money(readMinor(j['total_purchases_minor']) ?? 0, currency),
+    totalPayments: Money(readMinor(j['total_payments_minor']) ?? 0, currency),
+    outstanding: Money(readMinor(j['outstanding_minor']) ?? 0, currency),
+    lastTransactionAt: j['last_transaction_at'] == null ? null : DateTime.parse(j['last_transaction_at'] as String),
+  );
 
   Contact withDetails(Map<String, dynamic> j) => Contact(
-        id: id, kind: kind, name: j['name'] as String? ?? name, currency: currency,
-        phone: j['phone'] as String?, email: j['email'] as String?, address: j['address'] as String?,
-        notes: j['notes'] as String?, totalPurchases: totalPurchases, totalPayments: totalPayments,
-        outstanding: outstanding, lastTransactionAt: lastTransactionAt,
-      );
+    id: id,
+    kind: kind,
+    name: j['name'] as String? ?? name,
+    currency: currency,
+    phone: j['phone'] as String?,
+    email: j['email'] as String?,
+    address: j['address'] as String?,
+    notes: j['notes'] as String?,
+    totalPurchases: totalPurchases,
+    totalPayments: totalPayments,
+    outstanding: outstanding,
+    lastTransactionAt: lastTransactionAt,
+  );
 }

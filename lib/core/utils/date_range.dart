@@ -31,10 +31,10 @@ class DateFilter {
   static final _api = DateFormat('yyyy-MM-dd');
 
   Map<String, dynamic> toRpcArgs() => {
-        'p_preset': preset.apiValue,
-        if (preset == DatePreset.custom && from != null) 'p_from': _api.format(from!),
-        if (preset == DatePreset.custom && to != null) 'p_to': _api.format(to!),
-      };
+    'p_preset': preset.apiValue,
+    if (preset == DatePreset.custom && from != null) 'p_from': _api.format(from!),
+    if (preset == DatePreset.custom && to != null) 'p_to': _api.format(to!),
+  };
 
   String get label {
     if (preset != DatePreset.custom || from == null || to == null) return preset.label;
@@ -45,8 +45,7 @@ class DateFilter {
   String get cacheKey => '${preset.apiValue}:${from?.toIso8601String()}:${to?.toIso8601String()}';
 
   @override
-  bool operator ==(Object other) =>
-      other is DateFilter && other.preset == preset && other.from == from && other.to == to;
+  bool operator ==(Object other) => other is DateFilter && other.preset == preset && other.from == from && other.to == to;
 
   @override
   int get hashCode => Object.hash(preset, from, to);

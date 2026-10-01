@@ -75,11 +75,13 @@ class ContactSalesProvider implements PaymentProvider {
 
   @override
   Future<PurchaseOutcome> purchase(Plan plan, {required String businessId}) async {
-    final ok = await launchUrl(Uri(
-      scheme: 'mailto',
-      path: Env.supportEmail,
-      queryParameters: {'subject': 'Upgrade to ${plan.name}', 'body': 'Business ID: $businessId'},
-    ));
+    final ok = await launchUrl(
+      Uri(
+        scheme: 'mailto',
+        path: Env.supportEmail,
+        queryParameters: {'subject': 'Upgrade to ${plan.name}', 'body': 'Business ID: $businessId'},
+      ),
+    );
     return ok ? PurchaseOutcome.started : PurchaseOutcome.cancelled;
   }
 
@@ -90,7 +92,7 @@ class ContactSalesProvider implements PaymentProvider {
 /// Picks the right provider for the platform.
 class SubscriptionService {
   SubscriptionService([List<PaymentProvider>? providers])
-      : providers = providers ?? [GooglePlayBillingProvider(), HostedCheckoutProvider(), ContactSalesProvider()];
+    : providers = providers ?? [GooglePlayBillingProvider(), HostedCheckoutProvider(), ContactSalesProvider()];
   final List<PaymentProvider> providers;
 
   PaymentProvider get preferred => providers.firstWhere((p) => p.isAvailable);

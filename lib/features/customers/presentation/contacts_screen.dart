@@ -40,66 +40,82 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               label: Text(kind.label),
             )
           : null,
-      body: Column(children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: TextField(
-            decoration: InputDecoration(hintText: 'Search ${kind.pluralLabel.toLowerCase()}', prefixIcon: const Icon(Icons.search_rounded)),
-            onChanged: (v) => setState(() => _q = v.trim().toLowerCase()),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(children: [
-            FilterChip(
-              label: Text(kind == ContactKind.customer ? 'Owe me money' : 'I owe them'),
-              selected: _owingOnly,
-              onSelected: (v) => setState(() => _owingOnly = v),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search ${kind.pluralLabel.toLowerCase()}',
+                prefixIcon: const Icon(Icons.search_rounded),
+              ),
+              onChanged: (v) => setState(() => _q = v.trim().toLowerCase()),
             ),
-          ]),
-        ),
-        Expanded(
-          child: AsyncView<List<Contact>>(
-            value: ref.watch(contactsProvider(kind)),
-            onRetry: () => ref.invalidate(contactsProvider(kind)),
-            builder: (list) {
-              final filtered = list.where((c) =>
-                  (_q.isEmpty || c.name.toLowerCase().contains(_q) || (c.phone ?? '').contains(_q)) &&
-                  (!_owingOnly || (c.outstanding?.minor ?? 0) > 0)).toList();
-              if (list.isEmpty) {
-                return EmptyState(
-                  icon: Icons.people_outline_rounded,
-                  title: 'No ${kind.pluralLabel.toLowerCase()} yet',
-                  message: kind == ContactKind.customer
-                      ? 'Customers are added automatically when you say things like “Ali owes me 3000”.'
-                      : 'Suppliers are added when you record purchases from them.',
-                );
-              }
-              final total = filtered.fold<int>(0, (s, c) => s + ((c.outstanding?.minor ?? 0) > 0 ? c.outstanding!.minor : 0));
-              return ListView(padding: const EdgeInsets.only(bottom: 96), children: [
-                if (total > 0)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: Text(
-                      kind == ContactKind.customer
-                          ? 'Customers owe you ${Money(total, business.currency).format()}'
-                          : 'You owe suppliers ${Money(total, business.currency).format()}',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ),
-                for (final c in filtered) ContactCard(contact: c, onTap: () => context.push('$base/${c.id}')),
-              ]);
-            },
           ),
-        ),
-      ]),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                FilterChip(
+                  label: Text(kind == ContactKind.customer ? 'Owe me money' : 'I owe them'),
+                  selected: _owingOnly,
+                  onSelected: (v) => setState(() => _owingOnly = v),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: AsyncView<List<Contact>>(
+              value: ref.watch(contactsProvider(kind)),
+              onRetry: () => ref.invalidate(contactsProvider(kind)),
+              builder: (list) {
+                final filtered = list
+                    .where(
+                      (c) =>
+                          (_q.isEmpty || c.name.toLowerCase().contains(_q) || (c.phone ?? '').contains(_q)) &&
+                          (!_owingOnly || (c.outstanding?.minor ?? 0) > 0),
+                    )
+                    .toList();
+                if (list.isEmpty) {
+                  return EmptyState(
+                    icon: Icons.people_outline_rounded,
+                    title: 'No ${kind.pluralLabel.toLowerCase()} yet',
+                    message: kind == ContactKind.customer
+                        ? 'Customers are added automatically when you say things like “Ali owes me 3000”.'
+                        : 'Suppliers are added when you record purchases from them.',
+                  );
+                }
+                final total = filtered.fold<int>(0, (s, c) => s + ((c.outstanding?.minor ?? 0) > 0 ? c.outstanding!.minor : 0));
+                return ListView(
+                  padding: const EdgeInsets.only(bottom: 96),
+                  children: [
+                    if (total > 0)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: Text(
+                          kind == ContactKind.customer
+                              ? 'Customers owe you ${Money(total, business.currency).format()}'
+                              : 'You owe suppliers ${Money(total, business.currency).format()}',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                    for (final c in filtered) ContactCard(contact: c, onTap: () => context.push('$base/${c.id}')),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-Future<void> showContactForm(BuildContext context, ContactKind kind, {Contact? existing}) =>
-    showAppBottomSheet(context, title: existing == null ? 'New ${kind.label.toLowerCase()}' : 'Edit ${existing.name}',
-        child: _ContactForm(kind: kind, existing: existing));
+Future<void> showContactForm(BuildContext context, ContactKind kind, {Contact? existing}) => showAppBottomSheet(
+  context,
+  title: existing == null ? 'New ${kind.label.toLowerCase()}' : 'Edit ${existing.name}',
+  child: _ContactForm(kind: kind, existing: existing),
+);
 
 class _ContactForm extends ConsumerStatefulWidget {
   const _ContactForm({required this.kind, this.existing});
@@ -130,44 +146,63 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _form,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        AppTextField(label: 'Name', controller: _name, autofocus: true, textCapitalization: TextCapitalization.words,
-            validator: (v) => Validators.required(v, 'Name')),
-        const SizedBox(height: Gap.md),
-        AppTextField(label: 'Phone', controller: _phone, keyboardType: TextInputType.phone, prefixIcon: Icons.phone_outlined),
-        const SizedBox(height: Gap.md),
-        AppTextField(label: 'Email', controller: _email, keyboardType: TextInputType.emailAddress, prefixIcon: Icons.mail_outline_rounded,
-            validator: (v) => (v == null || v.trim().isEmpty) ? null : Validators.email(v)),
-        const SizedBox(height: Gap.md),
-        AppTextField(label: 'Address', controller: _address, maxLines: 2),
-        const SizedBox(height: Gap.md),
-        AppTextField(label: 'Notes', controller: _notes, maxLines: 3),
-        const SizedBox(height: Gap.xl),
-        AppButton(
-          label: 'Save',
-          loading: _saving,
-          expand: true,
-          onPressed: () async {
-            if (!_form.currentState!.validate()) return;
-            setState(() => _saving = true);
-            String? n(TextEditingController c) => c.text.trim().isEmpty ? null : c.text.trim();
-            final fields = {'name': _name.text.trim(), 'phone': n(_phone), 'email': n(_email), 'address': n(_address), 'notes': n(_notes)};
-            try {
-              final repo = ref.read(contactRepositoryProvider);
-              if (widget.existing == null) {
-                await repo.create(widget.kind, fields);
-              } else {
-                await repo.update(widget.kind, widget.existing!.id, fields);
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppTextField(
+            label: 'Name',
+            controller: _name,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            validator: (v) => Validators.required(v, 'Name'),
+          ),
+          const SizedBox(height: Gap.md),
+          AppTextField(label: 'Phone', controller: _phone, keyboardType: TextInputType.phone, prefixIcon: Icons.phone_outlined),
+          const SizedBox(height: Gap.md),
+          AppTextField(
+            label: 'Email',
+            controller: _email,
+            keyboardType: TextInputType.emailAddress,
+            prefixIcon: Icons.mail_outline_rounded,
+            validator: (v) => (v == null || v.trim().isEmpty) ? null : Validators.email(v),
+          ),
+          const SizedBox(height: Gap.md),
+          AppTextField(label: 'Address', controller: _address, maxLines: 2),
+          const SizedBox(height: Gap.md),
+          AppTextField(label: 'Notes', controller: _notes, maxLines: 3),
+          const SizedBox(height: Gap.xl),
+          AppButton(
+            label: 'Save',
+            loading: _saving,
+            expand: true,
+            onPressed: () async {
+              if (!_form.currentState!.validate()) return;
+              setState(() => _saving = true);
+              String? n(TextEditingController c) => c.text.trim().isEmpty ? null : c.text.trim();
+              final fields = {
+                'name': _name.text.trim(),
+                'phone': n(_phone),
+                'email': n(_email),
+                'address': n(_address),
+                'notes': n(_notes),
+              };
+              try {
+                final repo = ref.read(contactRepositoryProvider);
+                if (widget.existing == null) {
+                  await repo.create(widget.kind, fields);
+                } else {
+                  await repo.update(widget.kind, widget.existing!.id, fields);
+                }
+                if (context.mounted) Navigator.pop(context);
+              } catch (e) {
+                if (context.mounted) showError(context, e);
+              } finally {
+                if (mounted) setState(() => _saving = false);
               }
-              if (context.mounted) Navigator.pop(context);
-            } catch (e) {
-              if (context.mounted) showError(context, e);
-            } finally {
-              if (mounted) setState(() => _saving = false);
-            }
-          },
-        ),
-      ]),
+            },
+          ),
+        ],
+      ),
     );
   }
 }

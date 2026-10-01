@@ -10,27 +10,31 @@ class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   static IconData _icon(String type) => switch (type) {
-        'low_stock' => Icons.inventory_2_outlined,
-        'customer_payment_due' => Icons.call_received_rounded,
-        'supplier_payment_due' => Icons.call_made_rounded,
-        'daily_summary' => Icons.today_rounded,
-        'monthly_report' => Icons.insights_rounded,
-        'subscription' => Icons.workspace_premium_outlined,
-        _ => Icons.notifications_none_rounded,
-      };
+    'low_stock' => Icons.inventory_2_outlined,
+    'customer_payment_due' => Icons.call_received_rounded,
+    'supplier_payment_due' => Icons.call_made_rounded,
+    'daily_summary' => Icons.today_rounded,
+    'monthly_report' => Icons.insights_rounded,
+    'subscription' => Icons.workspace_premium_outlined,
+    _ => Icons.notifications_none_rounded,
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Notifications'), actions: [
-        TextButton(onPressed: () => markAllRead(ref), child: const Text('Mark all read')),
-      ]),
+      appBar: AppBar(
+        title: const Text('Notifications'),
+        actions: [TextButton(onPressed: () => markAllRead(ref), child: const Text('Mark all read'))],
+      ),
       body: AsyncView<List<AppNotification>>(
         value: ref.watch(notificationsProvider),
         onRetry: () => ref.invalidate(notificationsProvider),
         builder: (list) => list.isEmpty
-            ? const EmptyState(icon: Icons.notifications_none_rounded, title: 'You’re all caught up',
-                message: 'Low stock, payment reminders and summaries will show up here.')
+            ? const EmptyState(
+                icon: Icons.notifications_none_rounded,
+                title: 'You’re all caught up',
+                message: 'Low stock, payment reminders and summaries will show up here.',
+              )
             : ListView.separated(
                 itemCount: list.length,
                 separatorBuilder: (_, _) => const Divider(indent: 72),

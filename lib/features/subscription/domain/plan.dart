@@ -31,28 +31,33 @@ class Plan {
   bool feature(String key) => features[key] == true || (features[key] is String && features[key] != 'none');
 
   factory Plan.fromJson(Map<String, dynamic> j) => Plan(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        description: j['description'] as String? ?? '',
-        price: Money((j['price_monthly_minor'] as num?)?.toInt() ?? 0, j['price_currency'] as String? ?? 'USD'),
-        maxTransactionsPerMonth: (j['max_transactions_per_month'] as num?)?.toInt(),
-        maxProducts: (j['max_products'] as num?)?.toInt(),
-        maxUsers: (j['max_users'] as num?)?.toInt(),
-        aiRequestsPerMonth: (j['ai_requests_per_month'] as num?)?.toInt(),
-        features: Map<String, dynamic>.from(j['features'] as Map? ?? const {}),
-        googlePlayProductId: j['google_play_product_id'] as String?,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    description: j['description'] as String? ?? '',
+    price: Money((j['price_monthly_minor'] as num?)?.toInt() ?? 0, j['price_currency'] as String? ?? 'USD'),
+    maxTransactionsPerMonth: (j['max_transactions_per_month'] as num?)?.toInt(),
+    maxProducts: (j['max_products'] as num?)?.toInt(),
+    maxUsers: (j['max_users'] as num?)?.toInt(),
+    aiRequestsPerMonth: (j['ai_requests_per_month'] as num?)?.toInt(),
+    features: Map<String, dynamic>.from(j['features'] as Map? ?? const {}),
+    googlePlayProductId: j['google_play_product_id'] as String?,
+  );
 
   List<String> get highlights => [
-        maxTransactionsPerMonth == null ? 'Unlimited transactions' : '$maxTransactionsPerMonth transactions / month',
-        maxProducts == null ? 'Unlimited products' : 'Up to $maxProducts products',
-        maxUsers == null ? 'Unlimited team members' : (maxUsers == 1 ? '1 user' : 'Up to $maxUsers users'),
-        if (aiRequestsPerMonth != null) '$aiRequestsPerMonth AI requests / month',
-        if (feature('pdf_invoices')) 'PDF invoices',
-        if (features['reports'] == 'advanced') 'Advanced reports' else if (features['reports'] == 'full') 'Full reports' else 'Basic reports',
-        if (feature('multi_branch')) 'Multiple branches',
-        if (feature('api_access')) 'API access',
-      ];
+    maxTransactionsPerMonth == null ? 'Unlimited transactions' : '$maxTransactionsPerMonth transactions / month',
+    maxProducts == null ? 'Unlimited products' : 'Up to $maxProducts products',
+    maxUsers == null ? 'Unlimited team members' : (maxUsers == 1 ? '1 user' : 'Up to $maxUsers users'),
+    if (aiRequestsPerMonth != null) '$aiRequestsPerMonth AI requests / month',
+    if (feature('pdf_invoices')) 'PDF invoices',
+    if (features['reports'] == 'advanced')
+      'Advanced reports'
+    else if (features['reports'] == 'full')
+      'Full reports'
+    else
+      'Basic reports',
+    if (feature('multi_branch')) 'Multiple branches',
+    if (feature('api_access')) 'API access',
+  ];
 }
 
 class PlanUsage {

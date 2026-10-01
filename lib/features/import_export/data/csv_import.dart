@@ -3,11 +3,22 @@ import 'package:csv/csv.dart';
 import '../../../core/utils/money.dart';
 
 enum ImportKind {
-  products('Products', ['name', 'selling_price', 'cost_price', 'unit', 'sku', 'barcode', 'opening_stock', 'minimum_stock'],
-      ['Burger', '500', '280', 'pcs', 'BRG-01', '', '50', '10']),
-  customers('Customers', ['name', 'phone', 'email', 'address', 'notes'], ['Ali Khan', '+92 300 1234567', '', 'Gulberg, Lahore', '']),
+  products(
+    'Products',
+    ['name', 'selling_price', 'cost_price', 'unit', 'sku', 'barcode', 'opening_stock', 'minimum_stock'],
+    ['Burger', '500', '280', 'pcs', 'BRG-01', '', '50', '10'],
+  ),
+  customers(
+    'Customers',
+    ['name', 'phone', 'email', 'address', 'notes'],
+    ['Ali Khan', '+92 300 1234567', '', 'Gulberg, Lahore', ''],
+  ),
   suppliers('Suppliers', ['name', 'phone', 'email', 'address', 'notes'], ['Fresh Poultry', '+92 42 111 222', '', '', '']),
-  openingBalances('Opening balances', ['party_type', 'name', 'amount', 'note'], ['customer', 'Ali Khan', '3000', 'Balance from old notebook']);
+  openingBalances(
+    'Opening balances',
+    ['party_type', 'name', 'amount', 'note'],
+    ['customer', 'Ali Khan', '3000', 'Balance from old notebook'],
+  );
 
   const ImportKind(this.label, this.columns, this.example);
   final String label;
@@ -41,14 +52,18 @@ class CsvImporter {
   static const maxRows = 2000;
 
   static ImportPreview parse(ImportKind kind, String csvText, String currency) {
-    final table = const CsvToListConverter(shouldParseNumbers: false, eol: '\n')
-        .convert(csvText.replaceAll('\r\n', '\n').replaceAll('\r', '\n'));
+    final table = const CsvToListConverter(
+      shouldParseNumbers: false,
+      eol: '\n',
+    ).convert(csvText.replaceAll('\r\n', '\n').replaceAll('\r', '\n'));
     final nonEmpty = table.where((r) => r.any((c) => c.toString().trim().isNotEmpty)).toList();
     if (nonEmpty.isEmpty) return ImportPreview(kind, const [], const ['The file is empty.']);
     final header = nonEmpty.first.map((h) => h.toString().trim().toLowerCase().replaceAll(' ', '_')).toList();
     final missing = kind.columns.where((c) => c == 'name' && !header.contains(c)).toList();
     if (missing.isNotEmpty || (kind == ImportKind.openingBalances && !header.contains('amount'))) {
-      return ImportPreview(kind, const [], ['Missing required column(s). Expected: ${kind.columns.join(', ')}. Download the template.']);
+      return ImportPreview(kind, const [], [
+        'Missing required column(s). Expected: ${kind.columns.join(', ')}. Download the template.',
+      ]);
     }
     if (nonEmpty.length - 1 > maxRows) return ImportPreview(kind, const [], ['Too many rows (max $maxRows per file).']);
 

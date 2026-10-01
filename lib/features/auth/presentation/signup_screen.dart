@@ -39,7 +39,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     if (!_form.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
-      final needsConfirm = await ref.read(authRepositoryProvider)
+      final needsConfirm = await ref
+          .read(authRepositoryProvider)
           .signUp(name: _name.text, email: _email.text, password: _password.text);
       ref.read(analyticsProvider).track('signup');
       if (needsConfirm && mounted) setState(() => _sent = true);
@@ -65,31 +66,62 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       subtitle: 'Set up in under a minute. No card required.',
       child: Form(
         key: _form,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          AppTextField(label: l.authFullName, controller: _name, textInputAction: TextInputAction.next,
-              autofillHints: const [AutofillHints.name], prefixIcon: Icons.person_outline_rounded,
-              textCapitalization: TextCapitalization.words, validator: (v) => Validators.required(v, 'Name')),
-          const SizedBox(height: Gap.lg),
-          AppTextField(label: l.authEmail, controller: _email, keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next, autofillHints: const [AutofillHints.email],
-              prefixIcon: Icons.mail_outline_rounded, validator: Validators.email),
-          const SizedBox(height: Gap.lg),
-          AppTextField(label: l.authPassword, controller: _password, obscure: true,
-              autofillHints: const [AutofillHints.newPassword], prefixIcon: Icons.lock_outline_rounded,
-              hint: 'At least 8 characters', validator: Validators.password, onSubmitted: (_) => _submit()),
-          const SizedBox(height: Gap.xl),
-          AppButton(label: l.authSignUp, onPressed: _submit, loading: _loading, expand: true),
-          const SizedBox(height: Gap.md),
-          Wrap(alignment: WrapAlignment.center, children: [
-            const Text('By continuing you agree to our '),
-            InkWell(onTap: () => launchUrl(Uri.parse(Env.termsUrl)), child: const Text('Terms', style: TextStyle(decoration: TextDecoration.underline))),
-            const Text(' and '),
-            InkWell(onTap: () => launchUrl(Uri.parse(Env.privacyUrl)), child: const Text('Privacy Policy', style: TextStyle(decoration: TextDecoration.underline))),
-            const Text('.'),
-          ]),
-          const SizedBox(height: Gap.lg),
-          TextButton(onPressed: () => context.go('/login'), child: Text(l.authHaveAccount)),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppTextField(
+              label: l.authFullName,
+              controller: _name,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.name],
+              prefixIcon: Icons.person_outline_rounded,
+              textCapitalization: TextCapitalization.words,
+              validator: (v) => Validators.required(v, 'Name'),
+            ),
+            const SizedBox(height: Gap.lg),
+            AppTextField(
+              label: l.authEmail,
+              controller: _email,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.email],
+              prefixIcon: Icons.mail_outline_rounded,
+              validator: Validators.email,
+            ),
+            const SizedBox(height: Gap.lg),
+            AppTextField(
+              label: l.authPassword,
+              controller: _password,
+              obscure: true,
+              autofillHints: const [AutofillHints.newPassword],
+              prefixIcon: Icons.lock_outline_rounded,
+              hint: 'At least 8 characters',
+              validator: Validators.password,
+              onSubmitted: (_) => _submit(),
+            ),
+            const SizedBox(height: Gap.xl),
+            AppButton(label: l.authSignUp, onPressed: _submit, loading: _loading, expand: true),
+            const SizedBox(height: Gap.md),
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                const Text('By continuing you agree to our '),
+                InkWell(
+                  onTap: () => launchUrl(Uri.parse(Env.termsUrl)),
+                  child: const Text('Terms', style: TextStyle(decoration: TextDecoration.underline)),
+                ),
+                const Text(' and '),
+                InkWell(
+                  onTap: () => launchUrl(Uri.parse(Env.privacyUrl)),
+                  child: const Text('Privacy Policy', style: TextStyle(decoration: TextDecoration.underline)),
+                ),
+                const Text('.'),
+              ],
+            ),
+            const SizedBox(height: Gap.lg),
+            TextButton(onPressed: () => context.go('/login'), child: Text(l.authHaveAccount)),
+          ],
+        ),
       ),
     );
   }

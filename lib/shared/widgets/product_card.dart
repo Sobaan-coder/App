@@ -19,23 +19,29 @@ class ProductCard extends StatelessWidget {
       onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: t.colorScheme.primary.withValues(alpha: 0.1),
-        child: Text(p.name.isEmpty ? '?' : p.name[0].toUpperCase(),
-            style: TextStyle(color: t.colorScheme.primary, fontWeight: FontWeight.w700)),
+        child: Text(
+          p.name.isEmpty ? '?' : p.name[0].toUpperCase(),
+          style: TextStyle(color: t.colorScheme.primary, fontWeight: FontWeight.w700),
+        ),
       ),
       title: Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Row(children: [
-        if (p.isLowStock) ...[
-          Icon(Icons.warning_amber_rounded, size: 16, color: context.semantic.warning),
-          const SizedBox(width: 4),
-        ],
-        Flexible(
-          child: Text(p.isLowStock ? 'Low · $stockText' : stockText,
+      subtitle: Row(
+        children: [
+          if (p.isLowStock) ...[
+            Icon(Icons.warning_amber_rounded, size: 16, color: context.semantic.warning),
+            const SizedBox(width: 4),
+          ],
+          Flexible(
+            child: Text(
+              p.isLowStock ? 'Low · $stockText' : stockText,
               overflow: TextOverflow.ellipsis,
-              style: p.isLowStock ? TextStyle(color: context.semantic.warning, fontWeight: FontWeight.w600) : null),
-        ),
-      ]),
-      trailing: trailing ??
-          Text(p.sellingPrice?.format() ?? '—', style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+              style: p.isLowStock ? TextStyle(color: context.semantic.warning, fontWeight: FontWeight.w600) : null,
+            ),
+          ),
+        ],
+      ),
+      trailing:
+          trailing ?? Text(p.sellingPrice?.format() ?? '—', style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
     );
   }
 }

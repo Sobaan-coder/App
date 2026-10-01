@@ -20,8 +20,9 @@ import '../data/transaction_repository.dart';
 import '../domain/transaction.dart';
 
 class _LineItem {
-  _LineItem(this.product, {double qty = 1}) : qty = TextEditingController(text: Fmt.qty(qty)),
-        price = TextEditingController(text: product.sellingPrice?.toDecimalString() ?? '');
+  _LineItem(this.product, {double qty = 1})
+    : qty = TextEditingController(text: Fmt.qty(qty)),
+      price = TextEditingController(text: product.sellingPrice?.toDecimalString() ?? '');
   final Product product;
   final TextEditingController qty;
   final TextEditingController price;
@@ -77,10 +78,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
   }
 
   bool get _supportsItems => _type == TransactionType.sale || _type == TransactionType.purchase;
-  bool get _needsCustomer => _type == TransactionType.paymentReceived ||
+  bool get _needsCustomer =>
+      _type == TransactionType.paymentReceived ||
       (_type == TransactionType.adjustment && _adjustmentParty == ContactKind.customer) ||
       (_type == TransactionType.sale && _method == PaymentMethod.credit);
-  bool get _needsSupplier => _type == TransactionType.paymentSent ||
+  bool get _needsSupplier =>
+      _type == TransactionType.paymentSent ||
       (_type == TransactionType.adjustment && _adjustmentParty == ContactKind.supplier) ||
       ((_type == TransactionType.purchase || _type == TransactionType.expense) && _method == PaymentMethod.credit);
   bool get _showCustomer => _needsCustomer || _type == TransactionType.sale || _type == TransactionType.income;
@@ -108,8 +111,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
     final draftItems = [
       for (final i in _items)
-        DraftItem(productId: i.product.id, name: i.product.name, quantity: double.parse(i.qty.text),
-            unitPrice: Money.tryParse(i.price.text, c)),
+        DraftItem(
+          productId: i.product.id,
+          name: i.product.name,
+          quantity: double.parse(i.qty.text),
+          unitPrice: Money.tryParse(i.price.text, c),
+        ),
     ];
     final draft = TransactionDraft(
       type: _type,
@@ -130,11 +137,16 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     );
     setState(() => _saving = true);
     try {
-      final res = await ref.read(transactionRepositoryProvider).record(draft, clientRef: _clientRef, summary: draftSummary(draft));
+      final res = await ref
+          .read(transactionRepositoryProvider)
+          .record(draft, clientRef: _clientRef, summary: draftSummary(draft));
       if (!mounted) return;
-      showMessage(context, res.pending
-          ? 'Saved offline — it will sync automatically.'
-          : '${_type.label} recorded${res.invoiceNumber != null ? ' · ${res.invoiceNumber}' : ''}');
+      showMessage(
+        context,
+        res.pending
+            ? 'Saved offline — it will sync automatically.'
+            : '${_type.label} recorded${res.invoiceNumber != null ? ' · ${res.invoiceNumber}' : ''}',
+      );
       if (res.id != null && _type == TransactionType.sale) {
         context.pushReplacement('/transactions/${res.id}');
       } else {
@@ -155,8 +167,14 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     final itemsTotal = _itemsTotal(c);
 
     if (!business.role.canRecord) {
-      return Scaffold(appBar: AppBar(), body: const EmptyState(icon: Icons.lock_outline_rounded, title: 'View-only access',
-          message: 'Ask the business owner to give you Employee access to record transactions.'));
+      return Scaffold(
+        appBar: AppBar(),
+        body: const EmptyState(
+          icon: Icons.lock_outline_rounded,
+          title: 'View-only access',
+          message: 'Ask the business owner to give you Employee access to record transactions.',
+        ),
+      );
     }
 
     return Scaffold(
@@ -166,134 +184,188 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
-            child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-              DropdownButtonFormField<TransactionType>(
-                initialValue: _type,
-                decoration: const InputDecoration(labelText: 'Type'),
-                items: [
-                  for (final t in TransactionType.values.where((t) => t != TransactionType.transfer && t != TransactionType.refund))
-                    DropdownMenuItem(value: t, child: Row(children: [Icon(t.icon, size: 20), const SizedBox(width: 10), Text(t.label)])),
-                ],
-                onChanged: (t) => setState(() {
-                  _type = t!;
-                  if (!_supportsItems) _items.clear();
-                }),
-              ),
-              const SizedBox(height: Gap.lg),
-              if (_type == TransactionType.adjustment) ...[
-                SegmentedButton<ContactKind>(
-                  segments: const [
-                    ButtonSegment(value: ContactKind.customer, label: Text('Someone owes me'), icon: Icon(Icons.call_received_rounded)),
-                    ButtonSegment(value: ContactKind.supplier, label: Text('I owe someone'), icon: Icon(Icons.call_made_rounded)),
+            child: ListView(
+              padding: const EdgeInsets.all(Gap.lg),
+              children: [
+                DropdownButtonFormField<TransactionType>(
+                  initialValue: _type,
+                  decoration: const InputDecoration(labelText: 'Type'),
+                  items: [
+                    for (final t in TransactionType.values.where(
+                      (t) => t != TransactionType.transfer && t != TransactionType.refund,
+                    ))
+                      DropdownMenuItem(
+                        value: t,
+                        child: Row(children: [Icon(t.icon, size: 20), const SizedBox(width: 10), Text(t.label)]),
+                      ),
                   ],
-                  selected: {_adjustmentParty},
-                  onSelectionChanged: (s) => setState(() => _adjustmentParty = s.first),
+                  onChanged: (t) => setState(() {
+                    _type = t!;
+                    if (!_supportsItems) _items.clear();
+                  }),
                 ),
                 const SizedBox(height: Gap.lg),
-              ],
-              if (_supportsItems) ...[
-                Text('Items', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: Gap.sm),
-                for (final (idx, item) in _items.indexed)
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Gap.md),
-                      child: Column(children: [
-                        Row(children: [
-                          Expanded(child: Text(item.product.name, style: Theme.of(context).textTheme.titleSmall)),
-                          IconButton(tooltip: 'Remove item', icon: const Icon(Icons.close_rounded),
-                              onPressed: () => setState(() => _items.removeAt(idx))),
-                        ]),
-                        Row(children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: item.qty,
-                              decoration: InputDecoration(labelText: 'Quantity (${item.product.unit})'),
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              onChanged: (_) => setState(() {}),
-                              validator: (v) => (double.tryParse(v ?? '') ?? 0) > 0 ? null : 'Enter a quantity',
-                            ),
-                          ),
-                          const SizedBox(width: Gap.md),
-                          Expanded(
-                            child: MoneyField(controller: item.price, currency: c,
-                                label: _type == TransactionType.purchase ? 'Unit cost' : 'Unit price',
-                                onChanged: (_) => setState(() {})),
-                          ),
-                        ]),
-                      ]),
-                    ),
+                if (_type == TransactionType.adjustment) ...[
+                  SegmentedButton<ContactKind>(
+                    segments: const [
+                      ButtonSegment(
+                        value: ContactKind.customer,
+                        label: Text('Someone owes me'),
+                        icon: Icon(Icons.call_received_rounded),
+                      ),
+                      ButtonSegment(
+                        value: ContactKind.supplier,
+                        label: Text('I owe someone'),
+                        icon: Icon(Icons.call_made_rounded),
+                      ),
+                    ],
+                    selected: {_adjustmentParty},
+                    onSelectionChanged: (s) => setState(() => _adjustmentParty = s.first),
                   ),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final p = await pickProduct(context);
-                    if (p != null) {
-                      setState(() {
-                        final li = _LineItem(p);
-                        if (_type == TransactionType.purchase) li.price.text = p.costPrice?.toDecimalString() ?? '';
-                        _items.add(li);
-                      });
-                    }
-                  },
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(_items.isEmpty ? 'Add products (optional)' : 'Add another product'),
-                ),
-                const SizedBox(height: Gap.lg),
-              ],
-              if (_items.isEmpty)
-                MoneyField(controller: _amount, currency: c, autofocus: true,
-                    label: _type == TransactionType.adjustment ? 'Amount owed' : 'Amount')
-              else ...[
-                MoneyField(controller: _discount, currency: c, label: 'Discount', required: false, allowZero: true),
-                const SizedBox(height: Gap.md),
-                Text('Total: ${itemsTotal == null ? '—' : (itemsTotal - (MoneyField.read(_discount, c) ?? Money.zero(c))).format()}',
-                    style: Theme.of(context).textTheme.titleLarge),
-              ],
-              const SizedBox(height: Gap.lg),
-              if (_type == TransactionType.expense) ...[
-                DropdownButtonFormField<String>(
-                  initialValue: _category,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  items: [for (final cat in categories) DropdownMenuItem(value: cat.name, child: Text(cat.name))],
-                  onChanged: (v) => setState(() => _category = v),
-                ),
-                const SizedBox(height: Gap.lg),
-              ],
-              if (_type != TransactionType.adjustment) ...[
-                Text('Payment', style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: Gap.sm),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  for (final m in PaymentMethod.values)
-                    ChoiceChip(
-                      avatar: Icon(m.icon, size: 18),
-                      label: Text(m.label),
-                      selected: _method == m,
-                      onSelected: (_) => setState(() => _method = m),
+                  const SizedBox(height: Gap.lg),
+                ],
+                if (_supportsItems) ...[
+                  Text('Items', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: Gap.sm),
+                  for (final (idx, item) in _items.indexed)
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(Gap.md),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(child: Text(item.product.name, style: Theme.of(context).textTheme.titleSmall)),
+                                IconButton(
+                                  tooltip: 'Remove item',
+                                  icon: const Icon(Icons.close_rounded),
+                                  onPressed: () => setState(() => _items.removeAt(idx)),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: item.qty,
+                                    decoration: InputDecoration(labelText: 'Quantity (${item.product.unit})'),
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    onChanged: (_) => setState(() {}),
+                                    validator: (v) => (double.tryParse(v ?? '') ?? 0) > 0 ? null : 'Enter a quantity',
+                                  ),
+                                ),
+                                const SizedBox(width: Gap.md),
+                                Expanded(
+                                  child: MoneyField(
+                                    controller: item.price,
+                                    currency: c,
+                                    label: _type == TransactionType.purchase ? 'Unit cost' : 'Unit price',
+                                    onChanged: (_) => setState(() {}),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                ]),
-                if (_method == PaymentMethod.wallet || _method == PaymentMethod.card) ...[
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final p = await pickProduct(context);
+                      if (p != null) {
+                        setState(() {
+                          final li = _LineItem(p);
+                          if (_type == TransactionType.purchase) li.price.text = p.costPrice?.toDecimalString() ?? '';
+                          _items.add(li);
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.add_rounded),
+                    label: Text(_items.isEmpty ? 'Add products (optional)' : 'Add another product'),
+                  ),
+                  const SizedBox(height: Gap.lg),
+                ],
+                if (_items.isEmpty)
+                  MoneyField(
+                    controller: _amount,
+                    currency: c,
+                    autofocus: true,
+                    label: _type == TransactionType.adjustment ? 'Amount owed' : 'Amount',
+                  )
+                else ...[
+                  MoneyField(controller: _discount, currency: c, label: 'Discount', required: false, allowZero: true),
                   const SizedBox(height: Gap.md),
-                  AppTextField(label: _method == PaymentMethod.wallet ? 'Wallet (e.g. Easypaisa, JazzCash)' : 'Card network (optional)',
-                      controller: _provider),
+                  Text(
+                    'Total: ${itemsTotal == null ? '—' : (itemsTotal - (MoneyField.read(_discount, c) ?? Money.zero(c))).format()}',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 ],
                 const SizedBox(height: Gap.lg),
-              ],
-              if (_showCustomer) ...[
-                ContactPicker(kind: ContactKind.customer, value: _customer, required: _needsCustomer,
-                    onChanged: (v) => setState(() => _customer = v)),
+                if (_type == TransactionType.expense) ...[
+                  DropdownButtonFormField<String>(
+                    initialValue: _category,
+                    decoration: const InputDecoration(labelText: 'Category'),
+                    items: [for (final cat in categories) DropdownMenuItem(value: cat.name, child: Text(cat.name))],
+                    onChanged: (v) => setState(() => _category = v),
+                  ),
+                  const SizedBox(height: Gap.lg),
+                ],
+                if (_type != TransactionType.adjustment) ...[
+                  Text('Payment', style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: Gap.sm),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final m in PaymentMethod.values)
+                        ChoiceChip(
+                          avatar: Icon(m.icon, size: 18),
+                          label: Text(m.label),
+                          selected: _method == m,
+                          onSelected: (_) => setState(() => _method = m),
+                        ),
+                    ],
+                  ),
+                  if (_method == PaymentMethod.wallet || _method == PaymentMethod.card) ...[
+                    const SizedBox(height: Gap.md),
+                    AppTextField(
+                      label: _method == PaymentMethod.wallet ? 'Wallet (e.g. Easypaisa, JazzCash)' : 'Card network (optional)',
+                      controller: _provider,
+                    ),
+                  ],
+                  const SizedBox(height: Gap.lg),
+                ],
+                if (_showCustomer) ...[
+                  ContactPicker(
+                    kind: ContactKind.customer,
+                    value: _customer,
+                    required: _needsCustomer,
+                    onChanged: (v) => setState(() => _customer = v),
+                  ),
+                  const SizedBox(height: Gap.lg),
+                ],
+                if (_showSupplier) ...[
+                  ContactPicker(
+                    kind: ContactKind.supplier,
+                    value: _supplier,
+                    required: _needsSupplier,
+                    onChanged: (v) => setState(() => _supplier = v),
+                  ),
+                  const SizedBox(height: Gap.lg),
+                ],
+                DateSelector(value: _date, onChanged: (d) => setState(() => _date = d)),
                 const SizedBox(height: Gap.lg),
+                AppTextField(label: 'Note (optional)', controller: _description, maxLines: 2),
+                const SizedBox(height: Gap.xl),
+                AppButton(
+                  label: 'Save ${_type.label.toLowerCase()}',
+                  onPressed: _save,
+                  loading: _saving,
+                  expand: true,
+                  icon: Icons.check_rounded,
+                ),
               ],
-              if (_showSupplier) ...[
-                ContactPicker(kind: ContactKind.supplier, value: _supplier, required: _needsSupplier,
-                    onChanged: (v) => setState(() => _supplier = v)),
-                const SizedBox(height: Gap.lg),
-              ],
-              DateSelector(value: _date, onChanged: (d) => setState(() => _date = d)),
-              const SizedBox(height: Gap.lg),
-              AppTextField(label: 'Note (optional)', controller: _description, maxLines: 2),
-              const SizedBox(height: Gap.xl),
-              AppButton(label: 'Save ${_type.label.toLowerCase()}', onPressed: _save, loading: _saving, expand: true, icon: Icons.check_rounded),
-            ]),
+            ),
           ),
         ),
       ),

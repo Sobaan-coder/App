@@ -25,25 +25,25 @@ class NavItem {
 }
 
 List<NavItem> sidebarItems() => [
-      NavItem('/', Icons.space_dashboard_outlined, Icons.space_dashboard_rounded, (c) => c.l10n.navDashboard),
-      NavItem('/ai', Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, (c) => c.l10n.navAiAssistant),
-      NavItem('/transactions', Icons.receipt_long_outlined, Icons.receipt_long_rounded, (c) => c.l10n.navTransactions),
-      NavItem('/products', Icons.sell_outlined, Icons.sell_rounded, (c) => c.l10n.navProducts),
-      NavItem('/inventory', Icons.inventory_2_outlined, Icons.inventory_2_rounded, (c) => c.l10n.navInventory),
-      NavItem('/customers', Icons.people_outline_rounded, Icons.people_rounded, (c) => c.l10n.navCustomers),
-      NavItem('/suppliers', Icons.local_shipping_outlined, Icons.local_shipping_rounded, (c) => c.l10n.navSuppliers),
-      NavItem('/expenses', Icons.payments_outlined, Icons.payments_rounded, (c) => c.l10n.navExpenses),
-      NavItem('/reports', Icons.insights_outlined, Icons.insights_rounded, (c) => c.l10n.navReports),
-      NavItem('/settings', Icons.settings_outlined, Icons.settings_rounded, (c) => c.l10n.navSettings),
-    ];
+  NavItem('/', Icons.space_dashboard_outlined, Icons.space_dashboard_rounded, (c) => c.l10n.navDashboard),
+  NavItem('/ai', Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, (c) => c.l10n.navAiAssistant),
+  NavItem('/transactions', Icons.receipt_long_outlined, Icons.receipt_long_rounded, (c) => c.l10n.navTransactions),
+  NavItem('/products', Icons.sell_outlined, Icons.sell_rounded, (c) => c.l10n.navProducts),
+  NavItem('/inventory', Icons.inventory_2_outlined, Icons.inventory_2_rounded, (c) => c.l10n.navInventory),
+  NavItem('/customers', Icons.people_outline_rounded, Icons.people_rounded, (c) => c.l10n.navCustomers),
+  NavItem('/suppliers', Icons.local_shipping_outlined, Icons.local_shipping_rounded, (c) => c.l10n.navSuppliers),
+  NavItem('/expenses', Icons.payments_outlined, Icons.payments_rounded, (c) => c.l10n.navExpenses),
+  NavItem('/reports', Icons.insights_outlined, Icons.insights_rounded, (c) => c.l10n.navReports),
+  NavItem('/settings', Icons.settings_outlined, Icons.settings_rounded, (c) => c.l10n.navSettings),
+];
 
 List<NavItem> bottomItems() => [
-      NavItem('/', Icons.home_outlined, Icons.home_rounded, (c) => c.l10n.navHome),
-      NavItem('/transactions', Icons.receipt_long_outlined, Icons.receipt_long_rounded, (c) => c.l10n.navTransactions),
-      NavItem('/ai', Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, (c) => c.l10n.navAi),
-      NavItem('/inventory', Icons.inventory_2_outlined, Icons.inventory_2_rounded, (c) => c.l10n.navInventory),
-      NavItem('/more', Icons.menu_rounded, Icons.menu_rounded, (c) => c.l10n.navMore),
-    ];
+  NavItem('/', Icons.home_outlined, Icons.home_rounded, (c) => c.l10n.navHome),
+  NavItem('/transactions', Icons.receipt_long_outlined, Icons.receipt_long_rounded, (c) => c.l10n.navTransactions),
+  NavItem('/ai', Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, (c) => c.l10n.navAi),
+  NavItem('/inventory', Icons.inventory_2_outlined, Icons.inventory_2_rounded, (c) => c.l10n.navInventory),
+  NavItem('/more', Icons.menu_rounded, Icons.menu_rounded, (c) => c.l10n.navMore),
+];
 
 int _indexFor(List<NavItem> items, String location) {
   var best = -1;
@@ -81,23 +81,27 @@ class _ResponsiveScaffoldState extends ConsumerState<ResponsiveScaffold> {
     final selected = _indexFor(items, widget.location);
     final showLabels = expanded || _railExtended;
     return Scaffold(
-      body: Row(children: [
-        _Sidebar(
-          items: items,
-          selected: selected,
-          extended: showLabels,
-          onToggle: expanded ? null : () => setState(() => _railExtended = !_railExtended),
-          onSelect: (i) => context.go(items[i].path),
-        ),
-        const VerticalDivider(width: 1),
-        Expanded(
-          child: Column(children: [
-            const _TopBar(),
-            const OfflineBanner(),
-            Expanded(child: widget.child),
-          ]),
-        ),
-      ]),
+      body: Row(
+        children: [
+          _Sidebar(
+            items: items,
+            selected: selected,
+            extended: showLabels,
+            onToggle: expanded ? null : () => setState(() => _railExtended = !_railExtended),
+            onSelect: (i) => context.go(items[i].path),
+          ),
+          const VerticalDivider(width: 1),
+          Expanded(
+            child: Column(
+              children: [
+                const _TopBar(),
+                const OfflineBanner(),
+                Expanded(child: widget.child),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -106,16 +110,19 @@ class _ResponsiveScaffoldState extends ConsumerState<ResponsiveScaffold> {
     var selected = _indexFor(items, widget.location);
     if (selected < 0) selected = 4; // sections reached via "More"
     return Scaffold(
-      body: Column(children: [const OfflineBanner(), Expanded(child: widget.child)]),
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(child: widget.child),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: selected,
         onDestinationSelected: (i) => context.go(items[i].path),
         destinations: [
           for (final it in items)
             NavigationDestination(
-              icon: it.path == '/ai'
-                  ? _AiNavIcon(selected: false, icon: it.icon)
-                  : Icon(it.icon),
+              icon: it.path == '/ai' ? _AiNavIcon(selected: false, icon: it.icon) : Icon(it.icon),
               selectedIcon: it.path == '/ai' ? _AiNavIcon(selected: true, icon: it.selectedIcon) : Icon(it.selectedIcon),
               label: it.label(context),
               tooltip: it.label(context),
@@ -136,7 +143,10 @@ class _AiNavIcon extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(color: selected ? scheme.primary : scheme.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: selected ? scheme.primary : scheme.primary.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+      ),
       child: Icon(icon, color: selected ? scheme.onPrimary : scheme.primary, size: 22),
     );
   }
@@ -157,14 +167,18 @@ class _Sidebar extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       width: extended ? 248 : 84,
       color: t.colorScheme.surface,
-      child: SafeArea(
-        child: Column(children: [
+      // Labels only render once there is room for them (no overflow mid-animation).
+      child: LayoutBuilder(builder: (context, box) => _content(context, t, extended && box.maxWidth >= 200)),
+    );
+  }
+
+  Widget _content(BuildContext context, ThemeData t, bool extended) {
+    return SafeArea(
+      child: Column(
+        children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-            child: Row(children: [
-              BrandLogo(size: 34, showText: extended),
-              if (onToggle != null && extended) const Spacer(),
-            ]),
+            child: BrandLogo(size: 34, showText: extended),
           ),
           if (onToggle != null)
             IconButton(
@@ -173,47 +187,58 @@ class _Sidebar extends StatelessWidget {
               icon: Icon(extended ? Icons.chevron_left_rounded : Icons.chevron_right_rounded),
             ),
           Expanded(
-            child: ListView(padding: const EdgeInsets.symmetric(horizontal: 12), children: [
-              for (var i = 0; i < items.length; i++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Tooltip(
-                    message: extended ? '' : items[i].label(context),
-                    child: Material(
-                      color: i == selected ? t.colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                for (var i = 0; i < items.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Tooltip(
+                      message: extended ? '' : items[i].label(context),
+                      child: Material(
+                        color: i == selected ? t.colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
-                        onTap: () => onSelect(i),
-                        child: Semantics(
-                          selected: i == selected,
-                          button: true,
-                          label: items[i].label(context),
-                          excludeSemantics: true,
-                          child: Container(
-                            height: 48,
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
-                            alignment: extended ? AlignmentDirectional.centerStart : Alignment.center,
-                            child: Row(mainAxisSize: extended ? MainAxisSize.max : MainAxisSize.min, children: [
-                              Icon(i == selected ? items[i].selectedIcon : items[i].icon,
-                                  color: i == selected ? t.colorScheme.primary : t.colorScheme.onSurfaceVariant),
-                              if (extended) ...[
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Text(items[i].label(context),
-                                      overflow: TextOverflow.ellipsis,
-                                      style: t.textTheme.labelLarge?.copyWith(
-                                          color: i == selected ? t.colorScheme.primary : t.colorScheme.onSurface)),
-                                ),
-                              ],
-                            ]),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () => onSelect(i),
+                          child: Semantics(
+                            selected: i == selected,
+                            button: true,
+                            label: items[i].label(context),
+                            excludeSemantics: true,
+                            child: Container(
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(horizontal: 14),
+                              alignment: extended ? AlignmentDirectional.centerStart : Alignment.center,
+                              child: Row(
+                                mainAxisSize: extended ? MainAxisSize.max : MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    i == selected ? items[i].selectedIcon : items[i].icon,
+                                    color: i == selected ? t.colorScheme.primary : t.colorScheme.onSurfaceVariant,
+                                  ),
+                                  if (extended) ...[
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Text(
+                                        items[i].label(context),
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.textTheme.labelLarge?.copyWith(
+                                          color: i == selected ? t.colorScheme.primary : t.colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ]),
+              ],
+            ),
           ),
           if (extended)
             Padding(
@@ -233,7 +258,7 @@ class _Sidebar extends StatelessWidget {
                 icon: const Icon(Icons.add_rounded),
               ),
             ),
-        ]),
+        ],
       ),
     );
   }
@@ -262,14 +287,21 @@ class ShellActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!force && !Breakpoints.isCompact(context)) return const SizedBox.shrink();
     final unread = ref.watch(unreadCountProvider);
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      IconButton(tooltip: context.l10n.navSearch, icon: const Icon(Icons.search_rounded), onPressed: () => context.push('/search')),
-      IconButton(
-        tooltip: unread > 0 ? '${context.l10n.navNotifications} ($unread unread)' : context.l10n.navNotifications,
-        onPressed: () => context.push('/notifications'),
-        icon: Badge(isLabelVisible: unread > 0, label: Text('$unread'), child: const Icon(Icons.notifications_none_rounded)),
-      ),
-    ]);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: context.l10n.navSearch,
+          icon: const Icon(Icons.search_rounded),
+          onPressed: () => context.push('/search'),
+        ),
+        IconButton(
+          tooltip: unread > 0 ? '${context.l10n.navNotifications} ($unread unread)' : context.l10n.navNotifications,
+          onPressed: () => context.push('/notifications'),
+          icon: Badge(isLabelVisible: unread > 0, label: Text('$unread'), child: const Icon(Icons.notifications_none_rounded)),
+        ),
+      ],
+    );
   }
 }
 
@@ -302,21 +334,31 @@ class BusinessSwitcher extends ConsumerWidget {
             ),
           ),
         const PopupMenuDivider(),
-        const PopupMenuItem(value: '__new', child: ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.add_business_rounded), title: Text('Add a business'))),
+        const PopupMenuItem(
+          value: '__new',
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.add_business_rounded),
+            title: Text('Add a business'),
+          ),
+        ),
       ],
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 220),
-            child: Text(active.business.name, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleMedium),
-          ),
-          if (active.business.isDemo) ...[
-            const SizedBox(width: 8),
-            const Chip(label: Text('Demo'), visualDensity: VisualDensity.compact),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 220),
+              child: Text(active.business.name, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleMedium),
+            ),
+            if (active.business.isDemo) ...[
+              const SizedBox(width: 8),
+              const Chip(label: Text('Demo'), visualDensity: VisualDensity.compact),
+            ],
+            const Icon(Icons.expand_more_rounded),
           ],
-          const Icon(Icons.expand_more_rounded),
-        ]),
+        ),
       ),
     );
   }

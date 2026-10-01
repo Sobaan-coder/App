@@ -19,7 +19,14 @@ class AppColors {
   static const warning = Color(0xFFB54708);
   static const warningDark = Color(0xFFFDB022);
 
-  static const chart = [Color(0xFF0E7C66), Color(0xFFF2A93B), Color(0xFF3B82F6), Color(0xFFE5484D), Color(0xFF8B5CF6), Color(0xFF64748B)];
+  static const chart = [
+    Color(0xFF0E7C66),
+    Color(0xFFF2A93B),
+    Color(0xFF3B82F6),
+    Color(0xFFE5484D),
+    Color(0xFF8B5CF6),
+    Color(0xFF64748B),
+  ];
 }
 
 /// Semantic colors resolved for the current brightness.
@@ -33,13 +40,25 @@ class SemanticColors extends ThemeExtension<SemanticColors> {
   final Color subtle;
 
   static const light = SemanticColors(
-      income: AppColors.success, expense: AppColors.danger, warning: AppColors.warning, subtle: Color(0xFFF1F5F4));
+    income: AppColors.success,
+    expense: AppColors.danger,
+    warning: AppColors.warning,
+    subtle: Color(0xFFF1F5F4),
+  );
   static const dark = SemanticColors(
-      income: AppColors.successDark, expense: AppColors.dangerDark, warning: AppColors.warningDark, subtle: Color(0xFF1B2523));
+    income: AppColors.successDark,
+    expense: AppColors.dangerDark,
+    warning: AppColors.warningDark,
+    subtle: Color(0xFF1B2523),
+  );
 
   @override
   SemanticColors copyWith({Color? income, Color? expense, Color? warning, Color? subtle}) => SemanticColors(
-      income: income ?? this.income, expense: expense ?? this.expense, warning: warning ?? this.warning, subtle: subtle ?? this.subtle);
+    income: income ?? this.income,
+    expense: expense ?? this.expense,
+    warning: warning ?? this.warning,
+    subtle: subtle ?? this.subtle,
+  );
 
   @override
   SemanticColors lerp(ThemeExtension<SemanticColors>? other, double t) {

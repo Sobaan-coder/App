@@ -13,12 +13,7 @@ class DateSelector extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       onTap: () async {
         final now = DateTime.now();
-        final d = await showDatePicker(
-          context: context,
-          initialDate: value,
-          firstDate: DateTime(now.year - 5),
-          lastDate: now,
-        );
+        final d = await showDatePicker(context: context, initialDate: value, firstDate: DateTime(now.year - 5), lastDate: now);
         if (d != null) {
           // Keep the current time of day so ordering within a day stays natural.
           onChanged(DateTime(d.year, d.month, d.day, value.hour, value.minute));

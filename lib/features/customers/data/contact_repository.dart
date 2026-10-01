@@ -61,8 +61,7 @@ class ContactRepository {
     }
   }
 
-  Future<void> archive(ContactKind kind, String id) =>
-      update(kind, id, {'deleted_at': DateTime.now().toUtc().toIso8601String()});
+  Future<void> archive(ContactKind kind, String id) => update(kind, id, {'deleted_at': DateTime.now().toUtc().toIso8601String()});
 }
 
 final contactRepositoryProvider = Provider<ContactRepository>((ref) {

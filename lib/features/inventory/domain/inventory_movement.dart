@@ -30,10 +30,10 @@ class InventoryMovement {
   final String? note;
 
   factory InventoryMovement.fromJson(Map<String, dynamic> j) => InventoryMovement(
-        id: j['id'] as String,
-        type: MovementType.fromApi(j['type'] as String),
-        change: (j['quantity_change'] as num).toDouble(),
-        createdAt: DateTime.parse(j['created_at'] as String),
-        note: j['note'] as String?,
-      );
+    id: j['id'] as String,
+    type: MovementType.fromApi(j['type'] as String),
+    change: (j['quantity_change'] as num).toDouble(),
+    createdAt: DateTime.parse(j['created_at'] as String),
+    note: j['note'] as String?,
+  );
 }

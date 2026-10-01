@@ -24,22 +24,24 @@ Future<void> main() async {
   };
   if (kReleaseMode) {
     ErrorWidget.builder = (_) => const Material(
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('Something went wrong. Please try again.', textAlign: TextAlign.center),
-            ),
-          ),
-        );
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text('Something went wrong. Please try again.', textAlign: TextAlign.center),
+        ),
+      ),
+    );
   }
 
   final prefs = await SharedPreferences.getInstance();
   await initSupabase();
 
-  runApp(ProviderScope(
-    overrides: [keyValueStoreProvider.overrideWithValue(PrefsStore(prefs))],
-    // Screens offer explicit "Try again" buttons instead of silent retries.
-    retry: (_, _) => null,
-    child: const BusinessPilotApp(),
-  ));
+  runApp(
+    ProviderScope(
+      overrides: [keyValueStoreProvider.overrideWithValue(PrefsStore(prefs))],
+      // Screens offer explicit "Try again" buttons instead of silent retries.
+      retry: (_, _) => null,
+      child: const BusinessPilotApp(),
+    ),
+  );
 }

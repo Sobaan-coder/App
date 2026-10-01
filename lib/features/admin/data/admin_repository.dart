@@ -27,4 +27,6 @@ Future<Map<String, dynamic>> adminAction(SupabaseClient client, String action, [
   }
 }
 
-final adminDataProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, action) => adminAction(ref.supabase, action));
+final adminDataProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+  (ref, action) => adminAction(ref.supabase, action),
+);

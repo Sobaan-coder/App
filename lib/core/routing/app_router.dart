@@ -72,8 +72,10 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
   final refresh = RouterRefresh(ref);
   ref.onDispose(refresh.dispose);
 
-  GoRoute page(String path, Widget Function(GoRouterState s) build) =>
-      GoRoute(path: path, pageBuilder: (context, s) => NoTransitionPage(key: s.pageKey, child: build(s)));
+  GoRoute page(String path, Widget Function(GoRouterState s) build) => GoRoute(
+    path: path,
+    pageBuilder: (context, s) => NoTransitionPage(key: s.pageKey, child: build(s)),
+  );
 
   return GoRouter(
     initialLocation: '/',
@@ -81,7 +83,12 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
     redirect: (_, s) => refresh.redirect(s),
     errorBuilder: (context, _) => Scaffold(
       appBar: AppBar(),
-      body: EmptyState(icon: Icons.explore_off_rounded, title: 'Page not found', actionLabel: 'Go home', onAction: () => GoRouter.of(context).go('/')),
+      body: EmptyState(
+        icon: Icons.explore_off_rounded,
+        title: 'Page not found',
+        actionLabel: 'Go home',
+        onAction: () => GoRouter.of(context).go('/'),
+      ),
     ),
     routes: [
       GoRoute(path: '/setup', builder: (_, _) => const SetupRequiredScreen()),
@@ -90,13 +97,19 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/signup', builder: (_, _) => const SignupScreen()),
       GoRoute(path: '/forgot-password', builder: (_, _) => const ForgotPasswordScreen()),
       GoRoute(path: '/reset-password', builder: (_, _) => const ResetPasswordScreen()),
-      GoRoute(path: '/onboarding', builder: (_, s) => OnboardingScreen(addingAnother: s.uri.queryParameters['new'] == '1')),
+      GoRoute(
+        path: '/onboarding',
+        builder: (_, s) => OnboardingScreen(addingAnother: s.uri.queryParameters['new'] == '1'),
+      ),
       GoRoute(path: '/admin', builder: (_, _) => const AdminScreen()),
       ShellRoute(
         builder: (context, s, child) => AppShell(location: s.matchedLocation, child: child),
         routes: [
           page('/', (_) => const DashboardScreen()),
-          page('/ai', (s) => AiAssistantScreen(key: ValueKey(s.uri.queryParameters['q']), initialText: s.uri.queryParameters['q'])),
+          page(
+            '/ai',
+            (s) => AiAssistantScreen(key: ValueKey(s.uri.queryParameters['q']), initialText: s.uri.queryParameters['q']),
+          ),
           page('/transactions', (_) => const TransactionsScreen()),
           GoRoute(
             path: '/transactions/new',
@@ -106,15 +119,30 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
               supplierId: s.uri.queryParameters['supplier'],
             ),
           ),
-          GoRoute(path: '/transactions/:id', builder: (_, s) => TransactionDetailScreen(id: s.pathParameters['id']!)),
+          GoRoute(
+            path: '/transactions/:id',
+            builder: (_, s) => TransactionDetailScreen(id: s.pathParameters['id']!),
+          ),
           page('/products', (_) => const ProductsScreen()),
-          GoRoute(path: '/products/new', builder: (_, s) => ProductFormScreen(barcode: s.uri.queryParameters['barcode'])),
-          GoRoute(path: '/products/:id', builder: (_, s) => ProductFormScreen(id: s.pathParameters['id'])),
+          GoRoute(
+            path: '/products/new',
+            builder: (_, s) => ProductFormScreen(barcode: s.uri.queryParameters['barcode']),
+          ),
+          GoRoute(
+            path: '/products/:id',
+            builder: (_, s) => ProductFormScreen(id: s.pathParameters['id']),
+          ),
           page('/inventory', (s) => InventoryScreen(key: ValueKey(s.uri.query), lowOnly: s.uri.queryParameters['low'] == '1')),
           page('/customers', (_) => const ContactsScreen(kind: ContactKind.customer)),
-          GoRoute(path: '/customers/:id', builder: (_, s) => ContactDetailScreen(kind: ContactKind.customer, id: s.pathParameters['id']!)),
+          GoRoute(
+            path: '/customers/:id',
+            builder: (_, s) => ContactDetailScreen(kind: ContactKind.customer, id: s.pathParameters['id']!),
+          ),
           page('/suppliers', (_) => const SuppliersScreen()),
-          GoRoute(path: '/suppliers/:id', builder: (_, s) => ContactDetailScreen(kind: ContactKind.supplier, id: s.pathParameters['id']!)),
+          GoRoute(
+            path: '/suppliers/:id',
+            builder: (_, s) => ContactDetailScreen(kind: ContactKind.supplier, id: s.pathParameters['id']!),
+          ),
           page('/expenses', (_) => const ExpensesScreen()),
           page('/reports', (_) => const ReportsScreen()),
           page('/settings', (_) => const SettingsScreen()),
@@ -144,10 +172,10 @@ class AppShell extends ConsumerWidget {
       skipLoadingOnRefresh: true,
       skipLoadingOnReload: true,
       loading: () => const Scaffold(body: LoadingState(message: 'Loading your business…')),
-      error: (e, _) => Scaffold(body: ErrorState(error: e, onRetry: () => ref.invalidate(membershipsProvider))),
-      data: (b) => b == null
-          ? const Scaffold(body: LoadingState())
-          : ResponsiveScaffold(location: location, child: child),
+      error: (e, _) => Scaffold(
+        body: ErrorState(error: e, onRetry: () => ref.invalidate(membershipsProvider)),
+      ),
+      data: (b) => b == null ? const Scaffold(body: LoadingState()) : ResponsiveScaffold(location: location, child: child),
     );
   }
 }

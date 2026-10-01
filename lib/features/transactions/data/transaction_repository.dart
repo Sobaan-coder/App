@@ -29,8 +29,12 @@ class TransactionQuery {
 
   @override
   bool operator ==(Object other) =>
-      other is TransactionQuery && other.customerId == customerId && other.supplierId == supplierId &&
-      other.includeDeleted == includeDeleted && other.types.length == types.length && other.types.containsAll(types);
+      other is TransactionQuery &&
+      other.customerId == customerId &&
+      other.supplierId == supplierId &&
+      other.includeDeleted == includeDeleted &&
+      other.types.length == types.length &&
+      other.types.containsAll(types);
   @override
   int get hashCode => Object.hash(customerId, supplierId, includeDeleted, Object.hashAllUnordered(types));
 }
@@ -72,17 +76,28 @@ class TransactionRepository {
   /// idempotency key and synced automatically later — never duplicated.
   Future<RecordResult> record(TransactionDraft draft, {String? clientRef, String summary = ''}) {
     final ref = clientRef ?? _uuid.v4();
-    return recordPayload(draft.toPayload(businessId: _businessId, clientRef: ref), summary: summary);
+    return recordPayload(
+      draft.toPayload(businessId: _businessId, clientRef: ref),
+      summary: summary,
+    );
   }
 
   Future<RecordResult> recordPayload(Map<String, dynamic> payload, {String summary = ''}) async {
     final clientRef = (payload['client_ref'] as String?) ?? _uuid.v4();
     final p = {...payload, 'business_id': _businessId, 'client_ref': clientRef};
     Future<RecordResult> queue() async {
-      await _ref.read(offlineQueueProvider.notifier).enqueue(PendingOperation(
-            id: clientRef, businessId: _businessId, kind: 'record_transaction', payload: p,
-            createdAt: DateTime.now().toUtc(), summary: summary.isEmpty ? (p['type'] as String? ?? 'entry') : summary,
-          ));
+      await _ref
+          .read(offlineQueueProvider.notifier)
+          .enqueue(
+            PendingOperation(
+              id: clientRef,
+              businessId: _businessId,
+              kind: 'record_transaction',
+              payload: p,
+              createdAt: DateTime.now().toUtc(),
+              summary: summary.isEmpty ? (p['type'] as String? ?? 'entry') : summary,
+            ),
+          );
       return RecordResult(clientRef: clientRef, pending: true);
     }
 
@@ -183,9 +198,8 @@ class TransactionListController extends Notifier<TransactionListState> {
   }
 }
 
-final transactionListProvider =
-    NotifierProvider.autoDispose.family<TransactionListController, TransactionListState, TransactionQuery>(
-        TransactionListController.new);
+final transactionListProvider = NotifierProvider.autoDispose
+    .family<TransactionListController, TransactionListState, TransactionQuery>(TransactionListController.new);
 
 /// Builds a short human summary (used for offline queue & snackbars).
 String draftSummary(TransactionDraft d) => '${d.type.label}${d.amount == null ? '' : ' · ${d.amount!.format()}'}';

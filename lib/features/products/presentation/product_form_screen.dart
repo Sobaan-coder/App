@@ -110,112 +110,163 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
     final canEdit = b.role.canEditCatalogue;
     final p = widget.product;
     return Scaffold(
-      appBar: AppBar(title: Text(_editing ? p!.name : 'New product'), actions: [
-        if (_editing && canEdit)
-          IconButton(
-            tooltip: 'Archive product',
-            icon: const Icon(Icons.archive_outlined),
-            onPressed: () async {
-              if (!await showConfirmDialog(context, title: 'Archive ${p!.name}?',
-                  message: 'It will be hidden from lists. Past sales stay intact.', confirmLabel: 'Archive')) {
-                return;
-              }
-              try {
-                await ref.read(productRepositoryProvider).archive(p.id);
-                if (context.mounted) context.pop();
-              } catch (e) {
-                if (context.mounted) showError(context, e);
-              }
-            },
-          ),
-      ]),
+      appBar: AppBar(
+        title: Text(_editing ? p!.name : 'New product'),
+        actions: [
+          if (_editing && canEdit)
+            IconButton(
+              tooltip: 'Archive product',
+              icon: const Icon(Icons.archive_outlined),
+              onPressed: () async {
+                if (!await showConfirmDialog(
+                  context,
+                  title: 'Archive ${p!.name}?',
+                  message: 'It will be hidden from lists. Past sales stay intact.',
+                  confirmLabel: 'Archive',
+                )) {
+                  return;
+                }
+                try {
+                  await ref.read(productRepositoryProvider).archive(p.id);
+                  if (context.mounted) context.pop();
+                } catch (e) {
+                  if (context.mounted) showError(context, e);
+                }
+              },
+            ),
+        ],
+      ),
       body: Form(
         key: _form,
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
-            child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-              if (_editing) ...[
-                Card(
-                  child: ListTile(
-                    leading: Icon(p!.isLowStock ? Icons.warning_amber_rounded : Icons.inventory_2_outlined),
-                    title: Text(p.trackInventory ? '${Fmt.qty(p.stockQuantity)} ${p.unit} in stock' : 'Stock not tracked'),
-                    subtitle: Text(p.marginBp == null ? 'Add a cost price to see margin' : 'Margin ${(p.marginBp! / 100).toStringAsFixed(1)}%'),
-                    trailing: p.trackInventory && b.role.canRecord
-                        ? FilledButton.tonal(onPressed: () => showAdjustStockSheet(context, p), child: const Text('Adjust'))
-                        : null,
+            child: ListView(
+              padding: const EdgeInsets.all(Gap.lg),
+              children: [
+                if (_editing) ...[
+                  Card(
+                    child: ListTile(
+                      leading: Icon(p!.isLowStock ? Icons.warning_amber_rounded : Icons.inventory_2_outlined),
+                      title: Text(p.trackInventory ? '${Fmt.qty(p.stockQuantity)} ${p.unit} in stock' : 'Stock not tracked'),
+                      subtitle: Text(
+                        p.marginBp == null
+                            ? 'Add a cost price to see margin'
+                            : 'Margin ${(p.marginBp! / 100).toStringAsFixed(1)}%',
+                      ),
+                      trailing: p.trackInventory && b.role.canRecord
+                          ? FilledButton.tonal(onPressed: () => showAdjustStockSheet(context, p), child: const Text('Adjust'))
+                          : null,
+                    ),
                   ),
+                  const SizedBox(height: Gap.lg),
+                ],
+                AppTextField(
+                  label: 'Name',
+                  controller: _name,
+                  enabled: canEdit,
+                  textCapitalization: TextCapitalization.words,
+                  validator: (v) => Validators.required(v, 'Name'),
                 ),
                 const SizedBox(height: Gap.lg),
-              ],
-              AppTextField(label: 'Name', controller: _name, enabled: canEdit, textCapitalization: TextCapitalization.words,
-                  validator: (v) => Validators.required(v, 'Name')),
-              const SizedBox(height: Gap.lg),
-              Row(children: [
-                Expanded(child: MoneyField(controller: _price, currency: b.currency, label: 'Selling price', required: false)),
-                const SizedBox(width: Gap.md),
-                Expanded(child: MoneyField(controller: _cost, currency: b.currency, label: 'Cost price', required: false, allowZero: true)),
-              ]),
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text('Cost price is used to calculate profit.', style: Theme.of(context).textTheme.bodySmall),
-              ),
-              const SizedBox(height: Gap.lg),
-              Row(children: [
-                Expanded(child: AppTextField(label: 'SKU (optional)', controller: _sku, enabled: canEdit)),
-                const SizedBox(width: Gap.md),
-                Expanded(
-                  child: AppTextField(
-                    label: 'Barcode (optional)', controller: _barcode, enabled: canEdit,
-                    suffix: b.flags.barcodeEnabled
-                        ? IconButton(tooltip: 'Scan', icon: const Icon(Icons.qr_code_scanner_rounded), onPressed: () async {
-                            final code = await scanBarcode(context);
-                            if (code != null) _barcode.text = code;
-                          })
-                        : null,
-                  ),
-                ),
-              ]),
-              const SizedBox(height: Gap.lg),
-              DropdownButtonFormField<String>(
-                initialValue: AppConstants.units.contains(_unit) ? _unit : 'pcs',
-                decoration: const InputDecoration(labelText: 'Unit'),
-                items: [for (final u in AppConstants.units) DropdownMenuItem(value: u, child: Text(u))],
-                onChanged: canEdit ? (v) => setState(() => _unit = v!) : null,
-              ),
-              const SizedBox(height: Gap.md),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Track stock'),
-                subtitle: const Text('Sales and purchases update the stock automatically'),
-                value: _track,
-                onChanged: canEdit ? (v) => setState(() => _track = v) : null,
-              ),
-              if (_track) ...[
-                Row(children: [
-                  if (!_editing) ...[
-                    Expanded(child: AppTextField(label: 'Opening stock', controller: _opening, keyboardType: TextInputType.number)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MoneyField(controller: _price, currency: b.currency, label: 'Selling price', required: false),
+                    ),
                     const SizedBox(width: Gap.md),
+                    Expanded(
+                      child: MoneyField(
+                        controller: _cost,
+                        currency: b.currency,
+                        label: 'Cost price',
+                        required: false,
+                        allowZero: true,
+                      ),
+                    ),
                   ],
-                  Expanded(child: AppTextField(label: 'Low-stock alert at', controller: _min, enabled: canEdit,
-                      keyboardType: TextInputType.number)),
-                ]),
-              ],
-              if (_editing)
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text('Cost price is used to calculate profit.', style: Theme.of(context).textTheme.bodySmall),
+                ),
+                const SizedBox(height: Gap.lg),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppTextField(label: 'SKU (optional)', controller: _sku, enabled: canEdit),
+                    ),
+                    const SizedBox(width: Gap.md),
+                    Expanded(
+                      child: AppTextField(
+                        label: 'Barcode (optional)',
+                        controller: _barcode,
+                        enabled: canEdit,
+                        suffix: b.flags.barcodeEnabled
+                            ? IconButton(
+                                tooltip: 'Scan',
+                                icon: const Icon(Icons.qr_code_scanner_rounded),
+                                onPressed: () async {
+                                  final code = await scanBarcode(context);
+                                  if (code != null) _barcode.text = code;
+                                },
+                              )
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Gap.lg),
+                DropdownButtonFormField<String>(
+                  initialValue: AppConstants.units.contains(_unit) ? _unit : 'pcs',
+                  decoration: const InputDecoration(labelText: 'Unit'),
+                  items: [for (final u in AppConstants.units) DropdownMenuItem(value: u, child: Text(u))],
+                  onChanged: canEdit ? (v) => setState(() => _unit = v!) : null,
+                ),
+                const SizedBox(height: Gap.md),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Active'),
-                  value: _active,
-                  onChanged: canEdit ? (v) => setState(() => _active = v) : null,
+                  title: const Text('Track stock'),
+                  subtitle: const Text('Sales and purchases update the stock automatically'),
+                  value: _track,
+                  onChanged: canEdit ? (v) => setState(() => _track = v) : null,
                 ),
-              const SizedBox(height: Gap.xl),
-              if (canEdit) AppButton(label: 'Save product', onPressed: _save, loading: _saving, expand: true),
-              if (_editing) ...[
+                if (_track) ...[
+                  Row(
+                    children: [
+                      if (!_editing) ...[
+                        Expanded(
+                          child: AppTextField(label: 'Opening stock', controller: _opening, keyboardType: TextInputType.number),
+                        ),
+                        const SizedBox(width: Gap.md),
+                      ],
+                      Expanded(
+                        child: AppTextField(
+                          label: 'Low-stock alert at',
+                          controller: _min,
+                          enabled: canEdit,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                if (_editing)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Active'),
+                    value: _active,
+                    onChanged: canEdit ? (v) => setState(() => _active = v) : null,
+                  ),
                 const SizedBox(height: Gap.xl),
-                Text('Stock history', style: Theme.of(context).textTheme.titleMedium),
-                _History(productId: p!.id, unit: p.unit),
+                if (canEdit) AppButton(label: 'Save product', onPressed: _save, loading: _saving, expand: true),
+                if (_editing) ...[
+                  const SizedBox(height: Gap.xl),
+                  Text('Stock history', style: Theme.of(context).textTheme.titleMedium),
+                  _History(productId: p!.id, unit: p.unit),
+                ],
               ],
-            ]),
+            ),
           ),
         ),
       ),
@@ -229,21 +280,27 @@ class _History extends ConsumerWidget {
   final String unit;
   @override
   Widget build(BuildContext context, WidgetRef ref) => AsyncView(
-        value: ref.watch(inventoryHistoryProvider(productId)),
-        compact: true,
-        builder: (moves) => moves.isEmpty
-            ? const Padding(padding: EdgeInsets.all(12), child: Text('No stock movements yet'))
-            : Column(children: [
-                for (final m in moves)
-                  ListTile(
-                    dense: true,
-                    leading: Icon(m.type.icon),
-                    title: Text(m.type.label),
-                    subtitle: Text([Fmt.dateTime(m.createdAt), if (m.note != null) m.note!].join(' · ')),
-                    trailing: Text('${m.change > 0 ? '+' : ''}${Fmt.qty(m.change)} $unit',
-                        style: TextStyle(fontWeight: FontWeight.w700, color: m.change < 0 ? Theme.of(context).colorScheme.error : null)),
+    value: ref.watch(inventoryHistoryProvider(productId)),
+    compact: true,
+    builder: (moves) => moves.isEmpty
+        ? const Padding(padding: EdgeInsets.all(12), child: Text('No stock movements yet'))
+        : Column(
+            children: [
+              for (final m in moves)
+                ListTile(
+                  dense: true,
+                  leading: Icon(m.type.icon),
+                  title: Text(m.type.label),
+                  subtitle: Text([Fmt.dateTime(m.createdAt), if (m.note != null) m.note!].join(' · ')),
+                  trailing: Text(
+                    '${m.change > 0 ? '+' : ''}${Fmt.qty(m.change)} $unit',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: m.change < 0 ? Theme.of(context).colorScheme.error : null,
+                    ),
                   ),
-              ]),
-      );
+                ),
+            ],
+          ),
+  );
 }
-

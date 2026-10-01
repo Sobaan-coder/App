@@ -18,8 +18,12 @@ class AppFailure implements Exception {
   factory AppFailure.from(Object error) {
     if (error is AppFailure) return error;
     if (_isNetwork(error)) {
-      return AppFailure('network', 'You appear to be offline. Check your connection and try again.',
-          isNetwork: true, cause: error);
+      return AppFailure(
+        'network',
+        'You appear to be offline. Check your connection and try again.',
+        isNetwork: true,
+        cause: error,
+      );
     }
     final raw = switch (error) {
       PostgrestException e => e.message,
@@ -33,13 +37,18 @@ class AppFailure implements Exception {
   static bool _isNetwork(Object e) {
     if (e is TimeoutException) return true;
     final s = e.toString();
-    return s.contains('SocketException') || s.contains('ClientException') || s.contains('Failed host lookup') ||
-        s.contains('XMLHttpRequest error') || s.contains('Connection refused') || s.contains('Network is unreachable');
+    return s.contains('SocketException') ||
+        s.contains('ClientException') ||
+        s.contains('Failed host lookup') ||
+        s.contains('XMLHttpRequest error') ||
+        s.contains('Connection refused') ||
+        s.contains('Network is unreachable');
   }
 
   static String _codeOf(String raw) {
-    final m = RegExp(r'(not_authenticated|forbidden|not_found(:\w+)?|invalid_input:\w+|invalid_state:\w+|plan_limit:\w+|ambiguous:\w+|rate_limited|feature_disabled|ai_failed)')
-        .firstMatch(raw);
+    final m = RegExp(
+      r'(not_authenticated|forbidden|not_found(:\w+)?|invalid_input:\w+|invalid_state:\w+|plan_limit:\w+|ambiguous:\w+|rate_limited|feature_disabled|ai_failed)',
+    ).firstMatch(raw);
     if (m != null) return m.group(0)!;
     if (raw.startsWith('auth:')) return 'auth';
     return 'unknown';

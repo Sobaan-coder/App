@@ -33,7 +33,12 @@ Future<String?> showReasonDialog(BuildContext context, {required String title, S
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(title),
-      content: TextField(controller: controller, autofocus: true, decoration: InputDecoration(labelText: hint), maxLength: 200),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        decoration: InputDecoration(labelText: hint),
+        maxLength: 200,
+      ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
         FilledButton(

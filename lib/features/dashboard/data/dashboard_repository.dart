@@ -44,8 +44,12 @@ class DashboardRepository {
       final rows = await _client.rpc('sales_timeseries', params: _args(f)) as List;
       return rows.map((r) {
         final m = Map<String, dynamic>.from(r as Map);
-        return SeriesPoint(DateTime.parse(m['day'] as String), Money(readMinor(m['sales_minor']) ?? 0, _currency),
-            Money(readMinor(m['expenses_minor']) ?? 0, _currency), Money(readMinor(m['purchases_minor']) ?? 0, _currency));
+        return SeriesPoint(
+          DateTime.parse(m['day'] as String),
+          Money(readMinor(m['sales_minor']) ?? 0, _currency),
+          Money(readMinor(m['expenses_minor']) ?? 0, _currency),
+          Money(readMinor(m['purchases_minor']) ?? 0, _currency),
+        );
       }).toList();
     } catch (e) {
       throw AppFailure.from(e);
@@ -57,7 +61,11 @@ class DashboardRepository {
       final rows = await _client.rpc('expense_breakdown', params: _args(f)) as List;
       return rows.map((r) {
         final m = Map<String, dynamic>.from(r as Map);
-        return CategoryAmount(m['category'] as String, Money(readMinor(m['amount_minor']) ?? 0, _currency), (m['count'] as num).toInt());
+        return CategoryAmount(
+          m['category'] as String,
+          Money(readMinor(m['amount_minor']) ?? 0, _currency),
+          (m['count'] as num).toInt(),
+        );
       }).toList();
     } catch (e) {
       throw AppFailure.from(e);
@@ -70,8 +78,13 @@ class DashboardRepository {
       return rows.map((r) {
         final m = Map<String, dynamic>.from(r as Map);
         final cost = readMinor(m['cost_minor']);
-        return TopProduct(m['product_id'] as String?, m['name'] as String, readQty(m['quantity']),
-            Money(readMinor(m['revenue_minor']) ?? 0, _currency), cost == null ? null : Money(cost, _currency));
+        return TopProduct(
+          m['product_id'] as String?,
+          m['name'] as String,
+          readQty(m['quantity']),
+          Money(readMinor(m['revenue_minor']) ?? 0, _currency),
+          cost == null ? null : Money(cost, _currency),
+        );
       }).toList();
     } catch (e) {
       throw AppFailure.from(e);
@@ -83,8 +96,13 @@ class DashboardRepository {
       final rows = await _client.rpc('low_stock_products', params: {'p_business_id': _businessId}) as List;
       return rows.map((r) {
         final m = Map<String, dynamic>.from(r as Map);
-        return LowStockItem(m['id'] as String, m['name'] as String, readQty(m['stock_quantity']), readQty(m['minimum_stock']),
-            m['unit'] as String? ?? 'pcs');
+        return LowStockItem(
+          m['id'] as String,
+          m['name'] as String,
+          readQty(m['stock_quantity']),
+          readQty(m['minimum_stock']),
+          m['unit'] as String? ?? 'pcs',
+        );
       }).toList();
     } catch (e) {
       throw AppFailure.from(e);

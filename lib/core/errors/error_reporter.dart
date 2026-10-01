@@ -9,12 +9,19 @@ class ErrorReporter {
   ErrorReporter._();
 
   static final _sensitive = RegExp(
-      r'(eyJ[\w-]+\.[\w-]+\.[\w-]+)|(password\S*)|(apikey\S*)|(Bearer\s+\S+)|([\w.+-]+@[\w-]+\.[\w.]+)',
-      caseSensitive: false);
+    r'(eyJ[\w-]+\.[\w-]+\.[\w-]+)|(password\S*)|(apikey\S*)|(Bearer\s+\S+)|([\w.+-]+@[\w-]+\.[\w.]+)',
+    caseSensitive: false,
+  );
 
   static String sanitize(String s) => s.replaceAll(_sensitive, '[redacted]').substring(0, s.length.clamp(0, 400));
 
-  static Future<void> report(Object error, StackTrace? stack, {String source = 'client', String code = 'exception', String? businessId}) async {
+  static Future<void> report(
+    Object error,
+    StackTrace? stack, {
+    String source = 'client',
+    String code = 'exception',
+    String? businessId,
+  }) async {
     debugPrint('[$source] $code: $error');
     if (!Env.isConfigured) return;
     try {
