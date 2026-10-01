@@ -42,6 +42,8 @@ export type Intent =
   | "email"
   | "project_create"
   | "calendar_event"
+  | "identity"
+  | "greeting"
   | "general";
 
 export interface DetectedIntent {
@@ -62,6 +64,10 @@ export function detectIntent(raw: string): DetectedIntent {
   const t = text.toLowerCase();
   const url = URL_RE.exec(text)?.[0]?.replace(/[.,]+$/, "");
   const hit = (intent: Intent, entities: Record<string, string | undefined> = {}, confidence = 0.9): DetectedIntent => ({ intent, confidence, entities: { url, ...entities } });
+
+  // ── about the assistant ──
+  if (/\b(what('?s| is) your name|who are you|what are you called|introduce yourself)\b/.test(t)) return hit("identity");
+  if (/^(hi|hello|hey|salam|assalam[\w ]*|good (morning|afternoon|evening))[!. ]*$/.test(t)) return hit("greeting");
 
   // ── automation control ──
   if (/\b(pause|stop|disable) (all|every|my) (automations?|workflows?)\b|\bpause all\b/.test(t)) return hit("automation_pause_all");

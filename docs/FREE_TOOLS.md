@@ -27,6 +27,17 @@ explicitly enable it. Anything that can cost money is labelled **PAID DEPENDENCY
 | Gemini API (text) | LLM via OpenAI-compatible endpoint | Free tier quotas (varies by model) | Ollama | Yes | No |
 | OpenAI / other paid APIs | LLM | **PAID DEPENDENCY** — off unless "Allow paid" | Any free option above | Yes | No |
 
+## Voice & language
+
+| Tool | Purpose | Free limit | Alternative | API key? | Local? |
+|---|---|---|---|---|---|
+| Browser speech recognition (Web Speech API) | Voice commands & wake word, Urdu + English | Free in Chrome/Edge/Safari (audio processed by the browser vendor) | Whisper server | No | No |
+| faster-whisper / Speaches (Whisper) | Speech-to-text in any browser | Unlimited (your CPU/GPU) | Groq Whisper free tier | No | Yes |
+| Groq Whisper (`whisper-large-v3`) | Speech-to-text incl. Urdu | Rate-limited free tier | Local Whisper | Yes | No |
+| Device voices (speechSynthesis) | Spoken replies | Free | — | No | Yes |
+| Built-in Urdu / Roman Urdu understanding | Command translation | Unlimited | AI model for free-form Urdu (Ollama `qwen2.5`) | No | Yes |
+| Noto Nastaliq Urdu (Google Fonts) | Urdu typography | Free (OFL) | System Arabic-script fonts | No | Cached |
+
 ## Images
 
 | Tool | Purpose | Free limit | Alternative | API key? | Local? |

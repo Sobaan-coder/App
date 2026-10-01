@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import { Settings as SettingsIcon } from "lucide-react";
 import { api, useApi } from "@/lib/client";
+import { useVoice, hasUrduVoice } from "@/components/voice/voice-assistant";
 import { Badge, Button, Card, CardHeader, Input, Label, Modal, PageHeader, Select, Tabs, Toggle, useToast } from "@/components/ui";
 
 type S = {
+  assistant: { name: string; urduName: string; aliases: string[]; replyLanguage: string; voiceLanguage: string; speakReplies: boolean; voiceEngine: string; voiceRate: number };
   general: { defaultProjectId: string | null; language: string };
   ai: { allowPaid: boolean; preferLocal: boolean; enabled: boolean; ollamaModel: string; openaiCompatModel: string; tierModels: Record<string, string>; monthlyBudgetUsd: number };
   imageGen: { order: string[]; pollinationsEnabled: boolean };
@@ -37,7 +39,16 @@ const MODE_TONE = { auto: "ok", approval: "warn", confirm: "bad", disabled: "neu
 
 export default function SettingsPage() {
   const toast = useToast();
-  const [tab, setTab] = useState("general");
+  const [tab, setTab] = useState("assistant");
+  const voice = useVoice();
+  const stt = useApi<{ configured: boolean; model: string }>(tab === "assistant" ? "/api/voice/transcribe" : null);
+  const [voices, setVoices] = useState<{ name: string; lang: string }[]>([]);
+  useEffect(() => {
+    if (typeof speechSynthesis === "undefined") return;
+    const load = () => setVoices(speechSynthesis.getVoices().map((v) => ({ name: v.name, lang: v.lang })));
+    load();
+    speechSynthesis.onvoiceschanged = load;
+  }, []);
   const s = useApi<{ settings: S; server: Server }>("/api/settings");
   const me = useApi<{ profile: { display_name: string; timezone: string; work_start: string; work_end: string } }>("/api/auth/me");
   const tools = useApi<{ tools: Tool[] }>(tab === "permissions" ? "/api/tools" : null);
@@ -52,6 +63,7 @@ export default function SettingsPage() {
     try {
       await api("/api/settings", { method: "PUT", body: patch });
       s.reload();
+      voice?.reloadSettings();
       toast("Saved", "ok");
     } catch (e) {
       toast((e as Error).message, "bad");
@@ -79,6 +91,7 @@ export default function SettingsPage() {
           value={tab}
           onChange={setTab}
           items={[
+            { value: "assistant", label: "Assistant & Voice" },
             { value: "general", label: "Profile" },
             { value: "ai", label: "AI & Cost" },
             { value: "content", label: "Content & Images" },
@@ -90,6 +103,81 @@ export default function SettingsPage() {
           ]}
         />
       </div>
+
+      {tab === "assistant" && (
+        <Card>
+          <CardHeader title={`Your assistant: ${st.assistant.name}`} subtitle="Give it any name. Say the name (or tap the mic) and speak in English or Urdu — like Siri." />
+          {row("Name", "Wakes the assistant: “Saathi, plan my day”.", <Input className="w-48" defaultValue={st.assistant.name} onBlur={(e) => e.target.value.trim() && e.target.value !== st.assistant.name && save({ assistant: { name: e.target.value.trim() } })} />)}
+          {row("Name in Urdu", "So “ساتھی، میرا دن پلان کرو” also works.", <Input className="urdu w-48 text-right" dir="rtl" defaultValue={st.assistant.urduName} onBlur={(e) => e.target.value !== st.assistant.urduName && save({ assistant: { urduName: e.target.value.trim() } })} />)}
+          {row(
+            "Other spellings / nicknames",
+            "Comma separated. Helps if speech recognition hears the name differently.",
+            <Input className="w-64" defaultValue={st.assistant.aliases.join(", ")} onBlur={(e) => save({ assistant: { aliases: e.target.value.split(",").map((x) => x.trim()).filter((x) => x.length >= 2) } })} />,
+          )}
+          {row(
+            "Listening language",
+            "Which language the microphone listens for. Urdu (Pakistan) also understands English words mixed in.",
+            <Select className="w-48" value={st.assistant.voiceLanguage} onChange={(e) => save({ assistant: { voiceLanguage: e.target.value } })}>
+              <option value="ur-PK">اردو — Urdu (Pakistan)</option>
+              <option value="ur-IN">اردو — Urdu (India)</option>
+              <option value="en-PK">English (Pakistan)</option>
+              <option value="en-IN">English (India)</option>
+              <option value="en-US">English (US)</option>
+              <option value="en-GB">English (UK)</option>
+            </Select>,
+          )}
+          {row(
+            "Reply language",
+            "Auto = reply in the language you used (English, اردو, or Roman Urdu).",
+            <Select className="w-48" value={st.assistant.replyLanguage} onChange={(e) => save({ assistant: { replyLanguage: e.target.value } })}>
+              <option value="auto">Auto (match me)</option>
+              <option value="ur">Always اردو</option>
+              <option value="roman">Always Roman Urdu</option>
+              <option value="en">Always English</option>
+            </Select>,
+          )}
+          {row("Speak replies", "Read replies aloud using your device's voices (free).", <Toggle checked={st.assistant.speakReplies} onChange={(v) => save({ assistant: { speakReplies: v } })} />)}
+          {row(
+            "Speaking speed",
+            "",
+            <Input type="number" min={0.5} max={1.5} step={0.1} className="w-24" defaultValue={st.assistant.voiceRate} onBlur={(e) => save({ assistant: { voiceRate: Number(e.target.value) } })} />,
+          )}
+          {row(
+            "Speech recognition engine",
+            stt.data?.configured
+              ? `Whisper server configured (${stt.data.model}).`
+              : "Browser = free, built into Chrome/Edge/Safari (audio is processed by the browser vendor, e.g. Google for Chrome). Whisper = your own server (set STT_BASE_URL) — works in every browser and can be fully local.",
+            <Select className="w-48" value={st.assistant.voiceEngine} onChange={(e) => save({ assistant: { voiceEngine: e.target.value } })}>
+              <option value="browser">Browser (free)</option>
+              <option value="whisper" disabled={!stt.data?.configured}>
+                Whisper server {stt.data?.configured ? "" : "(not configured)"}
+              </option>
+            </Select>,
+          )}
+          {row(
+            `Hands-free “${st.assistant.name}” on this device`,
+            "Keeps the microphone listening for the name while this app is open (in a tab or installed as an app). Off by default for privacy. Saved per device.",
+            <Toggle checked={Boolean(voice?.wakeEnabled)} onChange={(v) => voice?.setWakeEnabled(v)} />,
+          )}
+          {row(
+            "Test the voice",
+            hasUrduVoice()
+              ? "An Urdu voice is installed on this device."
+              : "No Urdu voice found on this device — Urdu replies are shown as text (English replies are spoken). Install an Urdu voice in your OS speech settings (Windows: Settings → Time & language → Speech; Android: Google Text-to-speech → Urdu).",
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => voice?.speak(`Hello, I'm ${st.assistant.name}. How can I help?`, "en")}>
+                English
+              </Button>
+              <Button size="sm" onClick={() => voice?.speak(`السلام علیکم، میں ${st.assistant.urduName || st.assistant.name} ہوں۔ بتائیں، کیا کرنا ہے؟`, "ur")}>
+                اردو
+              </Button>
+            </div>,
+          )}
+          <div className="border-t border-line px-5 py-3 text-[11px] text-muted">
+            Voices on this device: {voices.length ? voices.filter((v) => /^(ur|en)/i.test(v.lang)).map((v) => `${v.name} (${v.lang})`).slice(0, 12).join(" · ") || "none for English/Urdu" : "loading…"}
+          </div>
+        </Card>
+      )}
 
       {tab === "general" && (
         <Card className="space-y-3 p-5">

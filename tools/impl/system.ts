@@ -217,4 +217,15 @@ export const shellCommand = defineTool({
   },
 });
 
-export const systemTools = [emailDraft, emailSend, notificationSend, webhookCall, memorySave, memorySearch, memoryForget, activitySummary, databaseQuery, shellCommand];
+export const assistantSay = defineTool({
+  name: "assistant_say",
+  description: "Reply to you with a short message (greetings, introductions).",
+  category: "ai",
+  risk: "low",
+  input: z.object({ text: z.string().min(1).max(2000) }),
+  async execute(i) {
+    return { summary: i.text, markdown: i.text };
+  },
+});
+
+export const systemTools = [assistantSay, emailDraft, emailSend, notificationSend, webhookCall, memorySave, memorySearch, memoryForget, activitySummary, databaseQuery, shellCommand];

@@ -2,7 +2,33 @@ import { z } from "zod";
 import type { Db } from "./db";
 
 /** All user settings with safe ($0) defaults. Stored per key in the `settings` table. */
+export const assistantDefaults = {
+  name: "Saathi",
+  urduName: "ساتھی",
+  aliases: [] as string[],
+  replyLanguage: "auto" as "auto" | "en" | "ur" | "roman",
+  voiceLanguage: "ur-PK" as "ur-PK" | "ur-IN" | "en-US" | "en-GB" | "en-IN" | "en-PK",
+  speakReplies: true,
+  voiceEngine: "browser" as "browser" | "whisper",
+  voiceRate: 1,
+};
+
 export const settingsSchema = z.object({
+  /** The assistant's identity and voice. */
+  assistant: z
+    .object({
+      name: z.string().trim().min(2).max(30).default(assistantDefaults.name),
+      /** How the name is written in Urdu, so "ساتھی" also wakes it. */
+      urduName: z.string().trim().max(30).default(assistantDefaults.urduName),
+      /** Extra spellings / nicknames that should also wake the assistant. */
+      aliases: z.array(z.string().trim().min(2).max(30)).max(10).default([]),
+      replyLanguage: z.enum(["auto", "en", "ur", "roman"]).default("auto"),
+      voiceLanguage: z.enum(["ur-PK", "ur-IN", "en-US", "en-GB", "en-IN", "en-PK"]).default("ur-PK"),
+      speakReplies: z.boolean().default(true),
+      voiceEngine: z.enum(["browser", "whisper"]).default("browser"),
+      voiceRate: z.number().min(0.5).max(1.5).default(1),
+    })
+    .default(assistantDefaults),
   general: z
     .object({
       defaultProjectId: z.string().uuid().nullable().default(null),

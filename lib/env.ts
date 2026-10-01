@@ -36,6 +36,11 @@ const schema = z.object({
   LOCAL_SD_URL: opt,
   POLLINATIONS_ENABLED: bool(false),
 
+  STT_BASE_URL: opt,
+  STT_API_KEY: opt,
+  STT_MODEL: z.string().default("whisper-large-v3"),
+  STT_IS_PAID: bool(false),
+
   SEARXNG_URL: opt,
   BRAVE_API_KEY: opt,
   PLAYWRIGHT_CHROMIUM_PATH: opt,

@@ -15,6 +15,7 @@ writing templates) and gets smarter when you connect a **free local model (Ollam
 
 | Area | Highlights |
 |---|---|
+| **Saathi (ساتھی)** | Your assistant has a name (rename it). Say **"Saathi, plan my day"** hands-free like Siri, tap the mic, or type — in **English, اردو or Roman Urdu**. Replies are shown and spoken in your language. See [VOICE.md](docs/VOICE.md). |
 | **Command box** | "Plan my day", "Summarize the documents I added today", "Research X and create a report", "Every Monday at 8am check my unfinished tasks and notify me", "Create today's Merchants post and publish it to Instagram"… |
 | **Agent** | Intent detection → structured plan → tool selection → execution → verification → result → memory. Plans are visible; chain-of-thought is not. |
 | **Safety levels** | LOW = automatic · MEDIUM = approval (send, publish, move many files, webhooks) · HIGH = type **CONFIRM** (shell…). Configurable per tool, never weaker than the floor. |
@@ -73,4 +74,4 @@ See **[docs/FREE_TOOLS.md](docs/FREE_TOOLS.md)** and **[docs/FREE_ARCHITECTURE.m
 
 ## Docs
 
-[SETUP](docs/SETUP.md) · [DEPLOYMENT](docs/DEPLOYMENT.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [FREE_TOOLS](docs/FREE_TOOLS.md) · [FREE_ARCHITECTURE](docs/FREE_ARCHITECTURE.md) · [SECURITY](docs/SECURITY.md) · [AUTOMATIONS](docs/AUTOMATIONS.md) · [API](docs/API.md) · [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) · [IMPLEMENTATION_PLAN](docs/IMPLEMENTATION_PLAN.md)
+[VOICE & URDU](docs/VOICE.md) · [SETUP](docs/SETUP.md) · [DEPLOYMENT](docs/DEPLOYMENT.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [FREE_TOOLS](docs/FREE_TOOLS.md) · [FREE_ARCHITECTURE](docs/FREE_ARCHITECTURE.md) · [SECURITY](docs/SECURITY.md) · [AUTOMATIONS](docs/AUTOMATIONS.md) · [API](docs/API.md) · [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) · [IMPLEMENTATION_PLAN](docs/IMPLEMENTATION_PLAN.md)

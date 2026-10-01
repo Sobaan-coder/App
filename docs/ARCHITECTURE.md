@@ -1,7 +1,7 @@
 # Architecture
 
 ```
-USER ──► Command box ──► INTENT DETECTION ──► TASK PLANNER ──► (run queued)
+USER ──► voice / text, any language ──► wake-word strip ──► Urdu→English normalise ──► Command box ──► INTENT DETECTION ──► TASK PLANNER ──► (run queued)
                          agents/intent.ts      agents/planner.ts
                                                      │
               ┌──────────────────────────────────────┘
@@ -25,6 +25,8 @@ USER ──► Command box ──► INTENT DETECTION ──► TASK PLANNER ─
 | `proxy.ts` | Next.js 16 proxy: auth gate for pages + CSRF origin check for mutating API calls |
 | `components/` | UI kit, app shell, run view, approval card, workflow builder |
 | `lib/` | env, db (+RLS sessions), auth, crypto, permissions, templating, rate limit, circuit breaker, time |
+| `components/voice/` | Voice assistant: wake word, push-to-talk, Whisper fallback, spoken replies, orb UI |
+| `services/language/` | Urdu / Roman-Urdu detection & normalisation, AI translation fallback, localized replies |
 | `agents/` | intent detection, planner, command handling + automation discovery |
 | `tools/` | tool interface (`types.ts`), registry, implementations in `tools/impl/*` |
 | `workflows/` | step/plan types, engine, templates, natural-language automation parser |

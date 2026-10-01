@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { api, timeAgo, useApi } from "@/lib/client";
 import { cx, ToastProvider } from "./ui";
+import { VoiceAssistantProvider, WakeIndicator } from "./voice/voice-assistant";
 
 interface NavItem {
   href: string;
@@ -223,6 +224,7 @@ export function AppShell({ user, children }: { user: { name: string; email: stri
 
   return (
     <ToastProvider>
+      <VoiceAssistantProvider>
       <div className="flex min-h-dvh">
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 border-r border-line bg-panel lg:block">{sidebar}</aside>
         {drawer && (
@@ -245,6 +247,7 @@ export function AppShell({ user, children }: { user: { name: string; email: stri
               AI COMMAND CENTER
             </Link>
             <div className="ml-auto flex items-center gap-1.5">
+              <WakeIndicator />
               <Link
                 href="/health"
                 className={cx("hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold sm:inline-flex", aiOnline ? "border-ok/30 bg-ok/10 text-ok" : "border-gold/30 bg-gold/10 text-gold")}
@@ -337,6 +340,7 @@ export function AppShell({ user, children }: { user: { name: string; email: stri
           </div>
         </nav>
       </div>
+      </VoiceAssistantProvider>
     </ToastProvider>
   );
 }

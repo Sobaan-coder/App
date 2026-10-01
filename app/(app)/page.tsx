@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, ArrowUp, CheckSquare, ChevronRight, Clock, FileSearch, FolderSync, Lightbulb, ListTodo, Megaphone, Repeat, Search, ShieldCheck, Sparkles, Sun, Workflow } from "lucide-react";
+import { Loader2, ArrowUp, Mic, CheckSquare, ChevronRight, Clock, FileSearch, FolderSync, Lightbulb, ListTodo, Megaphone, Repeat, Search, ShieldCheck, Sparkles, Sun, Workflow } from "lucide-react";
 import { api, fmtDate, timeAgo, useApi } from "@/lib/client";
 import { RunView } from "@/components/run-view";
 import { ApprovalCard, type ApprovalItem } from "@/components/approval-card";
+import { useVoice } from "@/components/voice/voice-assistant";
 import { Badge, Button, Card, CardHeader, Empty, Modal, Select, StatusBadge, cx, useToast } from "@/components/ui";
 
 interface Dashboard {
@@ -56,6 +57,8 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
   const [ack, setAck] = useState<string | null>(null);
+  const [understood, setUnderstood] = useState<string | null>(null);
+  const voice = useVoice();
   const [suggestion, setSuggestion] = useState<Dashboard["suggestion"]>(null);
   const [welcome, setWelcome] = useState(false);
   const [cron, setCron] = useState("0 9 * * 1-5");
@@ -74,9 +77,14 @@ export default function Home() {
     if (t.length < 2) return;
     setBusy(true);
     try {
-      const r = await api<{ runId: string; goal: string; steps: unknown[]; requiresApproval: boolean; suggestion: Dashboard["suggestion"] | { id: string; example: string; occurrences: number } }>("/api/command", { body: { text: t } });
+      const r = await api<{ runId: string; goal: string; steps: unknown[]; requiresApproval: boolean; reply: string; lang: string; understoodAs: string; suggestion: Dashboard["suggestion"] | { id: string; example: string; occurrences: number } }>("/api/command", { body: { text: t } });
+      setUnderstood(r.lang !== "en" && r.understoodAs !== t ? r.understoodAs : null);
       setRunId(r.runId);
-      setAck(`Got it. I'll ${r.goal.charAt(0).toLowerCase()}${r.goal.slice(1).replace(/[.]$/, "")} — ${r.steps.length} step${r.steps.length === 1 ? "" : "s"}${r.requiresApproval ? ", I'll ask before anything sensitive" : ""}.`);
+      setAck(
+        r.lang === "en"
+          ? `Got it. I'll ${r.goal.charAt(0).toLowerCase()}${r.goal.slice(1).replace(/[.]$/, "")} — ${r.steps.length} step${r.steps.length === 1 ? "" : "s"}${r.requiresApproval ? ", I'll ask before anything sensitive" : ""}.`
+          : r.reply,
+      );
       if (r.suggestion) setSuggestion({ id: r.suggestion.id, example_command: "example" in r.suggestion ? r.suggestion.example : r.suggestion.example_command, occurrences: r.suggestion.occurrences });
       setText("");
       dash.reload();
@@ -126,7 +134,7 @@ export default function Home() {
             {greeting()}
             {d?.user.name ? `, ${d.user.name}` : ""}.
           </h1>
-          <p className="mt-1 text-sm text-muted">Tell me what you need — I'll plan it, do it, and ask before anything sensitive.</p>
+          <p className="mt-1 text-sm text-muted">{voice?.settings?.name ? <>I'm <b className="text-ink">{voice.settings.name}</b>{voice.settings.urduName ? <span className="urdu mx-1">({voice.settings.urduName})</span> : null}. </> : null}Tell me what you need — in English or Urdu, typed or spoken. I'll plan it, do it, and ask before anything sensitive.</p>
           <form
             className="mt-5"
             onSubmit={(e) => {
@@ -136,6 +144,7 @@ export default function Home() {
           >
             <div className="flex items-end gap-2 rounded-2xl border border-line bg-bg p-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-[var(--ring)]">
               <textarea
+                dir="auto"
                 ref={ref}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -146,10 +155,15 @@ export default function Home() {
                   }
                 }}
                 rows={2}
-                placeholder="What do you want me to do?"
+                placeholder="What do you want me to do?  ·  کیا کرنا ہے؟"
                 aria-label="What do you want me to do?"
                 className="max-h-48 min-h-[3rem] flex-1 resize-none bg-transparent px-2 py-1.5 text-base outline-none placeholder:text-muted/70"
               />
+              {voice?.supported && (
+                <button type="button" onClick={() => voice.listenNow()} aria-label="Speak a command" title={`Talk to ${voice.settings?.name ?? "your assistant"} (English or Urdu)`} className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line text-muted transition hover:border-accent hover:text-accent">
+                  <Mic className="h-5 w-5" />
+                </button>
+              )}
               <button type="submit" disabled={busy} aria-label="Run command" className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-accent-ink shadow-sm transition hover:brightness-110 disabled:opacity-60">
                 {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowUp className="h-5 w-5" />}
               </button>
@@ -167,7 +181,8 @@ export default function Home() {
 
       {ack && runId && (
         <section className="space-y-3">
-          <p className="text-sm font-medium">{ack}</p>
+          <p dir="auto" className={cx("text-sm font-medium", /[\u0600-\u06FF]/.test(ack) && "urdu text-base")}>{ack}</p>
+          {understood && <p className="-mt-2 text-xs text-muted">Understood as: “{understood}”</p>}
           <RunView runId={runId} onChange={dash.reload} />
         </section>
       )}

@@ -9,6 +9,9 @@ import { getTool, staticRisk } from "@/tools/registry";
 import { templateToDraft } from "@/workflows/templates";
 import { stepSchema, type Plan, type WorkflowStep, type WorkflowStepInput } from "@/workflows/types";
 import { detectIntent, type DetectedIntent, type Intent } from "./intent";
+import { getSettings } from "@/lib/settings";
+import { replyLanguageInstruction, type Lang } from "@/services/language";
+import { greetingReply, identityReply } from "@/services/language/replies";
 
 /**
  * TASK PLANNER — turns an intent into a structured, inspectable plan of tool steps.
@@ -83,7 +86,13 @@ async function llmClassify(db: Db, userId: string, text: string): Promise<Detect
   return { intent: r.value.intent as Intent, confidence: 0.6, entities: { topic: r.value.topic, query: r.value.query } };
 }
 
-export async function planCommand(db: Db, userId: string, text: string): Promise<Plan & { projectId: string | null; detected: DetectedIntent }> {
+export async function planCommand(
+  db: Db,
+  userId: string,
+  text: string,
+  opts: { lang?: Lang; original?: string } = {},
+): Promise<Plan & { projectId: string | null; detected: DetectedIntent }> {
+  const lang = opts.lang ?? "en";
   let detected = detectIntent(text);
   if (detected.intent === "general") detected = (await llmClassify(db, userId, text)) ?? detected;
   const { intent, entities: e } = detected;
@@ -94,6 +103,13 @@ export async function planCommand(db: Db, userId: string, text: string): Promise
   let steps: WorkflowStepInput[] = [];
 
   switch (intent) {
+    case "identity":
+    case "greeting": {
+      const name = (await getSettings(db)).assistant.name;
+      goal = intent === "identity" ? "Introduce myself" : "Say hello";
+      steps = [S("say", goal, "assistant_say", { text: intent === "identity" ? identityReply(name, lang) : greetingReply(name, lang) })];
+      break;
+    }
     case "create_automation":
       goal = "Design an automation";
       steps = [S("propose", "Understand the request and design the automation", "automation_propose", { text })];
@@ -285,8 +301,11 @@ export async function planCommand(db: Db, userId: string, text: string): Promise
       steps = [
         S("answer", "Think it through and answer", "text_generate", {
           title: "Answer",
-          instruction: text,
-          fallback: `I couldn't match that to one of my skills, and no AI model is configured to answer free-form questions.\n\n**Things I can do right now:**\n- "Plan my day" · "What should I work on next?" · "Find unfinished tasks"\n- "Remind me tomorrow to finish the report"\n- "Summarize the documents I added today" · "Organize my files"\n- "Research <topic>" · "Create a report about <topic> as PDF"\n- "Create today's Merchants content" · "Create 7 days of content"\n- "Every Monday at 8am, check my unfinished tasks and notify me"\n- "Remember that …" · "Show me today's activity"\n\nTo enable free-form answers at $0, install [Ollama](https://ollama.com) and run \`ollama pull llama3.2\`.`,
+          instruction: `${opts.original ?? text}${replyLanguageInstruction(lang)}`,
+          fallback:
+            lang !== "en"
+              ? URDU_HELP
+              : `I couldn't match that to one of my skills, and no AI model is configured to answer free-form questions.\n\n**Things I can do right now:**\n- "Plan my day" · "What should I work on next?" · "Find unfinished tasks"\n- "Remind me tomorrow to finish the report"\n- "Summarize the documents I added today" · "Organize my files"\n- "Research <topic>" · "Create a report about <topic> as PDF"\n- "Create today's Merchants content" · "Create 7 days of content"\n- "Every Monday at 8am, check my unfinished tasks and notify me"\n- "Remember that …" · "Show me today's activity"\n\nTo enable free-form answers at $0, install [Ollama](https://ollama.com) and run \`ollama pull llama3.2\`.`,
         }),
       ];
   }
@@ -298,3 +317,16 @@ export async function planCommand(db: Db, userId: string, text: string): Promise
   });
   return { goal, intent, steps: parsed, requiresApproval, projectId: project?.id ?? null, detected };
 }
+
+const URDU_HELP = `معاف کیجیے، یہ بات پوری طرح سمجھ نہیں آئی، اور آزاد سوالات کے جواب کے لیے کوئی AI ماڈل ابھی منسلک نہیں ہے۔
+
+**یہ کام ابھی ہو سکتے ہیں:**
+- "میرا دن پلان کرو" · "اب میں کیا کروں؟" · "میرے ادھورے کام دکھاؤ"
+- "کل شام 5 بجے رپورٹ مکمل کرنے کی یاد دلانا"
+- "آج کی دستاویزات کا خلاصہ بناؤ" · "میری فائلیں ترتیب دو"
+- "مصنوعی ذہانت کے بارے میں تحقیق کرو"
+- "Crown Crust Pizza کی پوسٹ بنا کر انسٹاگرام پر لگا دو"
+- "ہر صبح 8 بجے میرا دن پلان کرو اور مجھے بتاؤ"
+- "یاد رکھو کہ …" · "آج کیا کیا؟"
+
+بہتر اردو سمجھنے کے لیے مفت مقامی ماڈل لگائیں: [Ollama](https://ollama.com) → \`ollama pull qwen2.5\``;
