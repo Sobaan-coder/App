@@ -45,17 +45,17 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <form onSubmit={submit} className="space-y-3 rounded-2xl border border-line bg-panel p-5 shadow-card">
           {mode === "signup" && (
             <div>
-              <Label>Name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" />
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" />
             </div>
           )}
           <div>
-            <Label>Email</Label>
-            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
           </div>
           <div>
-            <Label hint={mode === "signup" ? "(10+ characters, mixed)" : undefined}>Password</Label>
-            <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} />
+            <Label htmlFor="password" hint={mode === "signup" ? "(10+ characters, mixed)" : undefined}>Password</Label>
+            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} />
           </div>
           {error && <div className="rounded-xl border border-bad/30 bg-bad/10 px-3 py-2 text-xs text-bad">{error}</div>}
           <Button type="submit" variant="primary" className="w-full" loading={busy}>

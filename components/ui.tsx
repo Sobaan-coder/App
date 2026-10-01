@@ -127,20 +127,23 @@ export function Dot({ tone }: { tone: "ok" | "warn" | "bad" | "muted" }) {
   return <span className={cx("inline-block h-2 w-2 rounded-full", tone === "ok" ? "bg-ok" : tone === "warn" ? "bg-warn" : tone === "bad" ? "bg-bad" : "bg-muted")} />;
 }
 
-const field = "w-full rounded-xl border border-line bg-panel px-3 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-[var(--ring)]";
+const field = "rounded-xl border border-line bg-panel px-3 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-[var(--ring)]";
+
+/** Full width unless the caller sets an explicit width (w-*), so `w-32` isn't overridden by `w-full`. */
+const width = (c?: string) => (c && /(^|\s)(sm:|md:|lg:)?w-/.test(c) ? "" : "w-full");
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={cx(field, "h-10", props.className)} />;
+  return <input {...props} className={cx(field, width(props.className), "h-10", props.className)} />;
 }
 export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea {...props} className={cx(field, "py-2", props.className)} />;
+  return <textarea {...props} className={cx(field, width(props.className), "py-2", props.className)} />;
 }
 export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={cx(field, "h-10 pr-8", props.className)} />;
+  return <select {...props} className={cx(field, width(props.className), "h-10 pr-8", props.className)} />;
 }
-export function Label({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
+export function Label({ children, hint, htmlFor }: { children: ReactNode; hint?: ReactNode; htmlFor?: string }) {
   return (
-    <label className="mb-1 block text-xs font-medium text-muted">
+    <label htmlFor={htmlFor} className="mb-1 block text-xs font-medium text-muted">
       {children}
       {hint && <span className="ml-1 font-normal opacity-80">{hint}</span>}
     </label>
