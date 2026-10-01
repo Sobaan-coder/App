@@ -1,0 +1,19 @@
+{
+  "@@locale": "ar",
+  "appName": "بزنس بايلوت",
+  "navHome": "الرئيسية",
+  "navTransactions": "المعاملات",
+  "navAi": "الذكاء",
+  "navInventory": "المخزون",
+  "navMore": "المزيد",
+  "navSettings": "الإعدادات",
+  "actionSave": "حفظ",
+  "actionCancel": "إلغاء",
+  "actionConfirm": "تأكيد",
+  "aiHeader": "أخبرني بما حدث.",
+  "aiHint": "ماذا حدث؟",
+  "aiDashboardPrompt": "ماذا حدث اليوم؟",
+  "dashSales": "المبيعات",
+  "dashExpenses": "المصروفات",
+  "dashProfit": "الربح"
+}

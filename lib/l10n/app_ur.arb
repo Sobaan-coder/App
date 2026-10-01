@@ -1,0 +1,19 @@
+{
+  "@@locale": "ur",
+  "appName": "بزنس پائلٹ",
+  "navHome": "ہوم",
+  "navTransactions": "لین دین",
+  "navAi": "اے آئی",
+  "navInventory": "اسٹاک",
+  "navMore": "مزید",
+  "navSettings": "ترتیبات",
+  "actionSave": "محفوظ کریں",
+  "actionCancel": "منسوخ",
+  "actionConfirm": "تصدیق کریں",
+  "aiHeader": "بتائیں کیا ہوا؟",
+  "aiHint": "کیا ہوا؟",
+  "aiDashboardPrompt": "آج کیا ہوا؟",
+  "dashSales": "فروخت",
+  "dashExpenses": "اخراجات",
+  "dashProfit": "منافع"
+}
