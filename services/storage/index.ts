@@ -77,13 +77,13 @@ export function safeFileName(name: string): string {
 }
 
 function root(): string {
-  return path.resolve(process.cwd(), env().STORAGE_DIR);
+  return path.resolve(/* turbopackIgnore: true */ process.cwd(), env().STORAGE_DIR);
 }
 
 /** Absolute path for a storage-relative path, refusing anything that escapes the storage root. */
 export function absolutePath(storagePath: string): string {
   const r = root();
-  const abs = path.resolve(r, storagePath);
+  const abs = path.resolve(/* turbopackIgnore: true */ r, storagePath);
   if (abs !== r && !abs.startsWith(r + path.sep)) throw new AppError("Invalid file path", 400, "bad_path");
   return abs;
 }

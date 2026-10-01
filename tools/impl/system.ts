@@ -211,7 +211,7 @@ export const shellCommand = defineTool({
   describe: (i) => `Run shell command: ${i.command}`,
   async execute(i) {
     if (!env().SHELL_COMMANDS_ENABLED) throw new AppError("The shell_command tool is disabled. Set SHELL_COMMANDS_ENABLED=true in .env to allow it.");
-    const cwd = path.resolve(process.cwd(), env().STORAGE_DIR);
+    const cwd = path.resolve(/* turbopackIgnore: true */ process.cwd(), env().STORAGE_DIR);
     const { stdout, stderr } = await run("sh", ["-c", i.command], { cwd, timeout: 30_000, maxBuffer: 1024 * 1024 });
     return { stdout: stdout.slice(0, 10_000), stderr: stderr.slice(0, 5000), summary: "Command finished", markdown: "```\n" + (stdout || stderr).slice(0, 4000) + "\n```" };
   },

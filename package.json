@@ -2,7 +2,7 @@
   "name": "ai-command-center",
   "version": "0.1.0",
   "private": true,
-  "description": "MY AI COMMAND CENTER — a $0-first personal AI automation OS with a built-in social Content Studio.",
+  "description": "MY AI COMMAND CENTER \u2014 a $0-first personal AI automation OS with a built-in social Content Studio.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -18,7 +18,8 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run typecheck && npm test && npm run build",
+    "worker:once": "tsx workers/once.ts"
   },
   "engines": {
     "node": ">=20"

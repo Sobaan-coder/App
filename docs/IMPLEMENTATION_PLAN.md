@@ -65,3 +65,16 @@ Each phase: implement → typecheck/build → test → fix → continue.
 
 Voice, WhatsApp (only via official Cloud API later), CRM/accounting/POS, smart home, native apps
 (PWA manifest provided). Integrations are added by dropping a module into `integrations/`.
+
+## Status (2026-10-01)
+
+All 14 phases implemented. Verification:
+
+- `npm run typecheck` — clean
+- `npm test` — 107 unit + integration tests (real Postgres: RLS isolation, auth, engine, approvals, scheduler, events, content pipeline)
+- `npm run test:e2e` — 8 Playwright flows (sign-up/onboarding, command → plan → result, project + task, NL automation create/pause/resume/run, content approve & publish → manual packages, reject in Approval Center, document upload + processing, mobile layout)
+- `npm run build` — production build succeeds
+
+Known gaps / next steps: file storage is local disk (Supabase Storage adapter for serverless hosts);
+OAuth publishing paths are implemented against the official APIs but could not be exercised end-to-end
+without real app credentials; voice, WhatsApp (official API) and native wrappers are future work.
