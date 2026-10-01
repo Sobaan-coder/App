@@ -38,7 +38,9 @@ export function renderBrandCardSvg(req: ImageRequest): string {
   const accent = validHex(brand.colors[2], "#f5b041");
   const title = product?.name ?? brand.name;
   const titleLines = wrap(title.toUpperCase(), W > 1000 && H > 1500 ? 14 : 16, 3);
-  const fs = Math.round(W / 11);
+  // shrink the headline so the longest line always fits (bold sans ≈ 0.78em per uppercase glyph)
+  const longest = Math.max(...titleLines.map((l) => l.length), 1);
+  const fs = Math.round(Math.min(W / 11, (W * 0.82) / (longest * 0.78)));
   const cy = H * 0.52;
   const offer = product?.special_offer?.trim();
   const price =

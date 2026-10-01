@@ -256,7 +256,7 @@ export const scheduleGenerate = defineTool({
       `_Work hours ${profile.work_start}–${profile.work_end} (${profile.timezone}). Change them in Settings._`,
     ]
       .filter((l) => l !== "")
-      .join("\n");
+      .join("\n\n");
     return { blocks, unscheduled, markdown: md, summary: `${blocks.filter((b) => b.kind === "task").length} tasks scheduled, ${unscheduled.length} left over` };
   },
 });

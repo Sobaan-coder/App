@@ -52,7 +52,7 @@ export function ApprovalCard({ a, onDone, compact }: { a: ApprovalItem; onDone?:
   };
 
   return (
-    <div className={cx("rounded-2xl border p-4", high ? "border-bad/40 bg-bad/5" : "border-warn/40 bg-warn/5")}>
+    <div className={cx("min-w-0 overflow-hidden rounded-2xl border p-4", high ? "border-bad/40 bg-bad/5" : "border-warn/40 bg-warn/5")}>
       <div className="flex items-start gap-3">
         <div className={cx("rounded-xl p-2", high ? "bg-bad/15 text-bad" : "bg-warn/15 text-warn")}>{high ? <ShieldAlert className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}</div>
         <div className="min-w-0 flex-1">
@@ -62,7 +62,7 @@ export function ApprovalCard({ a, onDone, compact }: { a: ApprovalItem; onDone?:
             {a.tool_name && <Badge>{a.tool_name}</Badge>}
             <span className="text-[11px] text-muted">{timeAgo(a.created_at)}</span>
           </div>
-          <div className="mt-1 text-sm font-semibold break-words">AI wants to: {a.title}</div>
+          <div className="mt-1 text-sm font-semibold [overflow-wrap:anywhere]">AI wants to: {a.title}</div>
           {!compact && <div className="mt-0.5 text-xs text-muted">Reason: {a.reason}</div>}
           {view && (
             <pre className="mt-3 max-h-64 overflow-auto rounded-xl bg-panel-2 p-3 text-[11px] scrollbar-thin">{JSON.stringify(a.payload ?? {}, null, 2)}</pre>

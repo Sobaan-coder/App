@@ -266,7 +266,8 @@ export async function advanceRun(runId: string): Promise<void> {
     }
     if (mode === "disabled") return failRun(db, run, i, step, ctx, `The tool "${tool.name}" is disabled in your settings.`, log);
     if ((mode === "approval" || mode === "confirm") && decision?.status !== "approved") {
-      const desc = tool.describe && parsedInput.success ? tool.describe(parsedInput.data) : step.action;
+      let desc = tool.describe && parsedInput.success ? tool.describe(parsedInput.data) : step.action;
+      if (tool.describeAsync && parsedInput.success) desc = await tool.describeAsync(parsedInput.data, toolCtx).catch(() => desc);
       await requestApproval(
         db,
         run,

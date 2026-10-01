@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, CheckSquare, ChevronRight, Clock, FileSearch, FolderSync, Lightbulb, ListTodo, Megaphone, Repeat, Search, ShieldCheck, Sparkles, Sun, Workflow } from "lucide-react";
+import { Loader2, ArrowUp, CheckSquare, ChevronRight, Clock, FileSearch, FolderSync, Lightbulb, ListTodo, Megaphone, Repeat, Search, ShieldCheck, Sparkles, Sun, Workflow } from "lucide-react";
 import { api, fmtDate, timeAgo, useApi } from "@/lib/client";
 import { RunView } from "@/components/run-view";
 import { ApprovalCard, type ApprovalItem } from "@/components/approval-card";
@@ -150,9 +150,9 @@ export default function Home() {
                 aria-label="What do you want me to do?"
                 className="max-h-48 min-h-[3rem] flex-1 resize-none bg-transparent px-2 py-1.5 text-base outline-none placeholder:text-muted/70"
               />
-              <Button type="submit" variant="primary" size="lg" loading={busy} className="h-11 w-11 shrink-0 rounded-xl px-0" aria-label="Run command">
-                {!busy && <ArrowUp className="h-5 w-5" />}
-              </Button>
+              <button type="submit" disabled={busy} aria-label="Run command" className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-accent-ink shadow-sm transition hover:brightness-110 disabled:opacity-60">
+                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowUp className="h-5 w-5" />}
+              </button>
             </div>
           </form>
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
@@ -297,7 +297,7 @@ export default function Home() {
             <ol className="relative space-y-3 px-4 pb-4 sm:px-5">
               {d?.activity.map((a) => (
                 <li key={a.id} className="flex gap-3 text-xs">
-                  <span className="w-12 shrink-0 pt-0.5 text-[11px] text-muted tabular-nums">{new Date(a.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                  <span className="w-16 shrink-0 pt-0.5 text-[11px] whitespace-nowrap text-muted tabular-nums">{new Date(a.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                   <span className={cx("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", a.status === "error" ? "bg-bad" : a.status === "warning" ? "bg-warn" : a.status === "success" ? "bg-ok" : "bg-muted")} />
                   {a.run_id ? (
                     <Link href={`/runs/${a.run_id}`} className="min-w-0 flex-1 break-words hover:underline">

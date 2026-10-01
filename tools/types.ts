@@ -35,6 +35,8 @@ export interface ToolDefinition<I = any, O extends ToolOutputBase = any> {
   timeoutMs?: number;
   /** One-line description of what this call will do — shown on approval cards. */
   describe?: (input: I) => string;
+  /** Richer approval-card text that may look things up (e.g. the post title). */
+  describeAsync?: (input: I, ctx: ToolContext) => Promise<string>;
   /** Post-execution verification; return an error message if the result looks wrong. */
   verify?: (output: O, input: I) => string | null;
   /**

@@ -53,6 +53,11 @@ export const socialPublish = defineTool({
   timeoutMs: 900_000,
   input: z.object({ postId: z.string().uuid(), platforms: z.array(platformEnum).optional() }),
   describe: (i) => `Publish post ${i.postId}${i.platforms?.length ? ` to ${i.platforms.map((p) => PLATFORM_LIMITS[p].label).join(", ")}` : ""}`,
+  async describeAsync(i, ctx) {
+    const post = await ctx.db.one<ContentPost>("select * from content_posts where id = $1", [i.postId]);
+    const targets = (i.platforms?.length ? i.platforms : (post?.platforms ?? [])).map((p) => PLATFORM_LIMITS[p].label);
+    return `Publish “${post?.title ?? "post"}” to ${targets.join(", ")}`;
+  },
   /** AUTO MODE: only when enabled in Settings, the brand already has a published post, and every target account allows auto-publish. */
   async autoApprove(i, ctx) {
     if (!ctx.settings.content.autoPublish) return false;
