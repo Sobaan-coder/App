@@ -118,6 +118,8 @@ export interface StartRunInput {
   projectId?: string | null;
   triggerData?: Record<string, unknown> | null;
   commandText?: string | null;
+  /** Don't enqueue yet (caller enqueues after preparing e.g. a pre-approval). */
+  defer?: boolean;
 }
 
 /** Create a run and put it on the queue. */
@@ -130,7 +132,7 @@ export async function startRun(input: StartRunInput): Promise<string> {
       [input.userId, input.automationId ?? null, input.projectId ?? null, input.source, input.title.slice(0, 200), input.commandText ?? null, input.plan.intent, JSON.stringify({ ...input.plan, steps }), input.triggerData ? JSON.stringify(input.triggerData) : null],
     ),
   );
-  await enqueue("run.advance", { runId: run!.id }, { userId: input.userId });
+  if (!input.defer) await enqueue("run.advance", { runId: run!.id }, { userId: input.userId });
   return run!.id;
 }
 

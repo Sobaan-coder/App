@@ -4,7 +4,6 @@ import { AppError } from "@/lib/errors";
 import { logActivity } from "@/lib/activity";
 import { CONFIRM_PHRASE } from "@/lib/permissions";
 import { getTool } from "@/tools/registry";
-import { resumeAfterDecision } from "@/workflows/engine";
 
 export const decisionSchema = z.object({
   decision: z.enum(["approve", "reject"]),
@@ -63,6 +62,6 @@ export async function decideApproval(db: Db, userId: string, id: string, raw: un
     message: `${d.decision === "approve" ? "You approved" : "You rejected"}: ${a.title}${edited ? " (edited)" : ""}`,
     details: { approvalId: id, note: d.note },
   });
-  if (a.run_id) await resumeAfterDecision(a.run_id, userId);
-  return { status: d.decision === "approve" ? "approved" : "rejected" };
+  // NOTE: the caller must resume the run (resumeAfterDecision) AFTER this transaction commits.
+  return { status: d.decision === "approve" ? "approved" : "rejected", runId: a.run_id };
 }
