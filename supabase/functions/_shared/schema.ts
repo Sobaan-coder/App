@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'npm:zod@3.23.8';
 
 // Strict schema for what the transaction parser (LLM or deterministic) may
 // return. Anything that does not validate is rejected — model output is never

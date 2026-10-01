@@ -1,7 +1,7 @@
 // supabase-js implementations of the resolver/query data interfaces.
 // All calls run with the USER's JWT so tenant isolation is enforced by Postgres.
 
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from 'npm:@supabase/supabase-js@2.45.4';
 import { fromDbError } from './http.ts';
 import { EntityMatch, ResolverDb } from './resolver.ts';
 import { QueryDb } from './queries.ts';

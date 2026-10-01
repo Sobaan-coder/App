@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "bash scripts/build_web.sh",
+  "outputDirectory": "public",
+  "installCommand": "echo 'Flutter is installed by scripts/build_web.sh'",
+  "redirects": [
+    { "source": "/login", "destination": "/app/login", "permanent": false },
+    { "source": "/signup", "destination": "/app/signup", "permanent": false }
+  ],
+  "rewrites": [{ "source": "/app/:path*", "destination": "/app/index.html" }],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(), geolocation=()" }
+      ]
+    }
+  ]
+}

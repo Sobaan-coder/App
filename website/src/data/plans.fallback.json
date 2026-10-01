@@ -1,0 +1,11 @@
+[
+  { "id": "free", "name": "Free", "description": "For trying BusinessPilot and very small shops.", "price_monthly_minor": 0, "price_currency": "USD",
+    "max_transactions_per_month": 100, "max_products": 20, "max_users": 1, "ai_requests_per_month": 30,
+    "features": { "ai_assistant": true, "reports": "basic", "pdf_invoices": false } },
+  { "id": "pro", "name": "Pro", "description": "Unlimited records, AI assistant, reports and invoices.", "price_monthly_minor": 999, "price_currency": "USD",
+    "max_transactions_per_month": null, "max_products": null, "max_users": 5, "ai_requests_per_month": 1000,
+    "features": { "ai_assistant": true, "reports": "full", "pdf_invoices": true } },
+  { "id": "business", "name": "Business", "description": "Multiple branches, larger teams and advanced reports.", "price_monthly_minor": 2999, "price_currency": "USD",
+    "max_transactions_per_month": null, "max_products": null, "max_users": null, "ai_requests_per_month": 5000,
+    "features": { "ai_assistant": true, "reports": "advanced", "pdf_invoices": true, "multi_branch": true, "api_access": true } }
+]

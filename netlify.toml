@@ -1,0 +1,43 @@
+# Netlify: marketing site at /, Flutter web app at /app/.
+# Set SUPABASE_URL and SUPABASE_ANON_KEY in Site settings → Environment variables.
+[build]
+  command = "bash scripts/build_web.sh"
+  publish = "public"
+
+[build.environment]
+  NODE_VERSION = "22"
+  FLUTTER_VERSION = "3.35.5"
+  APP_ENV = "production"
+
+# Friendly auth shortcuts
+[[redirects]]
+  from = "/login"
+  to = "/app/login"
+  status = 302
+[[redirects]]
+  from = "/signup"
+  to = "/app/signup"
+  status = 302
+
+# Flutter SPA routing: deep links like /app/transactions/123 load the app shell.
+[[redirects]]
+  from = "/app/*"
+  to = "/app/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+[[headers]]
+  for = "/app/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/app/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

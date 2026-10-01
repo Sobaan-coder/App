@@ -1,0 +1,54 @@
+# Supabase CLI configuration (local development: `supabase start`).
+project_id = "businesspilot"
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[db.seed]
+enabled = false   # plans & settings are seeded by migration 005; demo data is created per user on demand
+
+[auth]
+site_url = "http://localhost:3000/"
+additional_redirect_urls = ["http://localhost:3000/**", "com.businesspilot.app://login-callback", "https://businesspilot.app/app/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+double_confirm_changes = true
+
+[auth.external.google]
+enabled = false
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+
+[storage]
+file_size_limit = "10MiB"
+
+[edge_runtime]
+policy = "per_worker"
+
+# JWT-verified (called by signed-in users)
+[functions.ai-process]
+verify_jwt = true
+[functions.ai-query]
+verify_jwt = true
+[functions.generate-invoice]
+verify_jwt = true
+[functions.admin-actions]
+verify_jwt = true
+
+# Called by payment providers / scheduler: authenticated by signature / secret instead.
+[functions.subscription-webhook]
+verify_jwt = false
+[functions.send-notification]
+verify_jwt = false
