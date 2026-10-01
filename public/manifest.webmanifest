@@ -1,0 +1,10 @@
+{
+  "name": "My AI Command Center",
+  "short_name": "Command Center",
+  "description": "Tell it what you need, and it handles the work.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0b10",
+  "theme_color": "#6d4aff",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

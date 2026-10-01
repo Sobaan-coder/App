@@ -31,13 +31,14 @@ export const GET = route({}, async ({ user }) => {
 
 /** Set a per-user permission override. HIGH-risk tools can't be relaxed below "confirm". */
 export const PUT = route({ rateLimit: 60 }, async ({ req, user }) => {
-  const p = await body(req, z.object({ tool: z.string(), mode: z.enum(["auto", "approval", "confirm", "disabled"]).nullable(), enabledGlobally: z.boolean().optional() }));
+  const p = await body(req, z.object({ tool: z.string(), mode: z.enum(["auto", "approval", "confirm", "disabled"]).nullable().optional(), enabledGlobally: z.boolean().optional() }));
   const tool = getTool(p.tool);
   if (!tool) throw new AppError("Unknown tool", 404);
   if (p.enabledGlobally !== undefined) {
     if (user.role !== "admin") throw new AppError("Only admins can enable/disable tools globally", 403);
     await sql.query("update tools set enabled = $2 where name = $1", [p.tool, p.enabledGlobally]);
   }
+  if (p.mode === undefined) return { ok: true };
   await withUser(user.id, async (db) => {
     if (p.mode === null) await db.query("delete from tool_permissions where tool_name = $1", [p.tool]);
     else
