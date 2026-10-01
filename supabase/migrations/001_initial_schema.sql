@@ -132,7 +132,7 @@ create table public.business_invitations (
 
 create table public.business_settings (
   business_id                 uuid primary key references public.businesses (id) on delete cascade,
-  ai_auto_record_low_risk     boolean not null default true,
+  ai_auto_record_low_risk     boolean not null default false,  -- owners can opt in to instant recording
   ai_confirm_threshold_minor  bigint  not null default 2000000,  -- above this amount AI always asks
   low_stock_alerts            boolean not null default true,
   daily_summary               boolean not null default true,

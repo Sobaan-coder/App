@@ -237,8 +237,8 @@ select public.record_transaction(jsonb_build_object('business_id', :'biz_a', 'ty
 select public.soft_delete_transaction((:'emp_tx'::jsonb ->> 'id')::uuid, 'undo');  -- own entry, within 10 minutes
 select test.throws(format($$select public.soft_delete_transaction(%L)$$, :'sale2'::jsonb ->> 'id'),
   'forbidden', 'employee cannot delete others'' transactions');
-update public.business_settings set ai_auto_record_low_risk = false where business_id = :'biz_a';
-select test.eq((select ai_auto_record_low_risk from public.business_settings where business_id = :'biz_a'), true,
+update public.business_settings set ai_auto_record_low_risk = true where business_id = :'biz_a';
+select test.eq((select ai_auto_record_low_risk from public.business_settings where business_id = :'biz_a'), false,
   'employee cannot change owner-only settings');
 update public.products set selling_price_minor = 1 where id = :'burger';   -- filtered by RLS
 select test.eq((select selling_price_minor from public.products where id = :'burger'), 50000::bigint, 'price unchanged');
