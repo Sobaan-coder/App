@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/app_failure.dart';
 import '../../../core/services/supabase_service.dart';
@@ -17,13 +18,13 @@ final isPlatformAdminProvider = FutureProvider<bool>((ref) async {
   }
 });
 
-Future<Map<String, dynamic>> adminAction(Ref ref, String action, [Map<String, dynamic> params = const {}]) async {
+Future<Map<String, dynamic>> adminAction(SupabaseClient client, String action, [Map<String, dynamic> params = const {}]) async {
   try {
-    final res = await ref.supabase.functions.invoke('admin-actions', body: {'action': action, ...params});
+    final res = await client.functions.invoke('admin-actions', body: {'action': action, ...params});
     return Map<String, dynamic>.from(res.data as Map);
   } catch (e) {
     throw AppFailure.from(e);
   }
 }
 
-final adminDataProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, action) => adminAction(ref, action));
+final adminDataProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, action) => adminAction(ref.supabase, action));

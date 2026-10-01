@@ -77,3 +77,19 @@ final currentUserProvider = Provider<User?>((ref) {
   ref.watch(authStateProvider);
   return ref.watch(supabaseClientProvider)?.auth.currentUser;
 });
+
+/// True after the user opened a password-reset link (until they set a new password).
+class PasswordRecovery extends Notifier<bool> {
+  @override
+  bool build() {
+    ref.listen(authStateProvider, (_, next) {
+      if (next.value?.event == AuthChangeEvent.passwordRecovery) state = true;
+      if (next.value?.event == AuthChangeEvent.signedOut) state = false;
+    });
+    return false;
+  }
+
+  void done() => state = false;
+}
+
+final passwordRecoveryProvider = NotifierProvider<PasswordRecovery, bool>(PasswordRecovery.new);

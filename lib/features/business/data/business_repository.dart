@@ -6,6 +6,7 @@ import '../../../core/errors/app_failure.dart';
 import '../../../core/services/local_store.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../products/domain/product.dart';
 import '../domain/business.dart';
 
 class BusinessRepository {
@@ -150,3 +151,19 @@ final businessProvider = Provider<ActiveBusiness>((ref) {
   if (b == null) throw StateError('No active business');
   return b;
 });
+
+extension OnboardingProduct on BusinessRepository {
+  /// Used during onboarding before the business becomes the active one.
+  Future<void> createFirstProduct(String businessId, Product p, double openingStock) async {
+    try {
+      final row = await _client.from('products').insert({...p.toWritableJson(), 'business_id': businessId}).select('id').single();
+      if (openingStock > 0) {
+        await _client.rpc('adjust_inventory', params: {
+          'p_product_id': row['id'], 'p_type': 'opening', 'p_quantity_change': openingStock, 'p_note': 'Opening stock',
+        });
+      }
+    } catch (e) {
+      throw AppFailure.from(e);
+    }
+  }
+}
