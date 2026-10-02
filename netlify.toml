@@ -1,0 +1,10 @@
+# Netlify deploys Next.js with its OpenNext adapter (installed automatically):
+# pages, server actions, route handlers, middleware and after() all work unchanged.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Keep Playwright (dev-only) from downloading browsers during the build.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"

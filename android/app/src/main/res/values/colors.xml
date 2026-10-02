@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Match theme_color and background_color in app/manifest.ts -->
+<resources>
+    <color name="colorPrimary">#4F46E5</color>
+    <color name="navigationColor">#FFFFFF</color>
+    <color name="backgroundColor">#F8F8FC</color>
+</resources>
